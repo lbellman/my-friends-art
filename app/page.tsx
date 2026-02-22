@@ -1,11 +1,7 @@
+import Button from "@/components/atoms/button/Button";
 import Link from "@/components/atoms/link/Link";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from "@/components/ui/card";
+
+import Card from "@/components/molecules/card/Card";
 import Image from "next/image";
 
 // Paste your Figma embed URL here (Share → Embed in Figma)
@@ -54,53 +50,88 @@ export default function Home() {
       <section className="relative z-10 pt-10 px-4 pb-12 md:px-6">
         <div className="mx-auto max-w-2xl">
           <Card
-            className="p-8 animate-fade-up opacity-0 "
-            style={{ animationDelay: "700ms" }}
+            title="Stay Tuned!"
+            description="I am actively working on this project and will be pushing updates regularly."
           >
-            <CardHeader>
-              <CardTitle className="text-center text-3xl">
-                Stay Tuned!
-              </CardTitle>
-              <CardDescription className="text-center text-base">
-                I am actively working on this project and will be pushing
-                updates regularly.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-4 border-t">
-              <p className="text-center text-sm tracking-wide ">
-                Refer to the{" "}
-                <Link
-                  href="https://github.com/lbellman/my-friends-art"
-                  blankTarget
-                  inline
-                >
-                  Github Repository
-                </Link>{" "}
-                for detailed issue tickets and dev updates 💻
-              </p>
-              <p className="text-center text-sm tracking-wide ">
-                Refer to the{" "}
-                <Link
-                  href="https://www.figma.com/design/wRrelj2lS04Bm5VrOwfsm7/My-Friend-s-Art?node-id=23-691&t=MZ64ZTwSrVYanSp8-1"
-                  blankTarget
-                  inline
-                >
-                  Figma Board
-                </Link>{" "}
-                to explore the brand identity and planned designs 🎨
-              </p>
-              <p className="text-center text-sm tracking-wide ">
-                Checkout the{" "}
-                <Link
-                  href="https://www.figma.com/design/wRrelj2lS04Bm5VrOwfsm7/My-Friend-s-Art?node-id=23-691&t=MZ64ZTwSrVYanSp8-1"
-                  blankTarget
-                  inline
-                >
-                  Storybook Project
-                </Link>{" "}
-                to explore the component library and design system 📚
-              </p>
-            </CardContent>
+            <div className="w-full flex flex-col ">
+              {/* GitHub */}
+              <div className="flex flex-col gap-2 border-b border-border pb-6 last:border-0 last:pb-0">
+                <div className="flex items-center gap-2">
+                  <Image
+                    src="/github-logo.svg"
+                    alt=""
+                    width={24}
+                    height={24}
+                    className="size-6 shrink-0 object-contain"
+                    aria-hidden
+                  />
+                  <p className="font-semibold text-center">GitHub</p>
+                </div>
+                <p className="text-sm tracking-wide text-muted-foreground">
+                  Refer to the{" "}
+                  <Link
+                    href="https://github.com/lbellman/my-friends-art"
+                    blankTarget
+                    inline
+                  >
+                    Github repository
+                  </Link>{" "}
+                  for issue tickets and dev updates.
+                </p>
+              </div>
+
+              {/* Figma */}
+              <div className="flex flex-col gap-2 border-b pt-4 border-border pb-6 last:border-0 last:pb-0">
+                <div className="flex items-center gap-2">
+                  <Image
+                    src="/figma-logo.svg"
+                    alt=""
+                    width={24}
+                    height={24}
+                    className="size-6 shrink-0 object-contain"
+                    aria-hidden
+                  />
+                  <p className="font-semibold">Figma</p>
+                </div>
+                <p className="text-sm tracking-wide text-muted-foreground">
+                  Explore the{" "}
+                  <Link
+                    href="https://www.figma.com/design/wRrelj2lS04Bm5VrOwfsm7/My-Friend-s-Art?node-id=23-691&t=MZ64ZTwSrVYanSp8-1"
+                    blankTarget
+                    inline
+                  >
+                    Figma board
+                  </Link>{" "}
+                  for brand identity and planned designs.
+                </p>
+              </div>
+
+              {/* Storybook */}
+              <div className="flex flex-col gap-2 pt-4">
+                <div className="flex items-center gap-2">
+                  <Image
+                    src="/storybook-logo.svg"
+                    alt=""
+                    width={24}
+                    height={24}
+                    className="size-6 shrink-0 object-contain"
+                    aria-hidden
+                  />
+                  <p className="font-semibold">Storybook</p>
+                </div>
+                <p className="text-sm tracking-wide text-muted-foreground">
+                  Check out the{" "}
+                  <Link
+                    href="https://my-friends-art-git-7-storybook-e11211-lindsey-bellmans-projects.vercel.app"
+                    blankTarget
+                    inline
+                  >
+                    Storybook project
+                  </Link>{" "}
+                  to explore the component library and design system.
+                </p>
+              </div>
+            </div>
           </Card>
         </div>
       </section>

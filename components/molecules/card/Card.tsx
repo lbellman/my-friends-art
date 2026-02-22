@@ -57,7 +57,7 @@ export default function Card({
       {footerContent && (
         <CardFooter
           className={
-            justify === "centered" ? "flex items-center justify-center" : ""
+            justify === "centered" ? "flex items-center justify-center" : "justify-start"
           }
         >
           {footerContent}
