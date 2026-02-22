@@ -1,0 +1,91 @@
+import { Meta, ColorItem, ColorPalette } from '@storybook/addon-docs/blocks'
+
+<Meta title="App/Colors"/>
+
+<ColorPalette>
+  <ColorItem
+    title="Background"
+    subtitle="The background color"
+    colors={{
+      main: "var(--background)"
+    }}
+  />
+  <ColorItem
+    title="Text Foreground"
+    colors={{
+      main: "var(--foreground)"
+    }}
+    subtitle="Main text color"
+  />
+  <ColorItem
+    title="Primary"
+    subtitle="The primary color"
+    colors={{
+      default: "var(--primary)",
+      hover: "var(--primary-hover)",
+      "foreground-text": "var(--primary-foreground)",
+    }}
+  />
+  <ColorItem
+    title="Secondary"
+    subtitle="The secondary color"
+    colors={{
+      default: "var(--secondary)",
+      hover: "var(--secondary-hover)",
+      "foreground-text": "var(--secondary-foreground)",
+    }}
+  />
+  <ColorItem
+    title="Muted"
+    subtitle="The muted color"
+    colors={{
+      default: "var(--muted)",
+      "foreground-text": "var(--muted-foreground)",
+    }}
+  />
+  <ColorItem
+    title="Destructive"
+    subtitle="The error color"
+    colors={{
+      default: "var(--destructive)",
+      "foreground-text": "var(--destructive-foreground)",
+    }}
+  />
+  <ColorItem
+    title="Warning"
+    subtitle="The warning color"
+    colors={{
+      default: "var(--warning)",
+      "foreground-text": "var(--warning-foreground)",
+    }}
+  />
+  <ColorItem
+    title="Success"
+    subtitle="The success color"
+    colors={{
+      default: "var(--success)",
+      "foreground-text": "var(--success-foreground)",
+    }}
+  />
+  <ColorItem
+    title="Border"
+    subtitle="The border color"
+    colors={{
+      default: "var(--border)",
+    }}
+  />
+  <ColorItem
+    title="Input"
+    subtitle="The input color"
+    colors={{
+      default: "var(--input)",
+    }}
+  />
+  <ColorItem
+    title="Ring"
+    subtitle="The ring color"
+    colors={{
+      default: "var(--ring)",
+    }}
+  />
+</ColorPalette>
