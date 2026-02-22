@@ -2,7 +2,7 @@ import Link from "@/components/atoms/Link";
 
 export default function Footer() {
   return (
-    <footer className="bg-secondary/15 backdrop-blur-md border-t border-secondary py-12 px-6">
+    <footer className="bg-secondary/20 backdrop-blur-lg border-t border-secondary py-12 px-6">
       <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
           {/* Brand */}
