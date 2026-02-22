@@ -89,6 +89,17 @@ export default function Home() {
                 </Link>{" "}
                 to explore the brand identity and planned designs 🎨
               </p>
+              <p className="text-center text-sm tracking-wide ">
+                Checkout the{" "}
+                <Link
+                  href="https://www.figma.com/design/wRrelj2lS04Bm5VrOwfsm7/My-Friend-s-Art?node-id=23-691&t=MZ64ZTwSrVYanSp8-1"
+                  blankTarget
+                  inline
+                >
+                  Storybook Project
+                </Link>{" "}
+                to explore the component library and design system 📚
+              </p>
             </CardContent>
           </Card>
         </div>

@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import Button from "@/components/atoms/button/Button";
-import Card from "@/components/atoms/card/Card";
+import Card from "@/components/molecules/card/Card";
 import { CheckCircle2 } from "lucide-react";
 
 const meta: Meta<typeof Card> = {
-  title: "Components/atoms/Card",
+  title: "Components/molecules/Card",
   component: Card,
   tags: ["autodocs"],
   parameters: {
