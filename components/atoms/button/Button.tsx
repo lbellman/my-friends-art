@@ -3,8 +3,8 @@ import { Button as ShadButton } from "@/components/ui/button";
 type ButtonVariantType = "primary" | "secondary" | "destructive";
 
 interface ButtonProps {
-  variant: ButtonVariantType;
-  size: "xs" | "sm" | "default" | "lg";
+  variant?: ButtonVariantType;
+  size?: "xs" | "sm" | "default" | "lg";
   disabled?: boolean;
   onClick: () => void;
   label?: string;
