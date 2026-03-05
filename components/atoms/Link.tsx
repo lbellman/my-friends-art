@@ -27,7 +27,7 @@ export default function Link({
         disabled && "text-muted-foreground pointer-events-none",
         inline
           ? "text-primary-foreground"
-          : "text-muted-foreground hover:text-foreground ",
+          : "text-foreground hover:text-primary ",
       )}
       aria-label={ariaLabel}
       target={blankTarget ? "_blank" : undefined}

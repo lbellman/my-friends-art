@@ -2,7 +2,7 @@ import Link from "@/components/atoms/Link";
 
 export default function Footer() {
   return (
-    <footer className="bg-secondary/20 backdrop-blur-lg border-t border-secondary py-12 px-6">
+    <footer className="bg-background/20 backdrop-blur-lg border-t  py-16 px-6">
       <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
           {/* Brand */}
@@ -21,12 +21,10 @@ export default function Footer() {
             <div className="flex flex-col gap-3 items-start">
               <Link href="/">Home</Link>
               <Link href="/about">About</Link>
-              <Link href="/" disabled>
-                Our Artists
-              </Link>
-              <Link href="/" disabled>
+              <Link href="/artists">Our Artists</Link>
+              {/* <Link href="/" disabled>
                 Become an Artist
-              </Link>
+              </Link> */}
             </div>
           </div>
 
