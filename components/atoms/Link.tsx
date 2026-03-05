@@ -22,7 +22,7 @@ export default function Link({
     <NextLink
       href={href}
       className={cn(
-        "relative flex items-center gap-2 tracking-wide text-sm transition-colors duration-500",
+        "relative inline-block tracking-wide text-sm transition-colors duration-500",
 
         disabled && "text-muted-foreground pointer-events-none",
         inline

@@ -124,8 +124,10 @@ export default function ArtDetailPage() {
         <div className="flex-1 flex flex-col flex-nowrap">
           {/* Back button */}
           <Link href="/" ariaLabel="Back to home">
-            <ArrowLeftIcon className="w-4 h-4" />
-            Back to Gallery
+            <div className="flex items-center gap-2">
+              <ArrowLeftIcon className="w-4 h-4" />
+              Back to Gallery
+            </div>
           </Link>
           <div className="mt-6">
             {isLoadingArtPiece ? (
