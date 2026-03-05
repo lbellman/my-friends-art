@@ -8,7 +8,7 @@ interface ArtCardProps {
 
 export function ArtCard({ artPiece }: ArtCardProps) {
   return (
-    <Link href={`/${artPiece.id}`} noUnderline>
+    <Link href={`/${artPiece.id}`}>
       <div className="group">
         <div
           className={` relative overflow-hidden rounded-xl aspect-3/4 mb-4 transition-all duration-300 ease-out group-hover:shadow-xl group-hover:-translate-y-1`}
