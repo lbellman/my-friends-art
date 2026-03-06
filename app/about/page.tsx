@@ -1,71 +1,199 @@
+import Link from "@/components/atoms/Link";
+import { Button } from "@/components/ui/button";
+import { ExternalLink } from "lucide-react";
 import Image from "next/image";
+
+function Stage({
+  title,
+  description,
+  current,
+  stageNumber,
+  animationDelay,
+}: {
+  title: string;
+  description: React.ReactNode;
+  current: boolean;
+  stageNumber: number;
+  animationDelay: string;
+}) {
+  return (
+    <section
+      className={`w-full rounded-2xl border px-8 py-10 md:px-12 md:py-14 flex flex-col gap-8 transition-colors backdrop-blur-xl opacity-0 animate-fade-up ${
+        current
+          ? "border-white/50 bg-white/10 shadow-lg shadow-black/20"
+          : "border-white/30 bg-white/16 shadow-md shadow-black/5"
+      } `}
+      style={{ animationDelay: animationDelay }}
+    >
+      <div className="flex flex-wrap items-center gap-4 md:gap-6">
+        <span
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full border  bg-white/10 backdrop-blur-sm font-display text-2xl font-medium  border-white/30 text-white `}
+        >
+          {stageNumber}
+        </span>
+        <div className="flex justify-between items-center gap-6 min-w-0">
+          <h2 className={`font-display text-xl md:text-2xl text-white`}>
+            {title}
+          </h2>
+          {current && (
+            <span className="inline-flex w-fit items-center rounded-full border border-white/40 bg-white/15 backdrop-blur-sm px-4 py-1.5 text-sm font-medium text-primary-foreground">
+              Current Stage
+            </span>
+          )}
+        </div>
+      </div>
+      <div className="text-base md:text-lg text-white font-medium leading-relaxed max-w-3xl">
+        {description}
+      </div>
+    </section>
+  );
+}
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-background py-12 flex flex-col items-center flex-nowrap">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex flex-col flex-nowrap items-center">
-          <header>
-            <h1 className="font-display ">About</h1>
-          </header>
-          {/* Image and Content */}
-          <div className="flex justify-center flex-col md:flex-row gap-8 py-12">
-            <div className="flex flex-col flex-nowrap gap-6 flex-1">
-              <h2 className="font-display">About the Artist</h2>
-              <p className="flex-1">
-                My name is Lindsey, and I am a hobby artist. I paint and sketch
-                in all mediums, and I often gift my work to friends and family.
-                I am also blessed with many talented friends who&apos;s art I
-                have hanging all over my house. My Friend&apos;s Art began as a
-                personal marketplace to showcase my own work and maybe sell a
-                print or two, but after a few weeks I realized it could be so
-                much more than that. I have so many incredible friends who
-                create art only for themselves and select friends and family.
-                Beautiful, compelling pieces that resulted from paint nights,
-                mushroom trips, afternoons at the park, and just general
-                creativity. These talented individuals might never consider
-                themselves artists, and yet 
-                <span className="font-semibold text-primary-foreground">
-                  I would pay to have their art in my home.
-                </span>
-              </p>
-            </div>
-            <div className="">
-              <Image
-                src="/headshot.webp"
-                alt="Lindsey"
-                width={250}
-                height={250}
-                className="rounded-lg"
-              />
-            </div>
+    <div className="min-h-screen">
+      {/* Fixed full-viewport image layer */}
+      <div className="fixed inset-0 h-screen w-full z-0">
+        <Image
+          src="/art-pieces/seaside-meadow.webp"
+          alt=""
+          fill
+          className="object-cover object-[50%_35%]"
+          priority
+          sizes="100vw"
+          aria-hidden
+        />
+        <div className="absolute inset-0 bg-primary/80" />
+      </div>
+      {/* Content scrolls over the image */}
+      <div className="relative z-8 min-h-screen py-12 flex flex-col items-center gap-10 ">
+        <div className="max-w-4xl w-full px-4 flex flex-col items-center gap-10 ">
+          <h1
+            className="font-display text-white opacity-0 animate-fade-up"
+            style={{ animationDelay: "200ms" }}
+          >
+            about
+          </h1>
+          <p
+            className="text-white font-medium text-center max-w-2xl text-lg md:text-xl leading-relaxed opacity-0 animate-fade-up"
+            style={{ animationDelay: "400ms" }}
+          >
+            My Friend&apos;s Art is a platform for celebrating and encouraging
+            art of all kinds. It is a passion project currently being built by
+            Lindsey Bellman, a software engineer, artist, and friend of many
+            artists.
+          </p>
+
+          <p
+            className="text-white font-medium text-center max-w-2xl text-lg md:text-xl leading-relaxed opacity-0 animate-fade-up"
+            style={{ animationDelay: "600ms" }}
+          >
+            This platform will be built in several stages.
+          </p>
+
+          <div className="flex flex-col gap-8 md:gap-10">
+            <Stage
+              stageNumber={1}
+              title="Simple Gallery"
+              animationDelay="800ms"
+              description={
+                <>
+                  A simple art gallery showcasing artists and their art.
+                  Visitors can search by medium, artist, or title. Prints can be
+                  requested for individual pieces, and the artist will be
+                  notified via email. Pricing and shipping details are handled
+                  by the artist. To become an artist, send your name, bio, and
+                  some examples of your work to bellmanlindsey@gmail.com.
+                </>
+              }
+              current={true}
+            />
+            <Stage
+              stageNumber={2}
+              title="artist dashboard & analytics"
+              animationDelay="1000ms"
+              description={
+                <>
+                  Artists on the platform will have a dashboard where they can
+                  sign in and manage their profiles, artist bio, and art pieces.
+                  Simple analytics will be available to allow artists to track
+                  how many print requests they have received on their work.
+                  Visitors will be able to comment on art pieces.
+                </>
+              }
+              current={false}
+            />
+            <Stage
+              stageNumber={3}
+              title="in-app payments & shipping"
+              animationDelay="1200ms"
+              description={
+                <>
+                  A payment integration will be added to the platform including
+                  cart, checkout flow, payment processing, and order tracking.
+                  Artists will be able to set their own base pricing for prints,
+                  and the platform will handle the rest. Several details need to
+                  be ironed out for this stage including shipping rates, artist
+                  commissions, and platform fees. At this point, it&apos;s
+                  likely that more developers will be needed for maintenance and
+                  support.
+                </>
+              }
+              current={false}
+            />
+            <Stage
+              stageNumber={4}
+              title="automated artist registration"
+              animationDelay="1400ms"
+              description={
+                <>
+                  Instead of sending an email to Lindsey, artists will be able
+                  to register through the platform, filling out an application
+                  form with their name, bio, and some examples of their work. If
+                  approved, accounts will automatically be created for them, and
+                  they will be able to begin showcasing and selling their work.
+                </>
+              }
+              current={false}
+            />
+            <Stage
+              stageNumber={5}
+              title="community curation"
+              animationDelay="1600ms"
+              description={
+                <>
+                  The fun part! Artists will be able to connect with other
+                  artists on the platform, follow each other, receive
+                  notifications when new work is posted, and more. Events will
+                  be posted on the platform for local artists to meet each
+                  other. Occassional in-person markets will be organized and
+                  presented by the platform.
+                </>
+              }
+              current={false}
+            />
           </div>
-          {/* What This Is */}
-          <div className="flex flex-col flex-nowrap gap-6">
-            <h2 className="font-display">What This Is</h2>
-            <p>
-              The goal is simple: Create a community where anyone can showcase
-              and sell their work, make it easy for people to purchase
-              meaningful art that was made by a human, and keep the
-              process affordable, friendly, and transparent.
-            </p>
-          </div>
-          {/* The Vision */}
-          <div className="flex flex-col flex-nowrap gap-6 mt-12">
-            <h2 className="font-display">The Vision</h2>
-            <p>
-              Rather than focusing on how to make the most money, the idea is to
-              give everyone a place to appreciate and support the creativity of
-              their friends, especially the ones who are still strangers. <br />
-              <br />
-              Anyone who creates something they are proud of is welcome on this
-              platform. Fill out an application to become an artist, and then
-              start uploading your work! You set your own base price as an
-              artist, but sizing, print options, and shipping logistics are all
-              handled by the platform. Above all, this is an artist-first
-              community. The goal is to bring people together in appreciation of
-              our unique talents and creativity.
-            </p>
+          <h3 className="my-12 text-white font-display text-3xl font-medium">
+            Thank you for being here and supporting independent art!{" "}
+          </h3>
+          <div className="flex flex-row gap-6">
+            <Button variant="outline" size="lg" className="shadow-lg">
+              <Link
+                href="https://software.lindseybellman.com"
+                asChild
+                blankTarget
+              >
+                <div className="flex flex-row gap-2 items-center">
+                  Lindsey&apos;s Software Portfolio
+                  <ExternalLink />
+                </div>
+              </Link>
+            </Button>
+            <Button className="shadow-lg" size="lg">
+              <Link href="/" asChild>
+                Back to Home
+              </Link>
+            </Button>
           </div>
         </div>
       </div>

@@ -233,7 +233,7 @@ export default function ArtDetailPage() {
               )}
             </div> */}
               {/* Request a Print Button */}
-              <div className="w-full mt-6">
+              <div className="w-full mt-10 border-t pt-6 ">
                 <Button
                   className="w-full"
                   size="lg"

@@ -1,4 +1,5 @@
 "use client";
+import useHighlightedSectionAnchors from "@/app/hooks/useHighlightedSectionAnchors";
 import { ArtCard } from "@/components/molecules/ArtCard";
 import { Button } from "@/components/ui/button";
 import supabase from "@/lib/supabase/server";
@@ -6,8 +7,10 @@ import { Tables } from "@/supabase";
 import { useQuery } from "@tanstack/react-query";
 import _ from "lodash";
 import Image from "next/image";
+import { useRef } from "react";
 
 export type ArtPiece = Tables<"art_piece">;
+const mediumSections = ["digital", "acrylic", "pastel", "watercolor"];
 
 function ArtSection({ title, pieces }: { title: string; pieces: ArtPiece[] }) {
   return (
@@ -15,7 +18,7 @@ function ArtSection({ title, pieces }: { title: string; pieces: ArtPiece[] }) {
       <h1 className="mb-8 font-display text-3xl tracking-wide text-foreground md:text-4xl">
         {title}
       </h1>
-      <ul className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid grid-cols-3 gap-4 md:gap-8">
         {pieces.map((piece) => (
           <ArtCard key={piece.id} artPiece={piece as ArtPiece} />
         ))}
@@ -25,6 +28,20 @@ function ArtSection({ title, pieces }: { title: string; pieces: ArtPiece[] }) {
 }
 
 export default function Home() {
+  const digitalRef = useRef<HTMLButtonElement | null>(null);
+  const acrylicRef = useRef<HTMLButtonElement | null>(null);
+  const pastelRef = useRef<HTMLButtonElement | null>(null);
+  const watercolorRef = useRef<HTMLButtonElement | null>(null);
+  const sectionRefs = [digitalRef, acrylicRef, pastelRef, watercolorRef];
+
+  useHighlightedSectionAnchors({
+    sections: mediumSections.map((medium, idx) => ({
+      id: medium,
+      titleRef: sectionRefs[idx],
+    })),
+    highlightClass: "bg-secondary-hover",
+  });
+
   const { data: artPieces } = useQuery({
     queryKey: ["artPieces"],
     queryFn: async () => {
@@ -84,24 +101,29 @@ export default function Home() {
       {/*  Subnav */}
       <div className="sticky top-16 z-10 left-0 p-4 bg-secondary backdrop-blur-lg">
         <div className="flex flex-row gap-4 items-center justify-center mx-auto max-w-5xl">
-          {["digital", "acrylic", "pastel", "watercolor"].map((medium) => (
-            <Button
-              variant="secondary"
-              key={medium}
-              onClick={() => {
-                // Scroll to the section
-                const section = document.getElementById(medium);
-                if (section) {
-                  section.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start",
-                  });
-                }
-              }}
-            >
-              {_.startCase(medium)}
-            </Button>
-          ))}
+          {["digital", "acrylic", "pastel", "watercolor"].map(
+            (medium, index) => (
+              <Button
+                variant="secondary"
+                key={medium}
+                className="font-display md:text-base md:px-6 "
+                ref={sectionRefs[index]}
+                onClick={() => {
+                  // Scroll to the section on click
+                  const section = document.getElementById(medium);
+                  const rect = section?.getBoundingClientRect();
+                  if (rect) {
+                    window.scrollTo({
+                      top: rect.top + window.scrollY - 150, // The subnav and topbar take up some height, so we need to scroll slightly below them
+                      behavior: "smooth",
+                    });
+                  }
+                }}
+              >
+                {_.startCase(medium)}
+              </Button>
+            ),
+          )}
         </div>
       </div>
       <div className="mx-auto w-full max-w-5xl flex flex-col gap-12 px-4 py-12">
