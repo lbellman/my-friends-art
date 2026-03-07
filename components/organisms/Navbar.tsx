@@ -13,7 +13,7 @@ const navLinks = [
 ];
 export default function Navbar() {
   return (
-    <nav className="sticky top-0 z-10 left-0 bg-background/80 backdrop-blur-md border-b border-border px-8 h-navbar-height">
+    <nav className="sticky top-0 z-10 left-0 bg-background/80 backdrop-blur-md border-b border-border px-4 md:px-8 h-navbar-height">
       <div className="flex items-center justify-between w-full flex-nowrap">
         <div className="flex items-center h-navbar-height hover:translate-y-[-2px] transition-all duration-300">
           {/* Logo */}

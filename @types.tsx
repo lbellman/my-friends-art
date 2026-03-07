@@ -1,10 +1,12 @@
-import { Database } from "@/supabase";
+import { Database, Tables } from "@/supabase";
 
-export type PrintOption = Database["public"]["Enums"]["print_options"];
+export type PrintOptionType = Database["public"]["Enums"]["print_options"];
 
-export const PRINT_OPTION_LABELS: Record<PrintOption, string> = {
+export const PRINT_OPTION_LABELS: Record<PrintOptionType, string> = {
   canvas: "Canvas",
   "framed-canvas": "Framed Canvas",
   poster: "Poster",
   "framed-poster": "Framed Poster",
 };
+
+export type ArtistType = Tables<"artist">;

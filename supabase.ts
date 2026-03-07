@@ -86,6 +86,7 @@ export type Database = {
       }
       art_piece: {
         Row: {
+          artist_id: string | null
           aspect_ratio: Database["public"]["Enums"]["aspect_ratios"]
           created_at: string | null
           dpi: number | null
@@ -97,6 +98,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          artist_id?: string | null
           aspect_ratio: Database["public"]["Enums"]["aspect_ratios"]
           created_at?: string | null
           dpi?: number | null
@@ -108,6 +110,7 @@ export type Database = {
           title: string
         }
         Update: {
+          artist_id?: string | null
           aspect_ratio?: Database["public"]["Enums"]["aspect_ratios"]
           created_at?: string | null
           dpi?: number | null
@@ -117,6 +120,56 @@ export type Database = {
           px_height?: number | null
           px_width?: number | null
           title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "art_piece_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artist"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      artist: {
+        Row: {
+          bio: string | null
+          created_at: string | null
+          email_address: string | null
+          facebook: string | null
+          id: string
+          instagram: string | null
+          location: string | null
+          name: string
+          profile_img_url: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string | null
+          email_address?: string | null
+          facebook?: string | null
+          id?: string
+          instagram?: string | null
+          location?: string | null
+          name: string
+          profile_img_url?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string | null
+          email_address?: string | null
+          facebook?: string | null
+          id?: string
+          instagram?: string | null
+          location?: string | null
+          name?: string
+          profile_img_url?: string | null
+          updated_at?: string | null
+          website?: string | null
         }
         Relationships: []
       }

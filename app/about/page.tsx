@@ -1,3 +1,4 @@
+import NextLink from "next/link";
 import Link from "@/components/atoms/Link";
 import { Button } from "@/components/ui/button";
 import { ExternalLink } from "lucide-react";
@@ -102,8 +103,13 @@ export default function AboutPage() {
                   Visitors can search by medium, artist, or title. Prints can be
                   requested for individual pieces, and the artist will be
                   notified via email. Pricing and shipping details are handled
-                  by the artist. To become an artist, send your name, bio, and
-                  some examples of your work to bellmanlindsey@gmail.com.
+                  by the artist. To become an artist,{" "}
+                  <NextLink
+                    href="/become-an-artist"
+                    className="text-primary-foreground hover:text-primary-foreground/80"
+                  >
+                    fill out the application form.
+                  </NextLink>
                 </>
               }
               current={true}

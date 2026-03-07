@@ -8,7 +8,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { PRINT_OPTION_LABELS, PrintOption } from "@/@types";
+import { PRINT_OPTION_LABELS, PrintOptionType } from "@/@types";
 import _ from "lodash";
 import Link from "@/components/atoms/Link";
 import { ArrowLeftIcon } from "lucide-react";
@@ -77,7 +77,7 @@ export default function ArtDetailPage() {
     null,
   );
   const [selectedPrintOption, setSelectedPrintOption] =
-    useState<PrintOption | null>(null);
+    useState<PrintOptionType | null>(null);
 
   const [requestPrintDialogOpen, setRequestPrintDialogOpen] = useState(false);
 
@@ -87,7 +87,7 @@ export default function ArtDetailPage() {
       ? `${dimensionOptions[0].width}x${dimensionOptions[0].height}`
       : null;
   const effectiveDimension = selectedDimension ?? defaultDimension;
-  const defaultPrintOption = Object.keys(PRINT_OPTION_LABELS)[0] as PrintOption;
+  const defaultPrintOption = Object.keys(PRINT_OPTION_LABELS)[0] as PrintOptionType;
   const effectivePrintOption = selectedPrintOption ?? defaultPrintOption;
 
   // Calculate price when both dimension and print option are selected
@@ -204,7 +204,7 @@ export default function ArtDetailPage() {
                         key={option}
                         variant={isSelected ? "default" : "outline"}
                         onClick={() =>
-                          setSelectedPrintOption(option as PrintOption)
+                          setSelectedPrintOption(option as PrintOptionType)
                         }
                         className={
                           isSelected
@@ -212,7 +212,7 @@ export default function ArtDetailPage() {
                             : ""
                         }
                       >
-                        {PRINT_OPTION_LABELS[option as PrintOption]}
+                        {PRINT_OPTION_LABELS[option as PrintOptionType]}
                       </Button>
                     );
                   })}
@@ -264,7 +264,7 @@ export default function ArtDetailPage() {
           <div className="flex flex-col flex-nowrap gap-10 ">
             <div className="flex items-center justify-between">
               <h2 className="font-display">about the artist</h2>
-              <Link href="/artists/lindsey-bellman">Go to Artist</Link>
+              <Link href="/artists">Go to Artists</Link>
             </div>
             <div className="flex flex-col md:flex-row flex-nowrap gap-6">
               <Image

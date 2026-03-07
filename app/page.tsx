@@ -83,7 +83,7 @@ export default function Home() {
           loading="eager"
         />
         <div className="absolute inset-0 bg-primary/75" />
-        <div className="flex flex-col items-center gap-2 absolute">
+        <div className="flex flex-col items-center gap-4 absolute">
           <h1
             className=" font-display opacity-0 animate-fade-up text-white text-center tracking-wide"
             style={{ animationDelay: "200ms" }}

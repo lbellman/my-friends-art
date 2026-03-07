@@ -13,7 +13,7 @@ export default function InternalLayout({
     <div className="min-h-screen bg-background flex flex-col items-center ">
       {title && (
         <header className="max-w-7xl px-6 w-full pb-6 pt-12">
-          <h2>{title}</h2>
+          <h2 className="font-display">{title}</h2>
           {description && (
             <p className="text-muted-foreground">{description}</p>
           )}

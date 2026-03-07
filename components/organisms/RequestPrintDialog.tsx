@@ -1,4 +1,4 @@
-import { PRINT_OPTION_LABELS, PrintOption } from "@/@types";
+import { PRINT_OPTION_LABELS, PrintOptionType } from "@/@types";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -27,7 +27,7 @@ export default function SpecialRequestDialog({
   printDetails: {
     title: string;
     dimensions: string;
-    printOption: PrintOption;
+    printOption: PrintOptionType;
   };
   dimensionOptions: {
     width: number;
@@ -207,7 +207,7 @@ export default function SpecialRequestDialog({
                     onClick={() =>
                       setFormData({
                         ...formData,
-                        printOption: option as PrintOption,
+                        printOption: option as PrintOptionType,
                       })
                     }
                     className={
@@ -216,7 +216,7 @@ export default function SpecialRequestDialog({
                         : ""
                     }
                   >
-                    {PRINT_OPTION_LABELS[option as PrintOption]}
+                    {PRINT_OPTION_LABELS[option as PrintOptionType]}
                   </Button>
                 );
               })}
