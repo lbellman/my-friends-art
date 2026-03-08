@@ -149,21 +149,6 @@ export default function AboutPage() {
             />
             <Stage
               stageNumber={4}
-              title="automated artist registration"
-              animationDelay="1400ms"
-              description={
-                <>
-                  Instead of sending an email to Lindsey, artists will be able
-                  to register through the platform, filling out an application
-                  form with their name, bio, and some examples of their work. If
-                  approved, accounts will automatically be created for them, and
-                  they will be able to begin showcasing and selling their work.
-                </>
-              }
-              current={false}
-            />
-            <Stage
-              stageNumber={5}
               title="community curation"
               animationDelay="1600ms"
               description={

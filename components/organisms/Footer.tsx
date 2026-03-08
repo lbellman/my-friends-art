@@ -1,5 +1,31 @@
 import Link from "@/components/atoms/Link";
 
+const pages = [
+  {
+    label: "Home",
+    href: "/",
+  },
+  {
+    label: "About",
+    href: "/about",
+  },
+  {
+    label: "Our Artists",
+    href: "/artists",
+  },
+];
+
+const forArtists = [
+  {
+    label: "Become an Artist",
+    href: "/become-an-artist",
+  },
+  {
+    label: "Artist Support",
+    href: "/artist-support",
+  },
+];
+
 const footerLinks = [
   {
     label: "Home",
@@ -25,7 +51,7 @@ export default function Footer() {
       <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
           {/* Brand */}
-          <div>
+          <div className="">
             <p className="text-2xl font-display  tracking-editorial text-foreground mb-4">
               my friend&apos;s art
             </p>
@@ -38,24 +64,21 @@ export default function Footer() {
           <div>
             <p className="uppercase-overline mb-4">Pages</p>
             <div className="flex flex-col gap-3 items-start">
-              {footerLinks.map((link) => (
-                <Link key={link.href} href={link.href} >
+              {pages.map((link) => (
+                <Link key={link.href} href={link.href}>
                   {link.label}
                 </Link>
               ))}
             </div>
           </div>
-
-          {/* Contact */}
           <div>
-            <p className="uppercase-overline mb-4">Contact</p>
+            <p className="uppercase-overline mb-4">For Artists</p>
             <div className="flex flex-col gap-3 items-start">
-              <Link
-                href="mailto:bellmanlindsey@gmail.com"
-                ariaLabel="Email (opens mail app)"
-              >
-                bellmanlindsey@gmail.com
-              </Link>
+              {forArtists.map((link) => (
+                <Link key={link.href} href={link.href}>
+                  {link.label}
+                </Link>
+              ))}
             </div>
           </div>
         </div>

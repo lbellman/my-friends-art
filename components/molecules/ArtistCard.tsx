@@ -5,16 +5,16 @@ import { Globe, Mail, MapPin } from "lucide-react";
 
 interface ArtistCardProps {
   artist: ArtistType;
+  linkHref?: string;
+  linkText?: string;
 }
 
-export function ArtistCard({ artist }: ArtistCardProps) {
-  const hasSocial =
-    artist.website?.trim() ||
-    artist.instagram?.trim() ||
-    artist.facebook?.trim();
-
+export function ArtistCard({ artist, linkHref, linkText }: ArtistCardProps) {
   return (
-    <article className="flex flex-col sm:flex-row gap-0 overflow-hidden rounded-xl bg-card text-card-foreground shadow-sm border border-border">
+    <article
+      id={artist.id}
+      className="flex flex-col sm:flex-row gap-0 overflow-hidden rounded-xl bg-card text-card-foreground shadow-sm border border-border"
+    >
       <div className="relative w-full sm:w-64 h-64 sm:h-auto sm:min-h-[280px] shrink-0">
         {artist.profile_img_url ? (
           <Image
@@ -37,7 +37,7 @@ export function ArtistCard({ artist }: ArtistCardProps) {
           <h2 className="text-xl font-semibold text-foreground">
             {artist.name}
           </h2>
-          <Link href="/artists">Browse Art Pieces</Link>
+          {linkHref && linkText && <Link href={linkHref}>{linkText}</Link>}
         </div>
 
         <div className="flex flex-col gap-2  text-sm text-foreground">

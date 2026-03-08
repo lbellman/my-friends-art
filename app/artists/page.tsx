@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArtistType } from "@/@types";
 import { Button } from "@/components/ui/button";
 import Link from "@/components/atoms/Link";
+import { useEffect } from "react";
 
 export default function ArtistsPage() {
   const { data: artists, isLoading: loadingArtists } = useQuery({
@@ -24,6 +25,17 @@ export default function ArtistsPage() {
     },
   });
 
+  // If there is an artist id hash in the url, scroll to that artist card
+  useEffect(() => {
+    if (window.location.hash) {
+      const artistId = window.location.hash.slice(1);
+      const artistCard = document.getElementById(artistId);
+      if (artistCard) {
+        artistCard.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col items-center">
       <div className="max-w-5xl flex flex-col w-full gap-12 items-center px-6 py-12">
@@ -34,7 +46,12 @@ export default function ArtistsPage() {
                 <Skeleton key={index} className="h-64 w-full rounded-xl" />
               ))
             : artists?.map((artist) => (
-                <ArtistCard key={artist.id} artist={artist} />
+                <ArtistCard
+                  key={artist.id}
+                  artist={artist}
+                  linkHref={`/search-results?q=${artist.name}`}
+                  linkText="Browse Art Pieces"
+                />
               ))}
         </div>
         {/* CTA */}

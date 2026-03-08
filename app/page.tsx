@@ -1,6 +1,7 @@
 "use client";
 import useHighlightedSectionAnchors from "@/app/hooks/useHighlightedSectionAnchors";
 import { ArtCard } from "@/components/molecules/ArtCard";
+import Subnav from "@/components/organisms/Subnav";
 import { Button } from "@/components/ui/button";
 import supabase from "@/lib/supabase/server";
 import { Tables } from "@/supabase";
@@ -99,33 +100,7 @@ export default function Home() {
         </div>
       </div>
       {/*  Subnav */}
-      <div className="sticky top-16 z-10 left-0 p-4 bg-secondary backdrop-blur-lg">
-        <div className="flex flex-row gap-4 items-center justify-center mx-auto max-w-5xl">
-          {["digital", "acrylic", "pastel", "watercolor"].map(
-            (medium, index) => (
-              <Button
-                variant="secondary"
-                key={medium}
-                className="font-display md:text-base md:px-6 "
-                ref={sectionRefs[index]}
-                onClick={() => {
-                  // Scroll to the section on click
-                  const section = document.getElementById(medium);
-                  const rect = section?.getBoundingClientRect();
-                  if (rect) {
-                    window.scrollTo({
-                      top: rect.top + window.scrollY - 150, // The subnav and topbar take up some height, so we need to scroll slightly below them
-                      behavior: "smooth",
-                    });
-                  }
-                }}
-              >
-                {_.startCase(medium)}
-              </Button>
-            ),
-          )}
-        </div>
-      </div>
+      <Subnav sectionIds={mediumSections} sectionRefs={sectionRefs} />
       <div className="mx-auto w-full max-w-5xl flex flex-col gap-12 px-4 py-12">
         {/* Digital Pieces */}
         {digitalPieces?.length > 0 && (

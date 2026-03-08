@@ -87,7 +87,9 @@ export default function ArtDetailPage() {
       ? `${dimensionOptions[0].width}x${dimensionOptions[0].height}`
       : null;
   const effectiveDimension = selectedDimension ?? defaultDimension;
-  const defaultPrintOption = Object.keys(PRINT_OPTION_LABELS)[0] as PrintOptionType;
+  const defaultPrintOption = Object.keys(
+    PRINT_OPTION_LABELS,
+  )[0] as PrintOptionType;
   const effectivePrintOption = selectedPrintOption ?? defaultPrintOption;
 
   // Calculate price when both dimension and print option are selected
@@ -118,8 +120,8 @@ export default function ArtDetailPage() {
   // });
 
   return (
-    <InternalLayout>
-      <div className="flex flex-col flex-nowrap w-full">
+    <div className="min-h-screen flex flex-col items-center">
+      <div className=" py-12 max-w-6xl flex-nowrap w-full">
         {/* Art Details */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 ">
           {/* Art Piece Image */}
@@ -264,7 +266,7 @@ export default function ArtDetailPage() {
           <div className="flex flex-col flex-nowrap gap-10 ">
             <div className="flex items-center justify-between">
               <h2 className="font-display">about the artist</h2>
-              <Link href="/artists">Go to Artists</Link>
+              <Link href={`/artists#${artPiece?.artist_id}`}>Go to Artist</Link>
             </div>
             <div className="flex flex-col md:flex-row flex-nowrap gap-6">
               <Image
@@ -290,6 +292,6 @@ export default function ArtDetailPage() {
           </div>
         </section>
       </div>
-    </InternalLayout>
+    </div>
   );
 }

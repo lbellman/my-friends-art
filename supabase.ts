@@ -361,6 +361,43 @@ export type Database = {
           width: number
         }[]
       }
+      rpc_search_art_pieces: {
+        Args: { query: string }
+        Returns: {
+          art_piece_id: string
+          artist_id: string
+          artist_name: string
+          aspect_ratio: Database["public"]["Enums"]["aspect_ratios"]
+          dpi: number
+          img_url: string
+          medium: string
+          px_height: number
+          px_width: number
+          title: string
+        }[]
+      }
+      rpc_search_artists: {
+        Args: { query: string }
+        Returns: {
+          bio: string | null
+          created_at: string | null
+          email_address: string | null
+          facebook: string | null
+          id: string
+          instagram: string | null
+          location: string | null
+          name: string
+          profile_img_url: string | null
+          updated_at: string | null
+          website: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "artist"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
     }
     Enums: {
       art_mediums:
