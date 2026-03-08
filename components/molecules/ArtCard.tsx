@@ -1,4 +1,4 @@
-import { ArtPiece } from "@/app/page";
+import { ArtPiece } from "@/@types";
 import Link from "@/components/atoms/Link";
 import Image from "next/image";
 
@@ -18,7 +18,7 @@ export function ArtCard({ artPiece }: ArtCardProps) {
               src={artPiece.img_url}
               alt={artPiece.title}
               fill
-              className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+              className="w-full h-full object-cover transition-transform duration-500 ease-out "
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -32,11 +32,14 @@ export function ArtCard({ artPiece }: ArtCardProps) {
           <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/5 transition-colors duration-300" />
         </div>
 
-        <div className="space-y-2">
-          <p className="uppercase-overline">{artPiece.medium}</p>
-          <h5 className="text-foreground group-hover:text-primary-foreground transition-colors duration-300">
-            {artPiece.title}
-          </h5>
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <h5 className="text-foreground font-semibold mt-2 group-hover:text-primary-foreground transition-colors duration-300">
+              {artPiece.title}
+            </h5>
+            <p className="uppercase-overline">{artPiece.medium}</p>
+          </div>
+          <p className="text-sm ">{artPiece.artist?.name}</p>
         </div>
       </div>
     </Link>

@@ -10,3 +10,10 @@ export const PRINT_OPTION_LABELS: Record<PrintOptionType, string> = {
 };
 
 export type ArtistType = Tables<"artist">;
+
+export type ArtPiece = Tables<"art_piece"> & {
+  artist: {
+    id: string;
+    name: string;
+  };
+};

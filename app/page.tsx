@@ -1,16 +1,14 @@
 "use client";
+import { ArtPiece } from "@/@types";
 import useHighlightedSectionAnchors from "@/app/hooks/useHighlightedSectionAnchors";
 import { ArtCard } from "@/components/molecules/ArtCard";
 import Subnav from "@/components/organisms/Subnav";
-import { Button } from "@/components/ui/button";
 import supabase from "@/lib/supabase/server";
-import { Tables } from "@/supabase";
 import { useQuery } from "@tanstack/react-query";
-import _ from "lodash";
 import Image from "next/image";
 import { useRef } from "react";
 
-export type ArtPiece = Tables<"art_piece">;
+
 const mediumSections = ["digital", "acrylic", "pastel", "watercolor"];
 
 function ArtSection({ title, pieces }: { title: string; pieces: ArtPiece[] }) {
@@ -21,7 +19,10 @@ function ArtSection({ title, pieces }: { title: string; pieces: ArtPiece[] }) {
       </h1>
       <ul className="grid grid-cols-3 gap-4 md:gap-8">
         {pieces.map((piece) => (
-          <ArtCard key={piece.id} artPiece={piece as ArtPiece} />
+          <ArtCard
+            key={piece.id}
+            artPiece={piece as ArtPiece}
+          />
         ))}
       </ul>
     </div>
@@ -48,13 +49,17 @@ export default function Home() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("art_piece")
-        .select("id, title, img_url, medium");
+        .select("id, title, img_url, medium, artist:artist_id(id, name)");
       if (error) {
         throw new Error(error.message);
       }
-      return data;
+      return data?.map((piece) => ({
+        ...piece,
+        artist: piece.artist,
+      }));
     },
   });
+  console.log(artPieces);
 
   // Split the art pieces into mediums
   const digitalPieces = artPieces?.filter(

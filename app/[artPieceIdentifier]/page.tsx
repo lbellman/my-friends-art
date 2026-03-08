@@ -1,18 +1,16 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { ArtPiece, PRINT_OPTION_LABELS, PrintOptionType } from "@/@types";
+import Link from "@/components/atoms/Link";
+import RequestPrintDialog from "@/components/organisms/RequestPrintDialog";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import supabase from "@/lib/supabase/server";
 import { useQuery } from "@tanstack/react-query";
-import InternalLayout from "@/components/organisms/InternalLayout";
-import Image from "next/image";
-import { useState } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import { PRINT_OPTION_LABELS, PrintOptionType } from "@/@types";
-import _ from "lodash";
-import Link from "@/components/atoms/Link";
 import { ArrowLeftIcon } from "lucide-react";
-import RequestPrintDialog from "@/components/organisms/RequestPrintDialog";
+import Image from "next/image";
+import { useParams } from "next/navigation";
+import { useState } from "react";
 
 export default function ArtDetailPage() {
   const { artPieceIdentifier } = useParams<{ artPieceIdentifier: string }>();
@@ -22,13 +20,16 @@ export default function ArtDetailPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("art_piece")
-        .select("*")
+        .select("*, artist:artist_id(id, name)")
         .eq("id", artPieceIdentifier)
         .single();
       if (error) {
         throw new Error(error.message);
       }
-      return data;
+      return {
+        ...data,
+        artist: data?.artist,
+      } as ArtPiece;
     },
   });
 
@@ -121,7 +122,7 @@ export default function ArtDetailPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center">
-      <div className=" py-12 max-w-6xl flex-nowrap w-full">
+      <div className=" py-12 px-6 max-w-6xl flex-nowrap w-full">
         {/* Art Details */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 ">
           {/* Art Piece Image */}
@@ -152,7 +153,10 @@ export default function ArtDetailPage() {
             {isLoadingArtPiece ? (
               <Skeleton className="w-full h-10 rounded-md" />
             ) : (
-              <h2>{artPiece?.title}</h2>
+              <div className="flex flex-col flex-nowrap gap-2">
+                <h2>{artPiece?.title}</h2>
+                <h4>{artPiece?.artist?.name}</h4>
+              </div>
             )}
             {/* Dimension Selection */}
             {dimensionOptions.length > 0 && (

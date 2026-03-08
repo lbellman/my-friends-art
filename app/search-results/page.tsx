@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import supabase from "@/lib/supabase/server";
 import { ArtCard } from "@/components/molecules/ArtCard";
-import type { ArtPiece } from "@/app/page";
+import { ArtPiece } from "@/@types";
 import { Button } from "@/components/ui/button";
 import { useState, Suspense } from "react";
 import { ArtistCard } from "@/components/molecules/ArtistCard";
@@ -52,6 +52,10 @@ function SearchResultsContent() {
     title: row.title,
     img_url: row.img_url,
     medium: row.medium,
+    artist: {
+      id: row.artist_id,
+      name: row.artist_name,
+    },
   })) as ArtPiece[];
 
   return (
