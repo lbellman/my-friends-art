@@ -4,12 +4,13 @@ import Image from "next/image";
 
 interface ArtCardProps {
   artPiece: ArtPiece;
+  href: string;
 }
 
-export function ArtCard({ artPiece }: ArtCardProps) {
+export function ArtCard({ artPiece, href }: ArtCardProps) {
   const publicUrl = getPublicUrl(artPiece.display_path ?? "");
   return (
-    <Link href={`/${artPiece.id}`}>
+    <Link href={href}>
       <div className="group">
         <div
           className={` relative overflow-hidden rounded-xl aspect-3/4 mb-4 transition-all duration-300 ease-out group-hover:shadow-xl group-hover:-translate-y-1`}
@@ -34,11 +35,11 @@ export function ArtCard({ artPiece }: ArtCardProps) {
         </div>
 
         <div className="space-y-1">
+          <p className="uppercase-overline">{artPiece.medium}</p>
           <div className="flex items-center justify-between">
-            <h5 className="text-foreground font-semibold mt-2 group-hover:text-primary-foreground transition-colors duration-300">
+            <h5 className="text-foreground font-semibold group-hover:text-primary-foreground transition-colors duration-300">
               {artPiece.title}
             </h5>
-            <p className="uppercase-overline">{artPiece.medium}</p>
           </div>
           <p className="text-sm ">{artPiece.artist?.name}</p>
         </div>

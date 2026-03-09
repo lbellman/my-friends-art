@@ -49,8 +49,8 @@ export default function ArtistsPage() {
                 <ArtistCard
                   key={artist.id}
                   artist={artist}
-                  linkHref={`/search-results?q=${artist.name}`}
-                  linkText="Browse Art Pieces"
+                  linkHref={`/artists/${artist.id}`}
+                  linkText="Go to Artist"
                 />
               ))}
         </div>

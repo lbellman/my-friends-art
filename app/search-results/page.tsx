@@ -116,7 +116,11 @@ function SearchResultsContent() {
             <ul className="grid grid-cols-3 gap-4 md:gap-8 w-full">
               {(seeAllArtPieces ? artPieces : artPieces.slice(0, 6)).map(
                 (piece) => (
-                  <ArtCard key={piece.id} artPiece={piece} />
+                  <ArtCard
+                    key={piece.id}
+                    artPiece={piece}
+                    href={`/search-results/${piece.id}?q=${searchQuery}`}
+                  />
                 ),
               )}
             </ul>
@@ -157,7 +161,12 @@ function SearchResultsContent() {
                 ? (artistResults ?? [])
                 : (artistResults?.slice(0, 6) ?? [])
               ).map((artist) => (
-                <ArtistCard key={artist.id} artist={artist} />
+                <ArtistCard
+                  key={artist.id}
+                  artist={artist}
+                  linkHref={`/artists/${artist.id}`}
+                  linkText="Go to Artist"
+                />
               ))}
             </ul>
             {artistResults?.length && artistResults?.length > 6 && (

@@ -8,8 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { useRef } from "react";
 
-
-const mediumSections = ["digital", "pastel", "pastel", "watercolor"];
+const mediumSections = ["digital", "pastel", "acrylic", "watercolor"];
 
 function ArtSection({ title, pieces }: { title: string; pieces: ArtPiece[] }) {
   return (
@@ -22,6 +21,7 @@ function ArtSection({ title, pieces }: { title: string; pieces: ArtPiece[] }) {
           <ArtCard
             key={piece.id}
             artPiece={piece as ArtPiece}
+            href={`/${piece.id}`}
           />
         ))}
       </ul>
@@ -49,7 +49,9 @@ export default function Home() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("art_piece")
-        .select("id, title, thumbnail_path, display_path, medium, artist:artist_id(id, name)");
+        .select(
+          "id, title, thumbnail_path, display_path, medium, artist:artist_id(id, name)",
+        );
       if (error) {
         throw new Error(error.message);
       }
