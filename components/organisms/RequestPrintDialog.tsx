@@ -117,7 +117,7 @@ export default function SpecialRequestDialog({
           <DialogTitle>Request a Print</DialogTitle>
           <DialogDescription>
             Fill out the form below to request a print of &quot;
-            {printDetails?.title}&quot;. I&apos;ll get back to you with pricing
+            {printDetails?.title}&quot;. The artist will get back to you with pricing
             and shipping details.
           </DialogDescription>
         </DialogHeader>

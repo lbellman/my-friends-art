@@ -157,7 +157,7 @@ export default function AboutPage() {
                   artists on the platform, follow each other, receive
                   notifications when new work is posted, and more. Events will
                   be posted on the platform for local artists to meet each
-                  other. Occassional in-person markets will be organized and
+                  other. Occasional in-person markets will be organized and
                   presented by the platform.
                 </>
               }
