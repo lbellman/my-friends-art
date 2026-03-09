@@ -100,15 +100,6 @@ export default function ArtistDetailPage() {
                     {artist.location}
                   </span>
                 )}
-                {artist.email_address?.trim() && (
-                  <a
-                    href={`mailto:${artist.email_address.trim()}`}
-                    className="flex items-center gap-2 hover:underline"
-                  >
-                    <Mail className="h-4 w-4" aria-hidden />
-                    {artist.email_address.trim()}
-                  </a>
-                )}
                 {artist.website?.trim() && (
                   <a
                     href={artist.website.trim()}

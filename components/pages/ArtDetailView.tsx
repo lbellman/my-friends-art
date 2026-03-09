@@ -1,12 +1,14 @@
 "use client";
 
 import {
+  ArtistType,
   ArtPiece,
   getPublicUrl,
   PRINT_OPTION_LABELS,
   PrintOptionType,
 } from "@/@types";
 import Link from "@/components/atoms/Link";
+import { ArtistCard } from "@/components/molecules/ArtistCard";
 import RequestPrintDialog from "@/components/organisms/RequestPrintDialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -31,7 +33,9 @@ export default function ArtDetailView({
     queryFn: async () => {
       const { data, error } = await supabase
         .from("art_piece")
-        .select("*, artist:artist_id(id, name)")
+        .select(
+          "*, artist:artist_id(id, name, bio, location, profile_img_url, website, instagram, facebook)",
+        )
         .eq("id", artPieceIdentifier)
         .single();
       if (error) {
@@ -279,35 +283,16 @@ export default function ArtDetailView({
           />
         )}
         {/* About The Artist */}
-        <section className="mt-20 border-t border-border py-12">
-          <div className="flex flex-col flex-nowrap gap-10 ">
-            <div className="flex items-center justify-between">
-              <h2 className="font-display">about the artist</h2>
-              <Link href={`/artists/${artPiece?.artist_id}`}>Go to Artist</Link>
-            </div>
-            <div className="flex flex-col md:flex-row flex-nowrap gap-6">
-              <Image
-                src={"/headshot.webp"}
-                alt="Lindsey"
-                width={150}
-                height={150}
-                className="rounded-lg aspect-square object-cover"
-              />
-              <div className="flex flex-col flex-nowrap gap-4">
-                <h3>Lindsey Bellman</h3>
-                <p className="text-sm text-muted-foreground max-w-3xl">
-                  I’m Lindsey, an artist and creator based in British Columbia.
-                  I work across painting, digital art, and photography, drawing
-                  on nature, light, and everyday moments for inspiration. My
-                  prints are made to bring a bit of that feeling into your
-                  space—whether it’s a landscape, an abstract piece, or
-                  something in between. Thanks for being here and for supporting
-                  independent art.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+        {artPiece?.artist && (
+          <section className="mt-20 border-t border-border py-12">
+            <h2 className="font-display mb-6">about the artist</h2>
+            <ArtistCard
+              artist={artPiece?.artist as ArtistType}
+              linkHref={`/artists/${artPiece?.artist_id}`}
+              linkText="Go to Artist"
+            />
+          </section>
+        )}
       </div>
     </div>
   );

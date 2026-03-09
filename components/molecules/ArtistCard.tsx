@@ -47,15 +47,6 @@ export function ArtistCard({ artist, linkHref, linkText }: ArtistCardProps) {
               {artist.location}
             </span>
           )}
-          {artist.email_address?.trim() && (
-            <a
-              href={`mailto:${artist.email_address.trim()}`}
-              className="flex items-center gap-2 text-foreground hover:underline"
-            >
-              <Mail className="size-4 shrink-0" aria-hidden />
-              {artist.email_address.trim()}
-            </a>
-          )}
           {artist.website?.trim() && (
             <span className="flex items-center gap-2">
               <Globe className="size-4 shrink-0" aria-hidden />
