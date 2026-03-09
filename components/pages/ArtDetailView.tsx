@@ -34,7 +34,7 @@ export default function ArtDetailView({
       const { data, error } = await supabase
         .from("art_piece")
         .select(
-          "*, artist:artist_id(id, name, bio, location, profile_img_url, website, instagram, facebook)",
+          "*, artist:artist_id(id, name, bio, location, profile_img_url, website, instagram, facebook, email_address)",
         )
         .eq("id", artPieceIdentifier)
         .single();
@@ -266,6 +266,9 @@ export default function ArtDetailView({
                   Request a Print
                 </Button>
               </div>
+              <p className="text-sm text-muted-foreground">
+                Print requests are sent directly to the artist.
+              </p>
             </div>
           </div>
         </div>
@@ -278,6 +281,9 @@ export default function ArtDetailView({
               dimensions: effectiveDimension || "",
               printOption: effectivePrintOption || "",
             }}
+            emailAddress={
+              artPiece?.artist?.email_address || "bellmanlindsey@gmail.com"
+            }
             dimensionOptions={dimensionOptions}
             loadingDimensionOptions={loadingDimensionOptions}
           />

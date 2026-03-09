@@ -16,6 +16,7 @@ export type ArtPiece = Tables<"art_piece"> & {
   artist: {
     id: string;
     name: string;
+    email_address: string;
   };
 };
 

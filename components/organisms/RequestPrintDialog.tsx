@@ -21,6 +21,7 @@ export default function SpecialRequestDialog({
   printDetails,
   dimensionOptions,
   loadingDimensionOptions,
+  emailAddress,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -34,6 +35,7 @@ export default function SpecialRequestDialog({
     height: number;
   }[];
   loadingDimensionOptions: boolean;
+  emailAddress: string;
 }) {
   const [formData, setFormData] = useState({
     name: "",
@@ -58,7 +60,7 @@ export default function SpecialRequestDialog({
     setIsSubmitting(true);
 
     try {
-      const subject = `Print Request for: ${printDetails?.title || "Art Piece"}, Dimensions: ${printDetails?.dimensions || ""} Print Option: ${printDetails?.printOption || ""}`;
+      const subject = `My Friend's Art - Print Request`;
       const response = await fetch(
         "https://api.emailjs.com/api/v1.0/email/send",
         {
@@ -74,8 +76,8 @@ export default function SpecialRequestDialog({
               name: formData.name,
               from_email: formData.email,
               subject: subject,
-              message: formData.message,
-              to_email: "bellmanlindsey@gmail.com",
+              message: `${formData.name} has requested a print of ${printDetails?.title || "Art Piece"} with the following details: \n\n Dimensions: ${printDetails?.dimensions || ""} \n\nPrint Option: ${printDetails?.printOption || ""}\n\n${formData.message ? "Message: " + formData.message : ""} \n\n Please contact them at ${formData.email} to discuss pricing and shipping details. Thanks! `,
+              to_email: emailAddress,
             },
           }),
         },
@@ -86,7 +88,8 @@ export default function SpecialRequestDialog({
       }
 
       toast.success("Print request sent!", {
-        description: "I'll get back to you soon about your print order.",
+        description:
+          "The artist will get back to you soon about pricing and shipping. Thank you!",
       });
 
       // Reset form and close dialog
