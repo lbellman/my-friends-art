@@ -31,11 +31,6 @@ const meta: Meta<typeof Link> = {
       description:
         "Whether the link is displayed in a block of text. This changes the color to make it stand out as an interactive element.",
     },
-    noUnderline: {
-      control: "boolean",
-      description:
-        "This is for cases when you want a component to behave like a link. E.g. A card that routes to a page when clicked. In this case, we don't want to have an underline.",
-    },
     ariaLabel: {
       control: "text",
       description: "Link aria label",
@@ -56,7 +51,6 @@ export const Default: Story = {
     children: "This is a link!",
     disabled: false,
     inline: false,
-    noUnderline: false,
     blankTarget: false,
     ariaLabel: "Link aria label",
   },
