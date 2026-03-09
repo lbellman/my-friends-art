@@ -1,4 +1,4 @@
-import { ArtPiece } from "@/@types";
+import { ArtPiece, getPublicUrl } from "@/@types";
 import Link from "@/components/atoms/Link";
 import Image from "next/image";
 
@@ -7,15 +7,16 @@ interface ArtCardProps {
 }
 
 export function ArtCard({ artPiece }: ArtCardProps) {
+  const publicUrl = getPublicUrl(artPiece.display_path ?? "");
   return (
     <Link href={`/${artPiece.id}`}>
       <div className="group">
         <div
           className={` relative overflow-hidden rounded-xl aspect-3/4 mb-4 transition-all duration-300 ease-out group-hover:shadow-xl group-hover:-translate-y-1`}
         >
-          {artPiece.img_url ? (
+          {publicUrl ? (
             <Image
-              src={artPiece.img_url}
+              src={publicUrl}
               alt={artPiece.title}
               fill
               className="w-full h-full object-cover transition-transform duration-500 ease-out "

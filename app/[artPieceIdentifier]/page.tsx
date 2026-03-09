@@ -1,6 +1,6 @@
 "use client";
 
-import { ArtPiece, PRINT_OPTION_LABELS, PrintOptionType } from "@/@types";
+import { ArtPiece, getPublicUrl, PRINT_OPTION_LABELS, PrintOptionType } from "@/@types";
 import Link from "@/components/atoms/Link";
 import RequestPrintDialog from "@/components/organisms/RequestPrintDialog";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,8 @@ export default function ArtDetailPage() {
       } as ArtPiece;
     },
   });
+
+  const publicUrl = getPublicUrl(artPiece?.display_path ?? "");
 
   // Fetch dimension options when art piece is loaded
   const { data: dimensionOptions = [], isLoading: loadingDimensionOptions } =
@@ -139,7 +141,7 @@ export default function ArtDetailPage() {
                 <Skeleton className="w-full h-full object-cover rounded-md min-h-[500px]" />
               ) : (
                 <Image
-                  src={artPiece?.img_url || ""}
+                  src={publicUrl || ""}
                   alt={artPiece?.title || "Image of the art piece"}
                   width={500}
                   height={500}

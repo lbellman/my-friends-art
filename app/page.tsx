@@ -9,7 +9,7 @@ import Image from "next/image";
 import { useRef } from "react";
 
 
-const mediumSections = ["digital", "acrylic", "pastel", "watercolor"];
+const mediumSections = ["digital", "pastel", "pastel", "watercolor"];
 
 function ArtSection({ title, pieces }: { title: string; pieces: ArtPiece[] }) {
   return (
@@ -49,7 +49,7 @@ export default function Home() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("art_piece")
-        .select("id, title, img_url, medium, artist:artist_id(id, name)");
+        .select("id, title, thumbnail_path, display_path, medium, artist:artist_id(id, name)");
       if (error) {
         throw new Error(error.message);
       }
@@ -59,7 +59,6 @@ export default function Home() {
       }));
     },
   });
-  console.log(artPieces);
 
   // Split the art pieces into mediums
   const digitalPieces = artPieces?.filter(
@@ -111,13 +110,13 @@ export default function Home() {
         {digitalPieces?.length > 0 && (
           <ArtSection title="digital" pieces={digitalPieces} />
         )}
-        {/* Acrylic Pieces */}
-        {acrylicPieces?.length > 0 && (
-          <ArtSection title="acrylic" pieces={acrylicPieces} />
-        )}
         {/* Pastel Pieces */}
         {pastelPieces?.length > 0 && (
           <ArtSection title="pastel" pieces={pastelPieces} />
+        )}
+        {/* Acrylic Pieces */}
+        {acrylicPieces?.length > 0 && (
+          <ArtSection title="acrylic" pieces={acrylicPieces} />
         )}
         {/* Watercolor Pieces */}
         {watercolorPieces?.length > 0 && (

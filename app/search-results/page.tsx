@@ -50,7 +50,7 @@ function SearchResultsContent() {
   const artPieces: ArtPiece[] = (artPieceResults ?? []).map((row) => ({
     id: row.art_piece_id,
     title: row.title,
-    img_url: row.img_url,
+    display_path: row.display_path,
     medium: row.medium,
     artist: {
       id: row.artist_id,

@@ -1,4 +1,5 @@
 import { Database, Tables } from "@/supabase";
+import supabase from "@/lib/supabase/server";
 
 export type PrintOptionType = Database["public"]["Enums"]["print_options"];
 
@@ -17,3 +18,8 @@ export type ArtPiece = Tables<"art_piece"> & {
     name: string;
   };
 };
+
+export function getPublicUrl(path: string) {
+  const { data } = supabase.storage.from("art-pieces").getPublicUrl(path);
+  return data.publicUrl;
+}

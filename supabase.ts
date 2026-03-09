@@ -89,36 +89,39 @@ export type Database = {
           artist_id: string | null
           aspect_ratio: Database["public"]["Enums"]["aspect_ratios"]
           created_at: string | null
+          display_path: string | null
           dpi: number | null
           id: string
-          img_url: string
           medium: Database["public"]["Enums"]["art_mediums"]
           px_height: number | null
           px_width: number | null
+          thumbnail_path: string | null
           title: string
         }
         Insert: {
           artist_id?: string | null
           aspect_ratio: Database["public"]["Enums"]["aspect_ratios"]
           created_at?: string | null
+          display_path?: string | null
           dpi?: number | null
           id?: string
-          img_url: string
           medium: Database["public"]["Enums"]["art_mediums"]
           px_height?: number | null
           px_width?: number | null
+          thumbnail_path?: string | null
           title: string
         }
         Update: {
           artist_id?: string | null
           aspect_ratio?: Database["public"]["Enums"]["aspect_ratios"]
           created_at?: string | null
+          display_path?: string | null
           dpi?: number | null
           id?: string
-          img_url?: string
           medium?: Database["public"]["Enums"]["art_mediums"]
           px_height?: number | null
           px_width?: number | null
+          thumbnail_path?: string | null
           title?: string
         }
         Relationships: [
@@ -368,11 +371,12 @@ export type Database = {
           artist_id: string
           artist_name: string
           aspect_ratio: Database["public"]["Enums"]["aspect_ratios"]
+          display_path: string
           dpi: number
-          img_url: string
           medium: string
           px_height: number
           px_width: number
+          thumbnail_path: string
           title: string
         }[]
       }
