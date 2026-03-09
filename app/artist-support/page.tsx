@@ -1,21 +1,32 @@
 import InternalLayout from "@/components/organisms/InternalLayout";
+import { PrintDimensionsCalculator } from "@/components/organisms/PrintDimensionsCalculator";
+
 export default function ArtistSupportPage() {
   return (
     <InternalLayout title="Artist Support">
       <div className="flex flex-col gap-12 flex-nowrap">
         {/* Overview */}
         <div className="flex flex-col gap-4" id="uploading-your-art">
-          <h2 className="font-display">Uploading Your Art</h2>
+          <h2 className="font-display">Digitizing your Art</h2>
           <p>
             In order to ensure the best quality prints, it is important that the
-            files you share are high-quality and reasonable pixel dimensions.
-            The higher quality the resolution, the more dimensions the print
-            will be available in. For physical art, it&apos;s recommended that
-            you scan it rather than taking a photo. On iPhones, you can use the
-            "Scan Document" feature to get a high-quality scan (MUCH better than
-            just a photo). For Android phones, the Google Drive app has a "Scan"
-            feature that is also very good.
+            files you share are high-quality. The better the pixel resolution,
+            the more dimensions the print will be available in. For physical art
+            (acrylic, watercolor, pastel, etc., anything that is not digital),
+            it&apos;s recommended that you scan it rather than taking a photo.
+            On iPhones, you can use the "Scan Document" feature to get a
+            high-quality scan (MUCH better than just a photo). Side note for
+            iPhone users: The Preview app has the ability to export the scanned
+            document with options, here they allow you to set your own DPI. I
+            recommend going with 300 DPI and exporting as a jpeg. For Android
+            phones, the Google Drive app has a "Scan" feature that is also very
+            good.
           </p>
+        </div>
+
+        {/* Print dimensions calculator */}
+        <div className="flex flex-col gap-4" id="print-dimensions-calculator">
+          <PrintDimensionsCalculator />
         </div>
         <div className="flex flex-col gap-4" id="pricing-and-shipping">
           <h2 className="font-display">Pricing & Shipping</h2>
