@@ -26,7 +26,7 @@ describe("RequestPrintDialog", () => {
     );
     const nameInput = screen.getByLabelText("Name");
     expect(nameInput).toBeInTheDocument();
-    const emailInput = screen.getByLabelText("Email address");
+    const emailInput = screen.getByLabelText("Email");
     expect(emailInput).toBeInTheDocument();
     
 
