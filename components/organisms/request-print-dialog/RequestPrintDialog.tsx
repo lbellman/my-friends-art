@@ -117,8 +117,8 @@ export default function SpecialRequestDialog({
           <DialogTitle>Request a Print</DialogTitle>
           <DialogDescription>
             Fill out the form below to request a print of &quot;
-            {printDetails?.title}&quot;. The artist will get back to you with pricing
-            and shipping details.
+            {printDetails?.title}&quot;. The artist will get back to you with
+            pricing and shipping details.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -176,7 +176,7 @@ export default function SpecialRequestDialog({
                     return (
                       <Button
                         key={dimensionValue}
-                        type="button"
+                        type="button" // stops it from submitting the form everytime you click it (buttons in <form> elements are default type="submit")
                         variant={isSelected ? "default" : "outline"}
                         onClick={() =>
                           setFormData({

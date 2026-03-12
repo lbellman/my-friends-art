@@ -20,7 +20,19 @@ export type ArtPiece = Tables<"art_piece"> & {
   };
 };
 
+// @types.tsx
 export function getPublicUrl(path: string) {
+  if (!path) return "";
+
+  // If Storybook or app passes an absolute or root-relative URL, just use it
+  if (
+    path.startsWith("http://") ||
+    path.startsWith("https://") ||
+    path.startsWith("/")
+  ) {
+    return path;
+  }
+
   const { data } = supabase.storage.from("art-pieces").getPublicUrl(path);
   return data.publicUrl;
 }

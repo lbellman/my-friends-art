@@ -1,5 +1,5 @@
 import InternalLayout from "@/components/organisms/InternalLayout";
-import { PrintDimensionsCalculator } from "@/components/organisms/PrintDimensionsCalculator";
+import { PrintDimensionsCalculator } from "@/components/organisms/print-dimensions-calculator/PrintDimensionsCalculator";
 
 export default function ArtistSupportPage() {
   return (
