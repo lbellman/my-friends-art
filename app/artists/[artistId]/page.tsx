@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowLeftIcon, Globe, Mail, MapPin } from "lucide-react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
-import { ArtCard } from "@/components/molecules/ArtCard";
+import { ArtCard } from "@/components/molecules/art-card/ArtCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ArtistType, ArtPiece } from "@/@types";
 

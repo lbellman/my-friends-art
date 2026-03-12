@@ -1,7 +1,7 @@
 "use client";
 import { ArtPiece } from "@/@types";
 import useHighlightedSectionAnchors from "@/app/hooks/useHighlightedSectionAnchors";
-import { ArtCard } from "@/components/molecules/ArtCard";
+import { ArtCard } from "@/components/molecules/art-card/ArtCard";
 import Subnav from "@/components/organisms/Subnav";
 import supabase from "@/lib/supabase/server";
 import { useQuery } from "@tanstack/react-query";

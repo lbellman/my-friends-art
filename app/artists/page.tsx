@@ -1,6 +1,6 @@
 "use client";
 
-import { ArtistCard } from "@/components/molecules/ArtistCard";
+import { ArtistCard } from "@/components/molecules/artist-card/ArtistCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import supabase from "@/lib/supabase/server";
 import { useQuery } from "@tanstack/react-query";

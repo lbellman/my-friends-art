@@ -8,7 +8,7 @@ import {
   PrintOptionType,
 } from "@/@types";
 import Link from "@/components/atoms/link/Link";
-import { ArtistCard } from "@/components/molecules/ArtistCard";
+import { ArtistCard } from "@/components/molecules/artist-card/ArtistCard";
 import RequestPrintDialog from "@/components/organisms/RequestPrintDialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";

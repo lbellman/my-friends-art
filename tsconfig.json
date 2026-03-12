@@ -28,7 +28,9 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    "**/*.mts",
+    "jest.setup.js",
+    "__tests__/snapshot.tsx"  
   ],
   "exclude": ["node_modules"]
 }

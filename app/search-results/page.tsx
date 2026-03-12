@@ -3,11 +3,11 @@ import InternalLayout from "@/components/organisms/InternalLayout";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import supabase from "@/lib/supabase/server";
-import { ArtCard } from "@/components/molecules/ArtCard";
+import { ArtCard } from "@/components/molecules/art-card/ArtCard";
 import { ArtPiece } from "@/@types";
 import { Button } from "@/components/ui/button";
 import { useState, Suspense } from "react";
-import { ArtistCard } from "@/components/molecules/ArtistCard";
+import { ArtistCard } from "@/components/molecules/artist-card/ArtistCard";
 import { Tables } from "@/supabase";
 import { Skeleton } from "@/components/ui/skeleton";
 

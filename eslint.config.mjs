@@ -1,5 +1,7 @@
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
 import storybook from "eslint-plugin-storybook";
+import jest from "eslint-plugin-jest";
+import react from "eslint-plugin-react";
 
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
@@ -16,7 +18,9 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
-  ...storybook.configs["flat/recommended"]
+  ...storybook.configs["flat/recommended"],
+  ...jest.configs["flat/recommended"],
+  ...react.configs["flat/recommended"]
 ]);
 
 export default eslintConfig;
