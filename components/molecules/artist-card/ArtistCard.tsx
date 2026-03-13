@@ -82,7 +82,7 @@ export function ArtistCard({ artist, linkHref, linkText }: ArtistCardProps) {
         </div>
 
         {artist.bio && (
-          <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+          <p className="body2 text-muted-foreground whitespace-pre-wrap">
             {artist.bio}
           </p>
         )}

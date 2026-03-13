@@ -11,15 +11,19 @@ import { Search } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function SearchBar() {
+export type SearchBarProps = {
+  onSearch: (query: string) => void;
+  placeholder?: string;
+};
+
+export default function SearchBar({ onSearch, placeholder }: SearchBarProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
-  const router = useRouter();
 
   const handleSearch = () => {
     const q = searchQuery.trim();
     if (!q) return;
-    router.push(`/search-results?q=${encodeURIComponent(q)}`);
+    onSearch(q);
     setSearchQuery("");
     setSearchDialogOpen(false);
   };
@@ -34,14 +38,13 @@ export default function SearchBar() {
     <>
       <div className="flex items-center gap-2 flex-nowrap">
         <Input
-          placeholder="Search by artist name, title, etc..."
+          placeholder={placeholder || "Search by artist name, title, etc..."}
           className="w-64 hidden md:block"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={handleEnterKeyPress}
         />
 
-        {/* Mobile: icon opens search dialog */}
         <Button
           variant="outline"
           size="icon"
@@ -52,7 +55,6 @@ export default function SearchBar() {
           <Search className="size-4" />
         </Button>
 
-        {/* Desktop: icon submits search */}
         <Button
           variant="outline"
           size="icon"

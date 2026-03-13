@@ -11,7 +11,7 @@ export function ArtCard({ artPiece, href }: ArtCardProps) {
   const publicUrl = getPublicUrl(artPiece.display_path ?? "");
   return (
     <Link href={href}>
-      <div className="group">
+      <div className="group md:min-w-[200px]">
         <div
           className={` relative overflow-hidden rounded-xl aspect-3/4 mb-4 transition-all duration-300 ease-out group-hover:shadow-xl group-hover:-translate-y-1`}
         >
@@ -37,11 +37,11 @@ export function ArtCard({ artPiece, href }: ArtCardProps) {
         <div className="space-y-1">
           <p className="uppercase-overline">{artPiece.medium}</p>
           <div className="flex items-center justify-between">
-            <p className="text-foreground font-semibold group-hover:text-primary-foreground transition-colors duration-300">
+            <p className="text-foreground body1 font-medium group-hover:text-primary-foreground transition-colors duration-300">
               {artPiece.title}
             </p>
           </div>
-          <p className="text-sm ">{artPiece.artist?.name}</p>
+          <p className="body2">{artPiece.artist?.name}</p>
         </div>
       </div>
     </Link>

@@ -114,7 +114,7 @@ export default function SpecialRequestDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Request a Print</DialogTitle>
+          <DialogTitle>request a print</DialogTitle>
           <DialogDescription>
             Fill out the form below to request a print of &quot;
             {printDetails?.title}&quot;. The artist will get back to you with

@@ -1,5 +1,5 @@
 "use client";
-import SearchBar from "@/components/molecules/SearchBar";
+import SearchBar from "@/components/molecules/search-bar/SearchBar";
 import Image from "next/image";
 import Link from "next/link";
 import { Menu } from "lucide-react";
@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
 
 const navLinks = [
   { label: "About", href: "/about" },
@@ -17,6 +18,7 @@ const navLinks = [
 ];
 
 export default function Navbar() {
+  const router = useRouter();
   return (
     <nav className="sticky top-0 z-10 left-0 bg-background/80 backdrop-blur-md border-b border-border px-4 md:px-8 h-navbar-height">
       <div className="flex items-center justify-between w-full flex-nowrap">
@@ -34,7 +36,11 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center flex-nowrap gap-3 md:gap-8">
-          <SearchBar />
+          <SearchBar
+            onSearch={(q) => {
+              router.push(`/search-results?q=${encodeURIComponent(q)}`)
+            }}
+          />
           {/* Desktop: nav links */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
