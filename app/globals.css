@@ -154,19 +154,25 @@
     @apply bg-background text-foreground;
   }
   h1 {
-    @apply text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-foreground tracking-wide font-light;
+    @apply text-4xl font-display sm:text-5xl md:text-6xl lg:text-7xl text-foreground tracking-wide font-light;
   }
   h2 {
-    @apply text-2xl md:text-3xl font-light tracking-wide  text-foreground;
+    @apply text-3xl font-display sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-wide  text-foreground;
   }
   h3 {
-    @apply text-xl md:text-2xl font-light tracking-wide text-foreground;
-  }
+    @apply text-2xl font-display sm:text-3xl md:text-4xl lg:text-5xl font-light tracking-wide text-foreground;
+  } 
   h4 {
-    @apply text-lg md:text-xl font-light tracking-wide text-foreground;
+    @apply text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light tracking-wide text-foreground;
+  }
+  h5 {
+    @apply text-lg sm:text-xl md:text-2xl lg:text-3xl font-light tracking-wide text-foreground;
+  }
+  h6 {
+    @apply text-base sm:text-lg md:text-xl lg:text-2xl font-light tracking-wide text-foreground;
   }
   p {
-    @apply text-sm md:text-base text-foreground tracking-wide leading-relaxed;
+    @apply text-sm md:text-base lg:text-lg text-foreground tracking-wide leading-relaxed;
   }
 
 }

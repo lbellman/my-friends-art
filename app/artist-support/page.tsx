@@ -7,7 +7,7 @@ export default function ArtistSupportPage() {
       <div className="flex flex-col gap-12 flex-nowrap">
         {/* Overview */}
         <div className="flex flex-col gap-4" id="uploading-your-art">
-          <h2 className="font-display">Digitizing your Art</h2>
+          <h4 className="font-display">Digitizing your Art</h4>
           <p>
             In order to ensure the best quality prints, it is important that the
             files you share are high-quality. The better the pixel resolution,
@@ -29,7 +29,7 @@ export default function ArtistSupportPage() {
           <PrintDimensionsCalculator />
         </div>
         <div className="flex flex-col gap-4" id="pricing-and-shipping">
-          <h2 className="font-display">Pricing & Shipping</h2>
+          <h4 className="font-display">Pricing & Shipping</h4>
           <p>
             You as an artist have the freedom to set your own pricing for your
             time, materials, and skills, but I recommend using the following

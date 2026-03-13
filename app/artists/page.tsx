@@ -39,7 +39,7 @@ export default function ArtistsPage() {
   return (
     <div className="min-h-screen flex flex-col items-center">
       <div className="max-w-5xl flex flex-col w-full gap-12 items-center px-6 py-12">
-        <h2 className="font-display text-5xl">Our Artists</h2>
+        <h2 className="font-display">Our Artists</h2>
         <div className="grid grid-cols-1 gap-8 max-w-4xl w-full">
           {loadingArtists
             ? Array.from({ length: 3 }).map((_, index) => (
@@ -56,7 +56,7 @@ export default function ArtistsPage() {
         </div>
         {/* CTA */}
         <div className="flex flex-col gap-4 items-center">
-          <h3>Interested in becoming an artist?</h3>
+          <h6>Interested in becoming an artist?</h6>
           <Button size="lg">
             <Link href="/become-an-artist" asChild>
               Become an Artist

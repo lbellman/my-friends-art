@@ -26,17 +26,17 @@ exports[`renders homepage unchanged 1`] = `
         class="flex flex-col items-center gap-4 absolute"
       >
         <h1
-          class=" font-display opacity-0 animate-fade-up text-white text-center tracking-wide"
+          class=" opacity-0 animate-fade-up text-white text-center tracking-wide"
           style="animation-delay: 200ms;"
         >
-          My Friend's Art
+          my friend's art
         </h1>
-        <h3
+        <h6
           class=" opacity-0 animate-fade-up font-display text-center text-white tracking-wide"
           style="animation-delay: 400ms;"
         >
           Meaningful art made by someone's friend.
-        </h3>
+        </h6>
       </div>
     </div>
     <div

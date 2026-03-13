@@ -55,12 +55,15 @@ export function PrintDimensionsCalculator() {
     setDimensions(null);
 
     try {
-      const { data, error: rpcError } = await supabase.rpc("get_dimension_options", {
-        px_width: w,
-        px_height: h,
-        dpi: d,
-        aspect_ratio: aspectRatio,
-      });
+      const { data, error: rpcError } = await supabase.rpc(
+        "get_dimension_options",
+        {
+          px_width: w,
+          px_height: h,
+          dpi: d,
+          aspect_ratio: aspectRatio,
+        },
+      );
 
       if (rpcError) {
         setError(rpcError.message);
@@ -75,7 +78,7 @@ export function PrintDimensionsCalculator() {
 
   return (
     <div className="flex flex-col gap-6 rounded-lg border border-border bg-card p-6 shadow-sm">
-      <h3 className="font-display text-xl">Print dimensions calculator</h3>
+      <h5 className="font-display">Print dimensions calculator</h5>
       <p className="text-sm text-muted-foreground">
         Enter your image&apos;s pixel dimensions, aspect ratio, and DPI to see
         which print sizes will be available.
@@ -158,13 +161,13 @@ export function PrintDimensionsCalculator() {
 
       {dimensions !== null && (
         <div className="flex flex-col gap-2">
-          <h4 className="text-sm font-medium">
+          <h4 className="font-medium">
             Available print dimensions (width × height in inches)
           </h4>
           {dimensions.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No print dimensions available for this resolution. Try higher pixel
-              dimensions or a lower DPI.
+              No print dimensions available for this resolution. Try higher
+              pixel dimensions or a lower DPI.
             </p>
           ) : (
             <ul className="flex flex-wrap gap-2">

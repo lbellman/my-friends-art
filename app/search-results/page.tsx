@@ -61,7 +61,7 @@ function SearchResultsContent() {
   return (
     <InternalLayout title="Search Results">
       <div className="flex flex-col gap-4">
-        <h3>Showing results for &quot;{searchQuery}&quot;</h3>
+        <h6>Showing results for &quot;{searchQuery}&quot;</h6>
         <div className="flex items-center flex-nowrap gap-2">
           <Button
             variant={
@@ -94,7 +94,7 @@ function SearchResultsContent() {
         </div>
 
         {resultsFilter.includes("artPieces") && (
-          <h3 className="mt-6">Art Pieces</h3>
+          <h5 className="mt-6 font-display">Art Pieces</h5>
         )}
 
         {!resultsFilter.includes("artPieces") ? null : isLoadingArtPieces ? (
@@ -140,7 +140,7 @@ function SearchResultsContent() {
           </div>
         )}
 
-        {resultsFilter.includes("artists") && <h3 className="mt-6">Artists</h3>}
+        {resultsFilter.includes("artists") && <h5 className="mt-6 font-display">Artists</h5>}
 
         {!resultsFilter.includes("artists") ? null : isLoadingArtists ? (
           <div className="flex flex-col gap-4">

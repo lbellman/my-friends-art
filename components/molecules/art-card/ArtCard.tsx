@@ -37,9 +37,9 @@ export function ArtCard({ artPiece, href }: ArtCardProps) {
         <div className="space-y-1">
           <p className="uppercase-overline">{artPiece.medium}</p>
           <div className="flex items-center justify-between">
-            <h5 className="text-foreground font-semibold group-hover:text-primary-foreground transition-colors duration-300">
+            <p className="text-foreground font-semibold group-hover:text-primary-foreground transition-colors duration-300">
               {artPiece.title}
-            </h5>
+            </p>
           </div>
           <p className="text-sm ">{artPiece.artist?.name}</p>
         </div>

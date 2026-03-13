@@ -107,7 +107,7 @@ export default function BecomeAnArtistPage() {
     <div className="min-h-screen flex flex-col items-center bg-background">
       <div className="max-w-3xl w-full flex flex-col gap-8 items-center px-6 py-12">
         <header className="text-center ">
-          <h1 className="font-display mb-6">Become an Artist</h1>
+          <h1 className="mb-6">Become an Artist</h1>
           <p className="">
             Fill out the application below to become an artist.
           </p>

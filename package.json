@@ -2,16 +2,21 @@
   "name": "my-friends-art",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "verify": "pnpm build && pnpm test && pnpm build-storybook",
     "start": "next start",
     "lint": "eslint",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "serve-storybook": "serve storybook-static",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "test:update-snapshot": "jest --updateSnapshot"
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",

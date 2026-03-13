@@ -34,9 +34,9 @@ export function ArtistCard({ artist, linkHref, linkText }: ArtistCardProps) {
       </div>
       <div className="flex flex-col gap-3 p-6 sm:p-8 flex-1 min-w-0">
         <div className="flex items-start justify-between gap-4">
-          <h2 className="text-xl font-semibold text-foreground">
+          <h6 className="text-foreground">
             {artist.name}
-          </h2>
+          </h6>
           {linkHref && linkText && <Link href={linkHref}>{linkText}</Link>}
         </div>
 

@@ -89,9 +89,9 @@ export default function ArtistDetailPage() {
             </div>
 
             <div className="flex flex-col items-center gap-4">
-              <h2 className="text-2xl font-semibold text-foreground">
+              <h5 className="text-foreground">
                 {artist.name}
-              </h2>
+              </h5>
 
               <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-foreground">
                 {artist.location && (
@@ -149,10 +149,10 @@ export default function ArtistDetailPage() {
         )}
 
         {/* Artist's art pieces */}
-        <section className="flex flex-col gap-4 w-full">
-          <h3 className="font-display text-xl tracking-wide text-foreground">
+        <section className="flex flex-col gap-4 mt-8 w-full">
+          <h4 className="font-display tracking-wide mb-4 text-foreground">
             Art by {artist?.name ?? "this artist"}
-          </h3>
+          </h4>
 
           {isLoadingArtPieces ? (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">

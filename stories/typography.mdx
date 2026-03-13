@@ -1,0 +1,83 @@
+import { Meta, Typeset } from '@storybook/addon-docs/blocks'
+import '../app/globals.css'
+
+<Meta title="App/Typography" />
+
+export const typography = {
+  type: {
+    primary: 'Outfit',
+    display: 'Lacquer',
+  },
+  weight: {
+    regular: '400',
+    bold: '700',
+    extrabold: '800',
+    black: '900',
+  },
+  size: {
+    xs: 12,
+    sm: 14,
+    base: 16,
+    lg: 20,
+    xl: 24,
+    "2xl": 28,
+    "3xl": 32,
+    "4xl": 40,
+    "5xl": 48,
+  },
+};
+
+# Typography
+
+---
+<br/>
+<br/>
+
+### Font Family: Outfit
+Used for body text and subtitles.
+
+
+<Typeset
+  fontSizes={[
+    Number(typography.size.xs),
+    Number(typography.size.sm),
+    Number(typography.size.base),
+    Number(typography.size.lg),
+    Number(typography.size.xl),
+    Number(typography.size["2xl"]),
+    Number(typography.size["3xl"]),
+    Number(typography.size["4xl"]),
+    Number(typography.size["5xl"]),
+  ]}
+  fontWeight={typography.weight.regular}
+  sampleText="Meaningful art made by someone's friend."
+  fontFamily={typography.type.primary}
+/>
+
+
+### Font Family: Lacquer
+Used for major page headings and emphasized text.
+
+<Typeset
+  fontSizes={[
+    Number(typography.size.xs),
+    Number(typography.size.sm),
+    Number(typography.size.base),
+    Number(typography.size.lg),
+    Number(typography.size.xl),
+    Number(typography.size["2xl"]),
+    Number(typography.size["3xl"]),
+    Number(typography.size["4xl"]),
+    Number(typography.size["5xl"]),
+  ]}
+  fontWeight={typography.weight.regular}
+  sampleText="meaningful art made by someone's friend."
+  fontFamily={typography.type.display}
+/>
+
+
+### Utility: Uppercase overline
+
+Used for overline labels like medium names on cards.
+
+<p className="uppercase-overline">Digital · Acrylic · Pastel</p>

@@ -35,10 +35,7 @@ describe("ArtCard", () => {
   it("renders title, medium, and artist name", () => {
     const { artPiece } = renderArtCard();
 
-    expect(
-      screen.getByRole("heading", { name: artPiece.title }),
-    ).toBeInTheDocument();
-
+    expect(screen.getByText(artPiece.title)).toBeInTheDocument();
     expect(screen.getByText(artPiece.medium)).toBeInTheDocument();
     expect(screen.getByText(artPiece.artist.name)).toBeInTheDocument();
   });

@@ -1,5 +1,13 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Node.js
+
+- **Next.js app** runs on Node 18+.
+- **Storybook 10** requires **Node 20.19+** or **22.12+** (`pnpm storybook`, `pnpm build-storybook`).
+- This repo includes **`.nvmrc`** (`20.19.0`). With [nvm](https://github.com/nvm-sh/nvm): `nvm install && nvm use`.
+- **Full pipeline** (app build + Jest + Storybook static build): `pnpm verify` — use Node **20.19+** or the Storybook step will exit with the version error.
+- **Vercel:** set **Node.js Version** to **20.x** (pick **20.19** or newer if available) for any project that runs `build-storybook`.
+
 ## Getting Started
 First, run the development server:
 
@@ -38,6 +46,10 @@ Unit tests cover accessibility, interaction, and behaviour. They use a mock Supa
 Snapshots of the UI are kept in the `__tests__/__snapshots__` folder. These will fail if the UI has changed since the last snapshot. If any snapshot tests are failing because of UI changes, run `jest --updateSnapshot` to update the snapshot, and then rerun the tests. For more information on snapshots, visit https://jestjs.io/docs/snapshot-testing.
 
 ## Storybook
-Storybook is integrated in this repo to document components and test for visual and accessibility inconsistencies. Each component has it's own .stories file that lives in the same folder as the component. To run the Storybook library locally, run `npm run storybook`.
+Storybook is integrated in this repo to document components and test for visual and accessibility inconsistencies. Each component has it's own .stories file that lives in the same folder as the component.
+
+- **Dev:** `pnpm storybook` (requires Node **20.19+**)
+- **Static build:** `pnpm build-storybook` → output in `storybook-static/`
+- **All checks:** `pnpm verify` (Next build + Jest + Storybook build)
 
 

@@ -171,8 +171,8 @@ export default function ArtDetailView({
               <Skeleton className="w-full h-10 rounded-md" />
             ) : (
               <div className="flex flex-col flex-nowrap gap-2">
-                <h2>{artPiece?.title}</h2>
-                <h4>{artPiece?.artist?.name}</h4>
+                <h5>{artPiece?.title}</h5>
+                <h6>{artPiece?.artist?.name}</h6>
               </div>
             )}
             {/* Dimension Selection */}
@@ -291,7 +291,7 @@ export default function ArtDetailView({
         {/* About The Artist */}
         {artPiece?.artist && (
           <section className="mt-20 border-t border-border py-12">
-            <h2 className="font-display mb-6">about the artist</h2>
+            <h4 className="font-display mb-6">about the artist</h4>
             <ArtistCard
               artist={artPiece?.artist as ArtistType}
               linkHref={`/artists/${artPiece?.artist_id}`}

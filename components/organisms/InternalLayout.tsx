@@ -36,7 +36,7 @@ export default function InternalLayout({
             </Link>
           </div>
         )}
-        {title && <h2 className="font-display text-center text-5xl mb-8">{title}</h2>}
+        {title && <h1 className="text-center mb-8">{title}</h1>}
         <main className="flex-1 px-6 w-full py-6 pb-12 ">{children}</main>
       </div>
     </div>

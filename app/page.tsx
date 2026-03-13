@@ -13,9 +13,9 @@ const mediumSections = ["digital", "pastel", "acrylic", "watercolor"];
 function ArtSection({ title, pieces }: { title: string; pieces: ArtPiece[] }) {
   return (
     <div id={title} className="flex flex-col">
-      <h1 className="mb-8 font-display text-3xl tracking-wide text-foreground md:text-4xl">
+      <h4 className="mb-8 font-display tracking-wide text-foreground">
         {title}
-      </h1>
+      </h4>
       <ul className="grid grid-cols-3 gap-4 md:gap-8">
         {pieces.map((piece) => (
           <ArtCard
@@ -92,17 +92,17 @@ export default function Home() {
         <div className="absolute inset-0 bg-primary/75" />
         <div className="flex flex-col items-center gap-4 absolute">
           <h1
-            className=" font-display opacity-0 animate-fade-up text-white text-center tracking-wide"
+            className=" opacity-0 animate-fade-up text-white text-center tracking-wide"
             style={{ animationDelay: "200ms" }}
           >
-            My Friend&apos;s Art
+            my friend&apos;s art
           </h1>
-          <h3
+          <h6
             className=" opacity-0 animate-fade-up font-display text-center text-white tracking-wide"
             style={{ animationDelay: "400ms" }}
           >
             Meaningful art made by someone&apos;s friend.
-          </h3>
+          </h6>
         </div>
       </div>
       {/*  Subnav */}

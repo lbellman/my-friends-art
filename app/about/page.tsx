@@ -33,9 +33,7 @@ function Stage({
           {stageNumber}
         </span>
         <div className="flex justify-between items-center gap-6 min-w-0">
-          <h2 className={`font-display text-xl md:text-2xl text-white`}>
-            {title}
-          </h2>
+          <h5 className={`font-display text-white`}>{title}</h5>
           {current && (
             <span className="inline-flex w-fit items-center rounded-full border border-white/40 bg-white/15 backdrop-blur-sm px-4 py-1.5 text-sm font-medium text-primary-foreground">
               Current Stage
@@ -75,22 +73,22 @@ export default function AboutPage() {
           >
             about
           </h1>
-          <p
-            className="text-white font-medium text-center max-w-2xl text-lg md:text-xl leading-relaxed opacity-0 animate-fade-up"
+          <h6
+            className="text-white font-medium text-center max-w-2xl leading-relaxed opacity-0 animate-fade-up"
             style={{ animationDelay: "400ms" }}
           >
             My Friend&apos;s Art is a platform for celebrating and encouraging
             art of all kinds. It is a passion project currently being built by
             Lindsey Bellman, a software engineer, artist, and friend of many
             artists.
-          </p>
+          </h6>
 
-          <p
-            className="text-white font-medium text-center max-w-2xl text-lg md:text-xl leading-relaxed opacity-0 animate-fade-up"
+          <h6
+            className="text-white font-medium text-center max-w-2xl leading-relaxed opacity-0 animate-fade-up"
             style={{ animationDelay: "600ms" }}
           >
             This platform will be built in several stages.
-          </p>
+          </h6>
 
           <div className="flex flex-col gap-8 md:gap-10">
             <Stage
@@ -164,10 +162,10 @@ export default function AboutPage() {
               current={false}
             />
           </div>
-          <h3 className="my-12 text-white font-display text-3xl font-medium">
+          <h4 className="my-12 text-white font-display font-medium text-center">
             Thank you for being here and supporting independent art!{" "}
-          </h3>
-          <div className="flex flex-row gap-6">
+          </h4>
+          <div className="flex flex-row gap-6 px-6">
             <Button variant="outline" size="lg" className="shadow-lg">
               <Link
                 href="https://software.lindseybellman.com"
