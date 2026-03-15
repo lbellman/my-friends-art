@@ -107,7 +107,7 @@ export default function BecomeAnArtistPage() {
     <div className="min-h-screen flex flex-col items-center bg-background">
       <div className="max-w-3xl w-full flex flex-col gap-8 items-center px-6 py-12">
         <header className="text-center ">
-          <h1 className="mb-6">Become an Artist</h1>
+          <h1 className="mb-6">become an artist</h1>
           <p className="">
             Fill out the application below to become an artist.
           </p>
@@ -118,119 +118,13 @@ export default function BecomeAnArtistPage() {
         </header>
 
         <div className="w-full rounded-xl border border-border bg-card text-card-foreground shadow-sm p-6 md:p-8">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="name" className="text-sm">
-                Artist Name
-              </label>
-              <Input
-                id="name"
-                name="name"
-                type="text"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                placeholder="How would you like to be identified on the site?"
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label htmlFor="email_address" className="text-sm">
-                Email Address
-              </label>
-              <Input
-                id="email_address"
-                name="email_address"
-                type="email"
-                value={formData.email_address}
-                onChange={handleChange}
-                required
-                placeholder="Enter your email..."
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label htmlFor="bio" className="text-sm ">
-                Bio
-              </label>
-              <Textarea
-                id="bio"
-                name="bio"
-                value={formData.bio}
-                onChange={handleChange}
-                required
-                placeholder="Give us a short description of who you are and what your art means to you..."
-                rows={4}
-                className="resize-y min-h-[100px]"
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label htmlFor="location" className="text-sm">
-                Location
-              </label>
-              <Input
-                id="location"
-                name="location"
-                type="text"
-                value={formData.location}
-                onChange={handleChange}
-                placeholder="City, country (optional)"
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="website" className="text-sm">
-                    Website
-                  </label>
-                  <Input
-                    id="website"
-                    name="website"
-                    type="url"
-                    value={formData.website}
-                    onChange={handleChange}
-                    placeholder="https://..."
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="instagram" className="text-sm">
-                    Instagram
-                  </label>
-                  <Input
-                    id="instagram"
-                    name="instagram"
-                    type="text"
-                    value={formData.instagram}
-                    onChange={handleChange}
-                    placeholder="@username or URL"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="facebook" className="text-sm">
-                    Facebook
-                  </label>
-                  <Input
-                    id="facebook"
-                    name="facebook"
-                    type="text"
-                    value={formData.facebook}
-                    onChange={handleChange}
-                    placeholder="URL or username"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-primary text-primary-foreground hover:bg-primary-hover h-11 text-base font-medium"
-            >
-              {isSubmitting ? "Submitting..." : "Submit Application"}
-            </Button>
-          </form>
+        <iframe
+          src="https://tally.so/embed/KY05X7?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
+          width="100%"
+          height="1200"
+          frameBorder="0"
+          title="Artist Submission"
+        />
         </div>
       </div>
     </div>

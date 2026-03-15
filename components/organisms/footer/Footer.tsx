@@ -16,10 +16,7 @@ const pages = [
 ];
 
 const forArtists = [
-  {
-    label: "Become an Artist",
-    href: "/become-an-artist",
-  },
+
   {
     label: "Artist Support",
     href: "/artist-support",
