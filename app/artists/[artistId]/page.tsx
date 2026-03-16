@@ -9,6 +9,8 @@ import Image from "next/image";
 import { ArtCard } from "@/components/molecules/art-card/ArtCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ArtistType, ArtPiece } from "@/@types";
+import { lowerCase } from "lodash";
+import { ArtistCard } from "@/components/molecules/artist-card/ArtistCard";
 
 export default function ArtistDetailPage() {
   const { artistId } = useParams<{ artistId: string }>();
@@ -46,7 +48,9 @@ export default function ArtistDetailPage() {
 
   return (
     <InternalLayout
-      title={artist?.name ? `About ${artist.name}` : "About the Artist"}
+      title={
+        artist?.name ? lowerCase(`About ${artist.name}`) : "about the artist"
+      }
       back={{
         href: "/artists",
         label: "Back to all artists",
@@ -62,87 +66,11 @@ export default function ArtistDetailPage() {
 
         {/* Artist profile */}
         {isLoadingArtist ? (
-          <div className="flex flex-col items-center gap-4">
-            <Skeleton className="h-64 w-64 rounded-xl" />
-            <Skeleton className="h-6 w-40" />
-            <Skeleton className="h-4 w-56" />
-            <Skeleton className="h-24 w-72" />
-          </div>
+          <Skeleton className="h-64 w-full rounded-xl" />
         ) : artist ? (
-          <section className="flex flex-col w-full items-center gap-6 text-center">
-            <div className="relative h-64 w-64 overflow-hidden rounded-xl bg-muted text-muted-foreground">
-              {artist.profile_img_url ? (
-                <Image
-                  src={artist.profile_img_url}
-                  alt={artist.name}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 640px) 100vw, 256px"
-                />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-5xl font-display text-foreground/60">
-                    {artist.name.charAt(0)}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            <div className="flex flex-col items-center gap-4">
-              <h5 className="text-foreground">
-                {artist.name}
-              </h5>
-
-              <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-foreground">
-                {artist.location && (
-                  <span className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4" aria-hidden />
-                    {artist.location}
-                  </span>
-                )}
-                {artist.website?.trim() && (
-                  <a
-                    href={artist.website.trim()}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-2 hover:underline"
-                  >
-                    <Globe className="h-4 w-4" aria-hidden />
-                    {artist.website.trim()}
-                  </a>
-                )}
-                {artist.instagram?.trim() && (
-                  <span className="flex items-center gap-2">
-                    <Image
-                      src="/instagram-logo.svg"
-                      alt=""
-                      width={16}
-                      height={16}
-                      className="shrink-0"
-                      aria-hidden
-                    />
-                    {artist.instagram.trim()}
-                  </span>
-                )}
-                {artist.facebook?.trim() && (
-                  <span className="flex items-center gap-2">
-                    <Image
-                      src="/facebook-logo.png"
-                      alt=""
-                      width={16}
-                      height={16}
-                      className="shrink-0"
-                      aria-hidden
-                    />
-                    {artist.facebook.trim()}
-                  </span>
-                )}
-              </div>
-
-              {artist.bio && (
-                <p className="max-w-2xl whitespace-pre-wrap">{artist.bio}</p>
-              )}
-            </div>
+          <section className="">
+            {/* Image */}
+            <ArtistCard artist={artist} />
           </section>
         ) : (
           <p className="text-muted-foreground">Artist not found.</p>

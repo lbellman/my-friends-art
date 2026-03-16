@@ -10,6 +10,10 @@ interface ArtistCardProps {
 }
 
 export function ArtistCard({ artist, linkHref, linkText }: ArtistCardProps) {
+  const hasSocialLinks =
+    artist.website?.trim() ||
+    artist.instagram?.trim() ||
+    artist.facebook?.trim();
   return (
     <article
       id={artist.id}
@@ -34,58 +38,58 @@ export function ArtistCard({ artist, linkHref, linkText }: ArtistCardProps) {
       </div>
       <div className="flex flex-col gap-3 p-6 sm:p-8 flex-1 min-w-0">
         <div className="flex items-start justify-between gap-4">
-          <h6 className="text-foreground">
-            {artist.name}
-          </h6>
+          <h6 className="text-foreground">{artist.name}</h6>
           {linkHref && linkText && <Link href={linkHref}>{linkText}</Link>}
         </div>
 
-        <div className="flex flex-col gap-2  text-sm text-foreground">
-          {artist.location && (
-            <span className="flex items-center gap-2">
-              <MapPin className="size-4 shrink-0" aria-hidden />
-              {artist.location}
-            </span>
-          )}
-          {artist.website?.trim() && (
-            <span className="flex items-center gap-2">
-              <Globe className="size-4 shrink-0" aria-hidden />
-              {artist.website.trim()}
-            </span>
-          )}
-          {artist.instagram?.trim() && (
-            <span className="flex items-center gap-2">
-              <Image
-                src="/instagram-logo.svg"
-                alt=""
-                width={16}
-                height={16}
-                className="shrink-0"
-                aria-hidden
-              />
-              {artist.instagram.trim()}
-            </span>
-          )}
-          {artist.facebook?.trim() && (
-            <span className="flex items-center gap-2">
-              <Image
-                src="/facebook-logo.png"
-                alt=""
-                width={16}
-                height={16}
-                className="shrink-0"
-                aria-hidden
-              />
-              {artist.facebook.trim()}
-            </span>
-          )}
-        </div>
+        {artist.location && (
+          <span className="flex items-center gap-2 text-sm ">
+            <MapPin className="size-4 shrink-0 " aria-hidden />
+            {artist.location}
+          </span>
+        )}
 
         {artist.bio && (
-          <p className="body2 text-muted-foreground whitespace-pre-wrap">
+          <p className="body2 text-muted-foreground whitespace-pre-wrap flex-1">
             {artist.bio}
           </p>
         )}
+        {hasSocialLinks ? (
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 text-sm md:justify-end text-foreground  mt-auto">
+            {artist.website?.trim() && (
+              <span className="flex items-center gap-2">
+                <Globe className="size-4 shrink-0" aria-hidden />
+                <Link href={artist.website.trim()}>Website</Link>
+              </span>
+            )}
+            {artist.instagram?.trim() && (
+              <span className="flex items-center gap-2">
+                <Image
+                  src="/instagram-logo.svg"
+                  alt=""
+                  width={16}
+                  height={16}
+                  className="shrink-0"
+                  aria-hidden
+                />
+                <Link href={artist.instagram.trim()}>Instagram</Link>
+              </span>
+            )}
+            {artist.facebook?.trim() && (
+              <span className="flex items-center gap-2">
+                <Image
+                  src="/facebook-logo.png"
+                  alt=""
+                  width={16}
+                  height={16}
+                  className="shrink-0"
+                  aria-hidden
+                />
+                <Link href={artist.facebook.trim()}>Facebook</Link>
+              </span>
+            )}
+          </div>
+        ) : null}
       </div>
     </article>
   );
