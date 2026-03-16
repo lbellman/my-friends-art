@@ -89,6 +89,7 @@ export type Database = {
           artist_id: string | null
           aspect_ratio: Database["public"]["Enums"]["aspect_ratios"]
           created_at: string | null
+          description: string | null
           display_path: string | null
           dpi: number | null
           id: string
@@ -102,6 +103,7 @@ export type Database = {
           artist_id?: string | null
           aspect_ratio: Database["public"]["Enums"]["aspect_ratios"]
           created_at?: string | null
+          description?: string | null
           display_path?: string | null
           dpi?: number | null
           id?: string
@@ -115,6 +117,7 @@ export type Database = {
           artist_id?: string | null
           aspect_ratio?: Database["public"]["Enums"]["aspect_ratios"]
           created_at?: string | null
+          description?: string | null
           display_path?: string | null
           dpi?: number | null
           id?: string

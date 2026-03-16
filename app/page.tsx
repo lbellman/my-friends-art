@@ -10,24 +10,24 @@ import { useRef } from "react";
 
 const mediumSections = ["digital", "pastel", "acrylic", "watercolor"];
 
-function ArtSection({ title, pieces }: { title: string; pieces: ArtPiece[] }) {
-  return (
-    <div id={title} className="flex flex-col">
-      <h4 className="mb-8 font-display tracking-wide text-foreground">
-        {title}
-      </h4>
-      <ul className="grid grid-cols-3 gap-4 md:gap-8">
-        {pieces.map((piece) => (
-          <ArtCard
-            key={piece.id}
-            artPiece={piece as ArtPiece}
-            href={`/${piece.id}`}
-          />
-        ))}
-      </ul>
-    </div>
-  );
-}
+// function ArtSection({ title, pieces }: { title: string; pieces: ArtPiece[] }) {
+//   return (
+//     <div id={title} className="flex flex-col">
+//       <h4 className="mb-8 font-display tracking-wide text-foreground">
+//         {title}
+//       </h4>
+//       <ul className="grid grid-cols-3 gap-4 md:gap-8">
+//         {pieces.map((piece) => (
+//           <ArtCard
+//             key={piece.id}
+//             artPiece={piece as ArtPiece}
+//             href={`/${piece.id}`}
+//           />
+//         ))}
+//       </ul>
+//     </div>
+//   );
+// }
 
 export default function Home() {
   const digitalRef = useRef<HTMLButtonElement | null>(null);
@@ -50,8 +50,9 @@ export default function Home() {
       const { data, error } = await supabase
         .from("art_piece")
         .select(
-          "id, title, thumbnail_path, display_path, medium, artist:artist_id(id, name)",
-        );
+          "id, title, thumbnail_path, display_path, medium, created_at, artist:artist_id(id, name)",
+        )
+        .order("created_at", { ascending: false });
       if (error) {
         throw new Error(error.message);
       }
@@ -63,18 +64,18 @@ export default function Home() {
   });
 
   // Split the art pieces into mediums
-  const digitalPieces = artPieces?.filter(
-    (piece) => piece.medium === "digital",
-  ) as ArtPiece[];
-  const acrylicPieces = artPieces?.filter(
-    (piece) => piece.medium === "acrylic",
-  ) as ArtPiece[];
-  const pastelPieces = artPieces?.filter(
-    (piece) => piece.medium === "pastel",
-  ) as ArtPiece[];
-  const watercolorPieces = artPieces?.filter(
-    (piece) => piece.medium === "watercolor",
-  ) as ArtPiece[];
+  // const digitalPieces = artPieces?.filter(
+  //   (piece) => piece.medium === "digital",
+  // ) as ArtPiece[];
+  // const acrylicPieces = artPieces?.filter(
+  //   (piece) => piece.medium === "acrylic",
+  // ) as ArtPiece[];
+  // const pastelPieces = artPieces?.filter(
+  //   (piece) => piece.medium === "pastel",
+  // ) as ArtPiece[];
+  // const watercolorPieces = artPieces?.filter(
+  //   (piece) => piece.medium === "watercolor",
+  // ) as ArtPiece[];
 
   return (
     <div className="relative flex flex-col">
@@ -106,24 +107,21 @@ export default function Home() {
         </div>
       </div>
       {/*  Subnav */}
-      <Subnav sectionIds={mediumSections} sectionRefs={sectionRefs} />
-      <div className="mx-auto w-full max-w-5xl flex flex-col gap-12 px-4 py-12">
+      {/* <Subnav sectionIds={mediumSections} sectionRefs={sectionRefs} /> */}
+      <div className="mx-auto w-full max-w-6xl flex flex-col gap-12 px-4 py-12">
+        <h4 className="font-display tracking-wide text-foreground">
+          all pieces
+        </h4>
         {/* Digital Pieces */}
-        {digitalPieces?.length > 0 && (
-          <ArtSection title="digital" pieces={digitalPieces} />
-        )}
-        {/* Pastel Pieces */}
-        {pastelPieces?.length > 0 && (
-          <ArtSection title="pastel" pieces={pastelPieces} />
-        )}
-        {/* Acrylic Pieces */}
-        {acrylicPieces?.length > 0 && (
-          <ArtSection title="acrylic" pieces={acrylicPieces} />
-        )}
-        {/* Watercolor Pieces */}
-        {watercolorPieces?.length > 0 && (
-          <ArtSection title="watercolor" pieces={watercolorPieces} />
-        )}
+        <ul className="grid grid-cols-3 md:grid-cols-3 gap-4 md:gap-8">
+          {artPieces?.map((piece) => (
+            <ArtCard
+              key={piece.id}
+              artPiece={piece as ArtPiece}
+              href={`/${piece.id}`}
+            />
+          ))}
+        </ul>
       </div>
     </div>
   );

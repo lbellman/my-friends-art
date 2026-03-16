@@ -55,6 +55,7 @@ export default function SpecialRequestDialog({
     });
   };
 
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -157,42 +158,51 @@ export default function SpecialRequestDialog({
             />
           </div>
           {/* Dimension Selection */}
-          {dimensionOptions.length > 0 && (
-            <div className=" space-y-3">
-              <label className="text-sm font-medium text-foreground">
-                Dimensions
-              </label>
-              {loadingDimensionOptions ? (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {Array.from({ length: 4 }).map((_, index) => (
-                    <Skeleton key={index} className="h-9 w-20" />
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {dimensionOptions.map((dim) => {
-                    const dimensionValue = `${dim.width}x${dim.height}`;
-                    const isSelected = formData.dimensions === dimensionValue;
-                    return (
-                      <Button
-                        key={dimensionValue}
-                        type="button" // stops it from submitting the form everytime you click it (buttons in <form> elements are default type="submit")
-                        variant={isSelected ? "default" : "outline"}
-                        onClick={() =>
-                          setFormData({
-                            ...formData,
-                            dimensions: dimensionValue,
-                          })
-                        }
-                      >
-                        {dimensionValue}&quot;
-                      </Button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          )}
+
+          <div className=" space-y-3">
+            <label className="text-sm font-medium text-foreground">
+              Dimensions
+            </label>
+            {loadingDimensionOptions ? (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <Skeleton key={index} className="h-9 w-20" />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {dimensionOptions.map((dim) => {
+                  const dimensionValue = `${dim.width}x${dim.height}`;
+                  const isSelected = formData.dimensions === dimensionValue;
+                  return (
+                    <Button
+                      key={dimensionValue}
+                      type="button" // stops it from submitting the form everytime you click it (buttons in <form> elements are default type="submit")
+                      variant={isSelected ? "default" : "outline"}
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          dimensions: dimensionValue,
+                        })
+                      }
+                    >
+                      {dimensionValue}&quot;
+                    </Button>
+                  );
+                })}
+                <Button
+                  variant={
+                    formData.dimensions === "custom" ? "default" : "outline"
+                  }
+                  onClick={() =>
+                    setFormData({ ...formData, dimensions: "custom" })
+                  }
+                >
+                  Custom
+                </Button>
+              </div>
+            )}
+          </div>
 
           {/* Print Option Selection */}
           <div className="space-y-3 ">

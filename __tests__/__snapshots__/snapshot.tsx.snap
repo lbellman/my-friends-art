@@ -40,48 +40,17 @@ exports[`renders homepage unchanged 1`] = `
       </div>
     </div>
     <div
-      class="sticky top-16 w-full z-10 left-0 p-4 bg-secondary backdrop-blur-lg"
+      class="mx-auto w-full max-w-6xl flex flex-col gap-12 px-4 py-12"
     >
-      <div
-        class="flex flex-row gap-4 items-center justify-center mx-auto max-w-5xl"
+      <h4
+        class="font-display tracking-wide text-foreground"
       >
-        <button
-          class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-secondary text-secondary-foreground hover:bg-secondary-hover h-9 px-4 py-2 has-[>svg]:px-3 font-display md:text-base md:px-6"
-          data-size="default"
-          data-slot="button"
-          data-variant="secondary"
-        >
-          Digital
-        </button>
-        <button
-          class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-secondary text-secondary-foreground hover:bg-secondary-hover h-9 px-4 py-2 has-[>svg]:px-3 font-display md:text-base md:px-6"
-          data-size="default"
-          data-slot="button"
-          data-variant="secondary"
-        >
-          Pastel
-        </button>
-        <button
-          class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-secondary text-secondary-foreground hover:bg-secondary-hover h-9 px-4 py-2 has-[>svg]:px-3 font-display md:text-base md:px-6"
-          data-size="default"
-          data-slot="button"
-          data-variant="secondary"
-        >
-          Acrylic
-        </button>
-        <button
-          class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-secondary text-secondary-foreground hover:bg-secondary-hover h-9 px-4 py-2 has-[>svg]:px-3 font-display md:text-base md:px-6"
-          data-size="default"
-          data-slot="button"
-          data-variant="secondary"
-        >
-          Watercolor
-        </button>
-      </div>
+        all pieces
+      </h4>
+      <ul
+        class="grid grid-cols-3 md:grid-cols-3 gap-4 md:gap-8"
+      />
     </div>
-    <div
-      class="mx-auto w-full max-w-5xl flex flex-col gap-12 px-4 py-12"
-    />
   </div>
 </div>
 `;

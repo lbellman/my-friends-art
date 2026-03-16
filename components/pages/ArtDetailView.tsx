@@ -103,7 +103,7 @@ export default function ArtDetailView({
   const defaultDimension =
     dimensionOptions.length > 0
       ? `${dimensionOptions[0].width}x${dimensionOptions[0].height}`
-      : null;
+      : "custom";
   const effectiveDimension = selectedDimension ?? defaultDimension;
   const defaultPrintOption = Object.keys(
     PRINT_OPTION_LABELS,
@@ -171,41 +171,55 @@ export default function ArtDetailView({
               <Skeleton className="w-full h-10 rounded-md" />
             ) : (
               <div className="flex flex-col flex-nowrap gap-2">
-                <h5>{artPiece?.title}</h5>
-                <h6>{artPiece?.artist?.name}</h6>
-              </div>
-            )}
-            {/* Dimension Selection */}
-            {dimensionOptions.length > 0 && (
-              <div className=" space-y-3">
-                <label className="text-sm font-medium text-foreground">
-                  Dimensions
-                </label>
-                {loadingDimensionOptions ? (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {Array.from({ length: 4 }).map((_, index) => (
-                      <Skeleton key={index} className="h-9 w-20" />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {dimensionOptions.map((dim) => {
-                      const dimensionValue = `${dim.width}x${dim.height}`;
-                      const isSelected = effectiveDimension === dimensionValue;
-                      return (
-                        <Button
-                          key={dimensionValue}
-                          variant={isSelected ? "default" : "outline"}
-                          onClick={() => setSelectedDimension(dimensionValue)}
-                        >
-                          {dimensionValue}&quot;
-                        </Button>
-                      );
-                    })}
-                  </div>
+                <h5 className="font-medium">{artPiece?.title}</h5>
+                <Link href={`/artists/${artPiece?.artist_id}`}>
+                  {artPiece?.artist?.name}
+                </Link>
+                {artPiece?.description && (
+                  <p className="body2 text-muted-foreground">
+                    {artPiece?.description}
+                  </p>
                 )}
               </div>
             )}
+            {/* Dimension Selection */}
+
+            <div className=" space-y-3">
+              <label className="text-sm font-medium text-foreground">
+                Dimensions
+              </label>
+              {loadingDimensionOptions ? (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <Skeleton key={index} className="h-9 w-20" />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {dimensionOptions.map((dim) => {
+                    const dimensionValue = `${dim.width}x${dim.height}`;
+                    const isSelected = effectiveDimension === dimensionValue;
+                    return (
+                      <Button
+                        key={dimensionValue}
+                        variant={isSelected ? "default" : "outline"}
+                        onClick={() => setSelectedDimension(dimensionValue)}
+                      >
+                        {dimensionValue}&quot;
+                      </Button>
+                    );
+                  })}
+                  <Button
+                    variant={
+                      effectiveDimension === "custom" ? "default" : "outline"
+                    }
+                    onClick={() => setSelectedDimension("custom")}
+                  >
+                    Custom
+                  </Button>
+                </div>
+              )}
+            </div>
 
             {/* Print Option Selection */}
             <div className="space-y-3 ">
