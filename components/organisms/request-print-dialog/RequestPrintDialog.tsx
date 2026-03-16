@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { toast } from "sonner";
 import _ from "lodash";
+import useEmailJS from "@/app/hooks/useEmailJS";
 
 export default function SpecialRequestDialog({
   open,
@@ -37,6 +38,7 @@ export default function SpecialRequestDialog({
   loadingDimensionOptions: boolean;
   emailAddress: string;
 }) {
+  const { sendEmail } = useEmailJS();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -59,58 +61,34 @@ export default function SpecialRequestDialog({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    try {
-      const subject = `My Friend's Art - Print Request`;
-      const response = await fetch(
-        "https://api.emailjs.com/api/v1.0/email/send",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            service_id: process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ?? "",
-            template_id: process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID ?? "",
-            user_id: process.env.NEXT_PUBLIC_EMAILJS_USER_ID ?? "",
-            template_params: {
-              name: formData.name,
-              from_email: formData.email,
-              subject: subject,
-              message: `${formData.name} has requested a print of ${printDetails?.title || "Art Piece"} with the following details: \n\n Dimensions: ${printDetails?.dimensions || ""} \n\nPrint Option: ${printDetails?.printOption || ""}\n\n${formData.message ? "Message: " + formData.message : ""} \n\n Please contact them at ${formData.email} to discuss pricing and shipping details. Thanks! `,
-              to_email: emailAddress,
-            },
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to send email");
-      }
-
-      toast.success("Print request sent!", {
-        description:
-          "The artist will get back to you soon about pricing and shipping. Thank you!",
-      });
-
-      // Reset form and close dialog
-      setFormData({
-        name: "",
-        email: "",
-        message: "",
-        dimensions: printDetails?.dimensions || "",
-        printOption: printDetails?.printOption || "",
-      });
-      onOpenChange(false);
-    } catch (error) {
-      console.error("Error sending email:", error);
-      toast.error("Failed to send request", {
-        description: "Please try again or contact me directly via email.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    sendEmail({
+      name: formData.name,
+      fromEmail: formData.email,
+      toEmail: emailAddress,
+      subject: `My Friend's Art - Print Request`,
+      message: `${formData.name} has requested a print of ${printDetails?.title || "Art Piece"} with the following details: \n\n Dimensions: ${printDetails?.dimensions || ""} \n\nPrint Option: ${printDetails?.printOption || ""}\n\n${formData.message ? "Message: " + formData.message : ""} \n\n Please contact them at ${formData.email} to discuss pricing and shipping details. Thanks! `,
+      onSuccess: () => {
+        toast.success("Print request sent!", {
+          description: "The artist will get back to you soon about pricing and shipping. Thank you!",
+        });
+        setFormData({
+          name: "",
+          email: "",
+          message: "",
+          dimensions: printDetails?.dimensions || "",
+          printOption: printDetails?.printOption || "",
+        });
+        onOpenChange(false);
+      },
+      onError: () => {
+        toast.error("Failed to send request", {
+          description: "Please try again or contact me directly via email.",
+        });
+      },
+      setIsSubmitting,
+    })
   };
+  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">

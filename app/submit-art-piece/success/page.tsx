@@ -13,7 +13,7 @@ export default function ArtPieceSubmissionSuccess() {
         </div>
         <h3>Thank you for your submission!</h3>
         <p>We will review your submission and get back to you soon.</p>
-        <Link href="/art-piece-submission">
+        <Link href="/submit-art-piece">
           <Button label="Submit another art piece" onClick={() => {}} />
         </Link>
       </div>

@@ -50,16 +50,18 @@ export default function Home() {
       const { data, error } = await supabase
         .from("art_piece")
         .select(
-          "id, title, thumbnail_path, display_path, medium, created_at, artist:artist_id(id, name)",
+          "id, title, thumbnail_path, status, display_path, medium, created_at, artist:artist_id(id, name)",
         )
         .order("created_at", { ascending: false });
       if (error) {
         throw new Error(error.message);
       }
-      return data?.map((piece) => ({
-        ...piece,
-        artist: piece.artist,
-      }));
+      return data
+        ?.filter((piece) => piece.status === "approved")
+        .map((piece) => ({
+          ...piece,
+          artist: piece.artist,
+        }));
     },
   });
 

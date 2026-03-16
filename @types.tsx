@@ -20,6 +20,36 @@ export type ArtPiece = Tables<"art_piece"> & {
   };
 };
 
+export type MediumType = Database["public"]["Enums"]["art_mediums"];
+
+export const MEDIUM_OPTIONS: Record<MediumType, string> = {
+  digital: "Digital",
+  oil: "Oil",
+  acrylic: "Acrylic",
+  watercolor: "Watercolor",
+  pastel: "Pastel",
+  pencil: "Pencil",
+  "mixed-media": "Mixed Media",
+  "needle-felt": "Needle Felt",
+  crochet: "Crochet",
+  knit: "Knit",
+  pen: "Pen",
+  wood: "Wood",
+  clay: "Clay",
+  "paper-machet": "Paper Machet",
+  pottery: "Pottery",
+  other: "Other",
+};
+
+export type ProductType = Database["public"]["Enums"]["product_types"];
+
+export const PRODUCT_TYPE_OPTIONS: Record<NonNullable<ProductType>, string> = {
+  print: "Print (digital item, can be sold multiple times)",
+  original: "Original (physical item, can only sell once)",
+  "print-and-original":
+    "Print and Original (prints are available, original is also available)",
+};
+
 // @types.tsx
 export function getPublicUrl(path: string) {
   if (!path) return "";

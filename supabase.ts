@@ -94,8 +94,11 @@ export type Database = {
           dpi: number | null
           id: string
           medium: Database["public"]["Enums"]["art_mediums"]
+          original_path: string | null
+          product_type: Database["public"]["Enums"]["product_types"] | null
           px_height: number | null
           px_width: number | null
+          status: Database["public"]["Enums"]["art_piece_statuses"] | null
           thumbnail_path: string | null
           title: string
         }
@@ -108,8 +111,11 @@ export type Database = {
           dpi?: number | null
           id?: string
           medium: Database["public"]["Enums"]["art_mediums"]
+          original_path?: string | null
+          product_type?: Database["public"]["Enums"]["product_types"] | null
           px_height?: number | null
           px_width?: number | null
+          status?: Database["public"]["Enums"]["art_piece_statuses"] | null
           thumbnail_path?: string | null
           title: string
         }
@@ -122,8 +128,11 @@ export type Database = {
           dpi?: number | null
           id?: string
           medium?: Database["public"]["Enums"]["art_mediums"]
+          original_path?: string | null
+          product_type?: Database["public"]["Enums"]["product_types"] | null
           px_height?: number | null
           px_width?: number | null
+          status?: Database["public"]["Enums"]["art_piece_statuses"] | null
           thumbnail_path?: string | null
           title?: string
         }
@@ -149,6 +158,7 @@ export type Database = {
           name: string
           profile_img_url: string | null
           updated_at: string | null
+          user_id: string | null
           website: string | null
         }
         Insert: {
@@ -162,6 +172,7 @@ export type Database = {
           name: string
           profile_img_url?: string | null
           updated_at?: string | null
+          user_id?: string | null
           website?: string | null
         }
         Update: {
@@ -175,6 +186,7 @@ export type Database = {
           name?: string
           profile_img_url?: string | null
           updated_at?: string | null
+          user_id?: string | null
           website?: string | null
         }
         Relationships: []
@@ -396,6 +408,7 @@ export type Database = {
           name: string
           profile_img_url: string | null
           updated_at: string | null
+          user_id: string | null
           website: string | null
         }[]
         SetofOptions: {
@@ -418,6 +431,13 @@ export type Database = {
         | "needle-felt"
         | "crochet"
         | "knit"
+        | "pen"
+        | "wood"
+        | "clay"
+        | "paper-machet"
+        | "pottery"
+        | "other"
+      art_piece_statuses: "pending-approval" | "approved"
       aspect_ratios: "1:1" | "2:3" | "3:4"
       order_status: "pending" | "succeeded"
       payment_intent_status:
@@ -441,6 +461,7 @@ export type Database = {
         | "Succeeded"
         | "Uncaptured"
       print_options: "canvas" | "framed-canvas" | "poster" | "framed-poster"
+      product_types: "print" | "original" | "print-and-original"
       quality_ratings: "fair" | "good" | "best"
     }
     CompositeTypes: {
@@ -583,7 +604,14 @@ export const Constants = {
         "needle-felt",
         "crochet",
         "knit",
+        "pen",
+        "wood",
+        "clay",
+        "paper-machet",
+        "pottery",
+        "other",
       ],
+      art_piece_statuses: ["pending-approval", "approved"],
       aspect_ratios: ["1:1", "2:3", "3:4"],
       order_status: ["pending", "succeeded"],
       payment_intent_status: [
@@ -608,6 +636,7 @@ export const Constants = {
         "Uncaptured",
       ],
       print_options: ["canvas", "framed-canvas", "poster", "framed-poster"],
+      product_types: ["print", "original", "print-and-original"],
       quality_ratings: ["fair", "good", "best"],
     },
   },

@@ -48,6 +48,7 @@ export default function ArtDetailView({
     },
   });
 
+
   const publicUrl = getPublicUrl(artPiece?.display_path ?? "");
 
   // Fetch dimension options when art piece is loaded
@@ -182,6 +183,9 @@ export default function ArtDetailView({
                 )}
               </div>
             )}
+
+            {/* Product Type */}
+
             {/* Dimension Selection */}
 
             <div className=" space-y-3">

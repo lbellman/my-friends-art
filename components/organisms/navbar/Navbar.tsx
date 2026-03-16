@@ -2,15 +2,17 @@
 import SearchBar from "@/components/molecules/search-bar/SearchBar";
 import Image from "next/image";
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { LogOut, Menu, Palette, Upload, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
+  DropdownMenu as DropdownMenuPrimitive,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
+import useAuth from "@/app/hooks/useAuth";
+import DropdownMenu from "@/components/atoms/dropdown-menu/DropdownMenu";
 
 const navLinks = [
   { label: "About", href: "/about" },
@@ -19,6 +21,7 @@ const navLinks = [
 
 export default function Navbar() {
   const router = useRouter();
+  const { user, loading, signOut } = useAuth();
   return (
     <nav className="sticky top-0 z-10 left-0 bg-background/80 backdrop-blur-md border-b border-border px-4 md:px-8 h-navbar-height">
       <div className="flex items-center justify-between w-full flex-nowrap">
@@ -38,7 +41,7 @@ export default function Navbar() {
         <div className="flex items-center flex-nowrap gap-3 md:gap-8">
           <SearchBar
             onSearch={(q) => {
-              router.push(`/search-results?q=${encodeURIComponent(q)}`)
+              router.push(`/search-results?q=${encodeURIComponent(q)}`);
             }}
           />
           {/* Desktop: nav links */}
@@ -52,9 +55,36 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            {loading ? null : user ? (
+              <DropdownMenu
+                items={[
+                  {
+                    key: "submit-art",
+                    label: "Submit Art Pieces",
+                    icon: <Palette className="size-4 text-foreground" />,
+                    href: "/submit-art-piece",
+                  },
+                  {
+                    key: "sign-out",
+                    label: "Sign Out",
+                    icon: <LogOut className="size-4 text-foreground" />,
+                    onClick: signOut,
+                  },
+                ]}
+                trigger={
+                  <Button>
+                    <User className="size-4 text-primary-foreground" />
+                  </Button>
+                }
+              />
+            ) : (
+              <Link href="/artist-login">
+                <Button>Artist Login</Button>
+              </Link>
+            )}
           </div>
           {/* Mobile: hamburger dropdown */}
-          <DropdownMenu>
+          <DropdownMenuPrimitive>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
@@ -76,8 +106,13 @@ export default function Navbar() {
                   </Link>
                 </DropdownMenuItem>
               ))}
+              <DropdownMenuItem asChild>
+                <Link href="/artist-login">
+                  <Button className="w-full">Artist Login</Button>
+                </Link>
+              </DropdownMenuItem>
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenuPrimitive>
         </div>
       </div>
     </nav>

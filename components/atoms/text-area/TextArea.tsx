@@ -1,0 +1,49 @@
+import { Textarea as TextareaPrimitive } from "@/components/ui/textarea";
+
+interface TextAreaProps {
+  value: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+  placeholder?: string;
+  label?: string;
+  id?: string;
+  required?: boolean;
+}
+export default function TextArea({
+  value,
+  onChange,
+  disabled,
+  placeholder,
+  label,
+  id,
+  required,
+}: TextAreaProps) {
+  if (label && id) {
+    return (
+      <div className="flex flex-col gap-2">
+        <label htmlFor={id}>
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+        <TextareaPrimitive
+          id={id}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
+          placeholder={placeholder}
+          required={required}
+        />
+      </div>
+    );
+  }
+  return (
+    <TextareaPrimitive
+      id={id}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      disabled={disabled}
+      placeholder={placeholder}
+      required={required}
+    />
+  );
+}
