@@ -6,7 +6,7 @@ import Subnav from "@/components/organisms/Subnav";
 import supabase from "@/lib/supabase/server";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 const mediumSections = ["digital", "pastel", "acrylic", "watercolor"];
 
@@ -62,6 +62,22 @@ export default function Home() {
       }));
     },
   });
+
+  // Scroll to the last saved scroll position when the page is loaded
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const scrollPosition = sessionStorage.getItem("home-scroll-position");
+      if (!scrollPosition) return;
+
+      const y = Number(scrollPosition);
+      if (!Number.isNaN(y)) {
+        // use a small timeout so layout is ready
+        window.requestAnimationFrame(() => {
+          window.scrollTo({ top: y, behavior: "instant" as ScrollBehavior });
+        });
+      }
+    }
+  }, []);
 
   // Split the art pieces into mediums
   // const digitalPieces = artPieces?.filter(

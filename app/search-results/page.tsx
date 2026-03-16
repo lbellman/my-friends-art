@@ -59,7 +59,7 @@ function SearchResultsContent() {
   })) as ArtPiece[];
 
   return (
-    <InternalLayout title="Search Results">
+    <InternalLayout title="search results">
       <div className="flex flex-col gap-4">
         <h6>Showing results for &quot;{searchQuery}&quot;</h6>
         <div className="flex items-center flex-nowrap gap-2">

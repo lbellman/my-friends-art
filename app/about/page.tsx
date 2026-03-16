@@ -1,3 +1,4 @@
+"use client";
 import NextLink from "next/link";
 import Link from "@/components/atoms/link/Link";
 import { Button } from "@/components/ui/button";

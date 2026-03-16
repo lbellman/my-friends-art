@@ -3,7 +3,7 @@ import { PrintDimensionsCalculator } from "@/components/organisms/print-dimensio
 
 export default function ArtistSupportPage() {
   return (
-    <InternalLayout title="Artist Support">
+    <InternalLayout title="artist support">
       <div className="flex flex-col gap-12 flex-nowrap">
         {/* Overview */}
         <div className="flex flex-col gap-4" id="uploading-your-art">

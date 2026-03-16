@@ -9,6 +9,7 @@ interface LinkProps {
   blankTarget?: boolean;
   inline?: boolean;
   asChild?: boolean;
+  onClick?: () => void;
 }
 
 export default function Link({
@@ -19,9 +20,11 @@ export default function Link({
   blankTarget = false,
   inline = false,
   asChild = false,
+  onClick = () => {},
 }: LinkProps) {
   return (
     <NextLink
+      onClick={onClick}
       href={href}
       className={
         asChild

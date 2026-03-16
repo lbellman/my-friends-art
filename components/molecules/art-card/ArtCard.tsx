@@ -10,7 +10,18 @@ interface ArtCardProps {
 export function ArtCard({ artPiece, href }: ArtCardProps) {
   const publicUrl = getPublicUrl(artPiece.display_path ?? "");
   return (
-    <Link href={href}>
+    <Link
+      href={href}
+      onClick={() => {
+        // Set the scroll position to the current position
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem(
+            "home-scroll-position",
+            String(window.scrollY),
+          );
+        }
+      }}
+    >
       <div className="group md:min-w-[200px]">
         <div
           className={` relative overflow-hidden rounded-xl aspect-3/4 mb-4 transition-all duration-300 ease-out group-hover:shadow-xl group-hover:-translate-y-1`}

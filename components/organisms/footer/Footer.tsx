@@ -1,3 +1,4 @@
+"use client";
 import Link from "@/components/atoms/link/Link";
 
 const pages = [
