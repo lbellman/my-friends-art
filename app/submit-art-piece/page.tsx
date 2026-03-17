@@ -75,10 +75,6 @@ export default function ArtPieceSubmission() {
     e.preventDefault();
     setSubmitError(null);
 
-    if (!artistId) {
-      setSubmitError("Artist account not found. Please log in again.");
-      return;
-    }
     if (!formData.title.trim()) {
       setSubmitError("Title is required.");
       return;
@@ -102,15 +98,26 @@ export default function ArtPieceSubmission() {
       const body = new FormData();
       body.append("title", formData.title.trim());
       body.append("description", formData.description.trim());
-      body.append("artistId", artistId);
       body.append("medium", formData.medium);
       if (formData.product_type) {
         body.append("product_type", formData.product_type);
       }
       body.append("image", formData.image);
 
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        setSubmitError("You must be signed in to submit art.");
+        return;
+      }
+
       const res = await fetch("/api/submit-art-piece", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body,
       });
 

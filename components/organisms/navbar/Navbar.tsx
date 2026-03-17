@@ -10,7 +10,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
-import { CirclePlus, LayoutGrid, LogOut, Menu, Palette, Plus, Upload, User } from "lucide-react";
+import {
+  LayoutGrid,
+  LogOut,
+  Menu,
+  Plus,
+  User
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -129,11 +135,61 @@ export default function Navbar() {
                   </Link>
                 </DropdownMenuItem>
               ))}
-              <DropdownMenuItem asChild>
-                <Link href="/artist-login">
-                  <Button className="w-full">Artist Login</Button>
-                </Link>
-              </DropdownMenuItem>
+              {loading ? null : user ? (
+                <>
+                  <DropdownMenuItem asChild className="border-t pt-2 mt-2">
+                    <div className="flex items-center gap-2">
+                      <LayoutGrid className="size-4 text-foreground" />
+                      <Link
+                        href="/dashboard"
+                        className=" cursor-pointer"
+                      >
+                        Artist Dashboard
+                      </Link>
+                    </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <div className="flex items-center gap-2">
+                      <Plus className="size-4 text-foreground" />
+                      <Link
+                        href="/submit-art-piece"
+                        className=" cursor-pointer"
+                      >
+                        Submit Art Pieces
+                      </Link>
+                    </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <div className="flex items-center gap-2">
+                      <User className="size-4 text-foreground" />
+                      <Link
+                        href="/account"
+                        className=" cursor-pointer"
+                      >
+                        Account
+                      </Link>
+                    </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <div className="flex items-center gap-2">
+                      <LogOut className="size-4 text-foreground" />
+                      <Link
+                        href="/"
+                        className=" cursor-pointer"
+                        onClick={signOut}
+                      >
+                        Sign Out
+                      </Link>
+                    </div>
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <DropdownMenuItem asChild>
+                  <Link href="/artist-login">
+                    <Button className="w-full">Artist Login</Button>
+                  </Link>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenuPrimitive>
         </div>

@@ -1,7 +1,7 @@
 import { ART_PIECE_STATUS_OPTIONS, getPublicUrl } from "@/@types";
 import Link from "next/link";
 import Image from "next/image";
-import { Check, Circle } from "lucide-react";
+import { Check, Circle, X } from "lucide-react";
 import { DashboardArtPieceRow } from "@/app/dashboard/page";
 import { useQuery } from "@tanstack/react-query";
 import supabase from "@/lib/supabase/server";
@@ -71,6 +71,8 @@ export default function DashboardArtCard({ artPiece }: DashboardArtCardProps) {
           >
             {artPiece.status === "approved" ? (
               <Check className="size-3" />
+            ) : artPiece.status === "not-approved" ? (
+              <X className="size-3" />
             ) : (
               <Circle className="size-3" />
             )}

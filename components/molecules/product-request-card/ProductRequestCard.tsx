@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Check, Undo, X } from "lucide-react";
+import ConfirmDialog from "@/components/organisms/confirm-dialog/ConfirmDialog";
 
 type ProductRequestRow = Database["public"]["Tables"]["product_request"]["Row"];
 type ProductRequestStatus =
@@ -22,6 +23,10 @@ export default function ProductRequestCard({
 }: ProductRequestCardProps) {
   const [status, setStatus] = useState<ProductRequestStatus>(request.status);
   const [isSaving, setIsSaving] = useState(false);
+
+  const [confirmFulfillDialogOpen, setConfirmFulfillDialogOpen] =
+    useState(false);
+  const [confirmCancelDialogOpen, setConfirmCancelDialogOpen] = useState(false);
 
   const createdAt = new Date(request.created_at).toLocaleString();
 
@@ -96,7 +101,7 @@ export default function ProductRequestCard({
               size="sm"
               variant="outline"
               disabled={isSaving}
-              onClick={() => handleStatusChange("cancelled")}
+              onClick={() => setConfirmCancelDialogOpen(true)}
             >
               <X className="size-4" />
               Mark as cancelled
@@ -106,28 +111,45 @@ export default function ProductRequestCard({
               size="sm"
               variant="success"
               disabled={isSaving}
-              onClick={() => handleStatusChange("fulfilled")}
+              onClick={() => setConfirmFulfillDialogOpen(true)}
             >
               <Check className="size-4" />
               Mark as fulfilled
             </Button>
           </>
         ) : status === "fulfilled" ? (
-          <p
-            className="body2 text-success-foreground"
-            onClick={() => handleStatusChange("pending")}
-          >
+          <p className="body2 text-success-foreground">
             This request has been fulfilled.
           </p>
         ) : status === "cancelled" ? (
-          <p
-            className="body2 text-destructive-foreground"
-            onClick={() => handleStatusChange("pending")}
-          >
+          <p className="body2 text-destructive-foreground">
             This request has been cancelled.
           </p>
         ) : null}
       </div>
+
+      {confirmFulfillDialogOpen && (
+        <ConfirmDialog
+          open={confirmFulfillDialogOpen}
+          onOpenChange={setConfirmFulfillDialogOpen}
+          title="Fulfill Print Request"
+          description="Marking this request as fulfilled means you have submitted an order with a print shop and the customer has received their print."
+          confirmVariant="success"
+          confirmLabel="Yes, this request has been fulfilled"
+          onConfirm={() => handleStatusChange("fulfilled")}
+        />
+      )}
+      {confirmCancelDialogOpen && (
+        <ConfirmDialog
+          open={confirmCancelDialogOpen}
+          onOpenChange={setConfirmCancelDialogOpen}
+          title="Cancel Print Request"
+          description="Cancelling this request means you will not be fulfilling it now or in the future."
+          confirmVariant="destructive"
+          confirmLabel="Yes, cancel this request"
+          onConfirm={() => handleStatusChange("cancelled")}
+        />
+      )}
     </div>
   );
 }

@@ -2,25 +2,23 @@
 
 import {
   ART_PIECE_STATUS_OPTIONS,
-  PRODUCT_TYPE_OPTIONS,
   getPublicUrl,
   type ArtPieceStatusType,
-  type ProductType,
 } from "@/@types";
-import InternalLayout from "@/components/organisms/InternalLayout";
-import supabase from "@/lib/supabase/server";
-import { useQuery } from "@tanstack/react-query";
-import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
-import { Skeleton } from "@/components/ui/skeleton";
 import Button from "@/components/atoms/button/Button";
 import Input from "@/components/atoms/input/Input";
 import TextArea from "@/components/atoms/text-area/TextArea";
-import type { Database } from "@/supabase";
 import ProductRequestCard from "@/components/molecules/product-request-card/ProductRequestCard";
-import { useEffect, useState } from "react";
-import ConfirmDeleteDialog from "@/components/organisms/confirm-delete-dialog/ConfirmDeleteDialog";
+import ConfirmDialog from "@/components/organisms/confirm-dialog/ConfirmDialog";
 import DeleteRestrictedDialog from "@/components/organisms/delete-restricted-dialog/DeleteRestrictedDialog";
+import InternalLayout from "@/components/organisms/InternalLayout";
+import { Skeleton } from "@/components/ui/skeleton";
+import supabase from "@/lib/supabase/server";
+import type { Database } from "@/supabase";
+import { useQuery } from "@tanstack/react-query";
+import Image from "next/image";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function DashboardArtPieceDetailPage() {
@@ -87,6 +85,7 @@ export default function DashboardArtPieceDetailPage() {
   const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
   const [deleteRestrictedDialogOpen, setDeleteRestrictedDialogOpen] =
     useState(false);
+
 
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
@@ -378,10 +377,14 @@ export default function DashboardArtPieceDetailPage() {
               </div>
             </section>
             {confirmDeleteDialogOpen && (
-              <ConfirmDeleteDialog
+              <ConfirmDialog
                 open={confirmDeleteDialogOpen}
                 onOpenChange={setConfirmDeleteDialogOpen}
-                onDeleteConfirmed={async () => {
+                title="Delete Art Piece"
+                description="Are you sure you want to delete this art piece? This action cannot be undone."
+                confirmVariant="destructive"
+                confirmLabel="Delete"
+                onConfirm={async () => {
                   //  Delete the art piece
                   const { error } = await supabase
                     .from("art_piece")
@@ -396,6 +399,7 @@ export default function DashboardArtPieceDetailPage() {
                 }}
               />
             )}
+
             {deleteRestrictedDialogOpen && (
               <DeleteRestrictedDialog
                 open={deleteRestrictedDialogOpen}

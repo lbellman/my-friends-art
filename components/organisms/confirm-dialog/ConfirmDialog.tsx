@@ -7,27 +7,32 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-export default function ConfirmDeleteDialog({
+export default function ConfirmDialog({
   open,
   onOpenChange,
-  onDeleteConfirmed,
+  onConfirm,
+  confirmVariant,
+  title,
+  description,
+  confirmLabel,
 }: {
   open: boolean;
+  title: string;
+  description: string;
   onOpenChange: (open: boolean) => void;
-  onDeleteConfirmed: () => void;
+  onConfirm: () => void;
+  confirmVariant: "destructive" | "success" | "default";
+  confirmLabel: string;
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>confirm delete</DialogTitle>
-          <p className="body2 text-muted-foreground">
-            Are you sure you want to delete this art piece? This action cannot
-            be undone.
-          </p>
+          <DialogTitle>{title.toLowerCase()}</DialogTitle>
+          <p className="body2 text-muted-foreground">{description}</p>
           <DialogFooter>
-            <Button variant="destructive" onClick={onDeleteConfirmed}>
-              Delete
+            <Button variant={confirmVariant} onClick={onConfirm}>
+              {confirmLabel}
             </Button>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancel

@@ -6,6 +6,7 @@ import useEmailJS from "@/app/hooks/useEmailJS";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 const supabase = createClient<Database>(
   SUPABASE_URL,
@@ -39,19 +40,70 @@ export async function POST(req: Request) {
 
     const title = String(formData.get("title") ?? "").trim();
     const description = String(formData.get("description") ?? "").trim();
-    const artistId = String(formData.get("artistId") ?? "").trim();
     const medium = formData.get(
       "medium",
     ) as Database["public"]["Enums"]["art_mediums"];
     const productType = (formData.get("product_type") ||
       null) as Database["public"]["Enums"]["product_types"] | null;
 
-    if (!title || !artistId || !medium) {
+    if (!title || !medium) {
       return NextResponse.json(
         { error: "Missing required fields." },
         { status: 400 },
       );
     }
+
+    // Derive the artist from the authenticated user instead of trusting form input.
+    const authHeader = req.headers.get("authorization");
+    const token = authHeader?.startsWith("Bearer ")
+      ? authHeader.slice("Bearer ".length)
+      : undefined;
+
+    if (!token) {
+      return NextResponse.json(
+        { error: "You must be signed in to submit art." },
+        { status: 401 },
+      );
+    }
+
+    const supabaseForAuth = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    });
+
+    const {
+      data: { user },
+    } = await supabaseForAuth.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "You must be signed in to submit art." },
+        { status: 401 },
+      );
+    }
+
+    const { data: artist, error: artistError } = await supabase
+      .from("artist")
+      .select("id")
+      .eq("user_id", user.id)
+      .single();
+
+    if (artistError || !artist) {
+      // eslint-disable-next-line no-console
+      console.error(artistError);
+      return NextResponse.json(
+        {
+          error:
+            "No artist profile found for this user. Please contact support if this is unexpected.",
+        },
+        { status: 403 },
+      );
+    }
+
+    const artistId = artist.id;
 
     // Convert File/Blob to Buffer for Sharp
     const arrayBuffer = await file.arrayBuffer();
@@ -81,8 +133,8 @@ export async function POST(req: Request) {
       .toBuffer();
 
     const id = crypto.randomUUID();
-    const originalsBasePath = `test-originals/${artistId}/${id}`;
-    const basePath = `test-art-pieces/${artistId}/${id}`;
+    const originalsBasePath = `originals/${artistId}/${id}`;
+    const basePath = `art-pieces/${artistId}/${id}`;
     const originalPath = `${originalsBasePath}-original`;
     const displayPath = `${basePath}-display.webp`;
     const thumbnailPath = `${basePath}-thumb.webp`;
