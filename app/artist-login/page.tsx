@@ -1,5 +1,6 @@
 import InternalLayout from "@/components/organisms/InternalLayout";
 import ArtistLoginForm from "@/components/organisms/artist-login/ArtistLoginForm";
+import { Suspense } from "react";
 
 export default function ArtistLoginPage() {
   return (
@@ -10,7 +11,9 @@ export default function ArtistLoginPage() {
           able to submit new pieces for review.
         </p>
 
-        <ArtistLoginForm />
+        <Suspense fallback={null}>
+          <ArtistLoginForm />
+        </Suspense>
       </div>
     </InternalLayout>
   );

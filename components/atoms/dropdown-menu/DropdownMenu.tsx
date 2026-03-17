@@ -3,6 +3,7 @@ import Button from "@/components/atoms/button/Button";
 import {
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenu as DropdownMenuPrimitive,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -20,13 +21,23 @@ export type MenuItem = {
 interface DropdownMenuProps {
   items: MenuItem[];
   trigger: React.ReactNode;
+  header?: string;
 }
 
-export default function DropdownMenu({ items, trigger }: DropdownMenuProps) {
+export default function DropdownMenu({
+  items,
+  trigger,
+  header,
+}: DropdownMenuProps) {
   return (
     <DropdownMenuPrimitive>
       <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
       <DropdownMenuContent>
+        {header && (
+          <DropdownMenuLabel className="border-b border-border pb-2">
+            {header}
+          </DropdownMenuLabel>
+        )}
         {items.map((item) => (
           <DropdownMenuItem
             key={item.key}

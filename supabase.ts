@@ -239,6 +239,63 @@ export type Database = {
         }
         Relationships: []
       }
+      product_request: {
+        Row: {
+          art_piece_id: string
+          artist_id: string
+          created_at: string
+          dimensions: string | null
+          from_email: string
+          id: string
+          message: string | null
+          name: string
+          print_option: Database["public"]["Enums"]["print_options"] | null
+          status: Database["public"]["Enums"]["product_request_statuses"]
+          type: Database["public"]["Enums"]["product_request_types"]
+        }
+        Insert: {
+          art_piece_id: string
+          artist_id: string
+          created_at?: string
+          dimensions?: string | null
+          from_email: string
+          id?: string
+          message?: string | null
+          name: string
+          print_option?: Database["public"]["Enums"]["print_options"] | null
+          status?: Database["public"]["Enums"]["product_request_statuses"]
+          type: Database["public"]["Enums"]["product_request_types"]
+        }
+        Update: {
+          art_piece_id?: string
+          artist_id?: string
+          created_at?: string
+          dimensions?: string | null
+          from_email?: string
+          id?: string
+          message?: string | null
+          name?: string
+          print_option?: Database["public"]["Enums"]["print_options"] | null
+          status?: Database["public"]["Enums"]["product_request_statuses"]
+          type?: Database["public"]["Enums"]["product_request_types"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_request_art_piece_id_fkey"
+            columns: ["art_piece_id"]
+            isOneToOne: false
+            referencedRelation: "art_piece"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_request_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artist"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       purchase_item: {
         Row: {
           art_piece_id: string
@@ -437,7 +494,7 @@ export type Database = {
         | "paper-machet"
         | "pottery"
         | "other"
-      art_piece_statuses: "pending-approval" | "approved"
+      art_piece_statuses: "pending-approval" | "approved" | "not-approved"
       aspect_ratios: "1:1" | "2:3" | "3:4"
       order_status: "pending" | "succeeded"
       payment_intent_status:
@@ -461,6 +518,12 @@ export type Database = {
         | "Succeeded"
         | "Uncaptured"
       print_options: "canvas" | "framed-canvas" | "poster" | "framed-poster"
+      product_request_statuses:
+        | "pending"
+        | "fulfilled"
+        | "cancelled"
+        | "email-failed"
+      product_request_types: "print" | "original"
       product_types: "print" | "original" | "print-and-original"
       quality_ratings: "fair" | "good" | "best"
     }
@@ -611,7 +674,7 @@ export const Constants = {
         "pottery",
         "other",
       ],
-      art_piece_statuses: ["pending-approval", "approved"],
+      art_piece_statuses: ["pending-approval", "approved", "not-approved"],
       aspect_ratios: ["1:1", "2:3", "3:4"],
       order_status: ["pending", "succeeded"],
       payment_intent_status: [
@@ -636,6 +699,13 @@ export const Constants = {
         "Uncaptured",
       ],
       print_options: ["canvas", "framed-canvas", "poster", "framed-poster"],
+      product_request_statuses: [
+        "pending",
+        "fulfilled",
+        "cancelled",
+        "email-failed",
+      ],
+      product_request_types: ["print", "original"],
       product_types: ["print", "original", "print-and-original"],
       quality_ratings: ["fair", "good", "best"],
     },

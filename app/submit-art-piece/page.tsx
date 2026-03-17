@@ -129,9 +129,11 @@ export default function ArtPieceSubmission() {
 
   return (
     <InternalLayout title="submit an art piece">
-      <div className="mx-auto max-w-3xl mb-4 ">
-        <p>Submitting as {artist?.name}</p>
-      </div>
+      {artist?.name && (
+        <div className="mx-auto max-w-3xl mb-4 ">
+          <p>Submitting as {artist?.name}</p>
+        </div>
+      )}
       <div className="flex justify-center">
         <div className="bg-card rounded-xl w-full max-w-3xl border p-6 shadow-md">
           <form onSubmit={handleSubmit}>
@@ -209,11 +211,20 @@ export default function ArtPieceSubmission() {
               )}
 
               {/* Submit Button */}
-              <Button
-                type="submit"
-                label="Submit Art Piece"
-                disabled={isSubmitting}
-              />
+              <div className="flex flex-col gap-2 w-full">
+                <Button
+                  type="submit"
+                  label={isSubmitting ? "Submitting..." : "Submit Art Piece"}
+                  disabled={isSubmitting}
+                  loading={isSubmitting}
+                  size="lg"
+                />
+                <p className="body2 text-muted-foreground">
+                  Images may take a minute to process as they go through a few
+                  conversion and upload steps. Please don't close this window
+                  while the submission is processing.
+                </p>
+              </div>
             </div>
           </form>
         </div>

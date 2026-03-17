@@ -1,5 +1,6 @@
 import { Database, Tables } from "@/supabase";
 import supabase from "@/lib/supabase/server";
+import { CheckCircle, Loader2, XCircle } from "lucide-react";
 
 export type PrintOptionType = Database["public"]["Enums"]["print_options"];
 
@@ -21,7 +22,6 @@ export type ArtPiece = Tables<"art_piece"> & {
 };
 
 export type MediumType = Database["public"]["Enums"]["art_mediums"];
-
 export const MEDIUM_OPTIONS: Record<MediumType, string> = {
   digital: "Digital",
   oil: "Oil",
@@ -40,6 +40,28 @@ export const MEDIUM_OPTIONS: Record<MediumType, string> = {
   pottery: "Pottery",
   other: "Other",
 };
+
+export type ProductRequestStatusType = Database["public"]["Enums"]["product_request_statuses"];
+export const PRODUCT_REQUEST_STATUS_OPTIONS: Record<ProductRequestStatusType, string> = {
+  pending: "Pending",
+  fulfilled: "Fulfilled",
+  cancelled: "Cancelled",
+  "email-failed": "Email Failed",
+};
+
+export type ArtPieceStatusType = Database["public"]["Enums"]["art_piece_statuses"];
+export const ART_PIECE_STATUS_OPTIONS: Record<ArtPieceStatusType, string> = {
+  "pending-approval": "Pending Approval",
+  approved: "Approved",
+  "not-approved": "Not Approved",
+};
+
+export const ART_PIECE_STATUS_ICONS: Record<ArtPieceStatusType, React.ReactNode> = {
+  "pending-approval": <Loader2 className="size-4 text-muted-foreground" />,
+  approved: <CheckCircle className="size-4 text-success-foreground" />,
+  "not-approved": <XCircle className="size-4 text-destructive-foreground" />,
+};
+
 
 export type ProductType = Database["public"]["Enums"]["product_types"];
 

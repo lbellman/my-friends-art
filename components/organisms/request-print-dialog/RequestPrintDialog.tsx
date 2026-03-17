@@ -1,4 +1,4 @@
-import { PRINT_OPTION_LABELS, PrintOptionType } from "@/@types";
+import { ArtPiece, PRINT_OPTION_LABELS, PrintOptionType } from "@/@types";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,6 +15,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import _ from "lodash";
 import useEmailJS from "@/app/hooks/useEmailJS";
+import supabase from "@/lib/supabase/server";
 
 export default function SpecialRequestDialog({
   open,
@@ -23,19 +24,20 @@ export default function SpecialRequestDialog({
   dimensionOptions,
   loadingDimensionOptions,
   emailAddress,
+  artPiece,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   printDetails: {
-    title: string;
     dimensions: string;
     printOption: PrintOptionType;
   };
+  artPiece: ArtPiece;
   dimensionOptions: {
     width: number;
     height: number;
   }[];
-  loadingDimensionOptions: boolean;
+  loadingDimensionOptions?: boolean;
   emailAddress: string;
 }) {
   const { sendEmail } = useEmailJS();
@@ -57,38 +59,80 @@ export default function SpecialRequestDialog({
     });
   };
 
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    sendEmail({
-      name: formData.name,
-      fromEmail: formData.email,
-      toEmail: emailAddress,
-      subject: `My Friend's Art - Print Request`,
-      message: `${formData.name} has requested a print of ${printDetails?.title || "Art Piece"} with the following details: \n\n Dimensions: ${printDetails?.dimensions || ""} \n\nPrint Option: ${printDetails?.printOption || ""}\n\n${formData.message ? "Message: " + formData.message : ""} \n\n Please contact them at ${formData.email} to discuss pricing and shipping details. Thanks! `,
-      onSuccess: () => {
-        toast.success("Print request sent!", {
-          description: "The artist will get back to you soon about pricing and shipping. Thank you!",
-        });
-        setFormData({
-          name: "",
-          email: "",
-          message: "",
-          dimensions: printDetails?.dimensions || "",
-          printOption: printDetails?.printOption || "",
-        });
-        onOpenChange(false);
-      },
-      onError: () => {
-        toast.error("Failed to send request", {
-          description: "Please try again or contact me directly via email.",
-        });
-      },
-      setIsSubmitting,
-    })
+
+    const printRequestMessage = `${formData.name} has requested a print of ${artPiece?.title || "Art Piece"} with the following details: \n\n Dimensions: ${printDetails?.dimensions || ""} \n\nPrint Option: ${printDetails?.printOption || ""}\n\n${formData.message ? "Message: " + formData.message : ""} \n\n Please contact them at ${formData.email} to discuss pricing and shipping details. Thanks! `;
+
+    // Create a new product request in the database
+    const { data: productRequest, error } = await supabase
+      .from("product_request")
+      .insert({
+        art_piece_id: artPiece.id,
+        artist_id: artPiece.artist.id,
+        type: "print",
+        dimensions: printDetails?.dimensions || formData.dimensions,
+
+        from_email: formData.email,
+        message: formData.message || null,
+        name: formData.name,
+        print_option: printDetails?.printOption as PrintOptionType,
+        status: "pending",
+      })
+      .select("id")
+      .single();
+
+    if (error) {
+      toast.error("Failed to create print request", {
+        description:
+          "Please try again or contact bellmanlindsey@gmail.com for support.",
+      });
+      setIsSubmitting(false);
+
+      // If database record successfully created, send email to artist
+    } else {
+      sendEmail({
+        name: formData.name,
+        fromEmail: formData.email,
+        toEmail: emailAddress,
+        subject: `My Friend's Art - Print Request`,
+        message: printRequestMessage,
+        onSuccess: () => {
+          toast.success("Print request created!", {
+            description:
+              "The artist will get back to you soon about pricing and shipping. Thank you!",
+          });
+          setFormData({
+            name: "",
+            email: "",
+            message: "",
+            dimensions: printDetails?.dimensions || "",
+            printOption: printDetails?.printOption || "",
+          });
+          setIsSubmitting(false);
+          onOpenChange(false);
+        },
+        onError: async () => {
+          toast.error("Failed to send request", {
+            description: "Please try again or contact me directly via email.",
+          });
+
+          // Update the print request status to "email-failed"
+          await supabase
+            .from("product_request")
+            .update({
+              status: "email-failed",
+            })
+            .eq("id", productRequest?.id);
+
+          setIsSubmitting(false);
+        },
+        setIsSubmitting,
+      });
+    }
   };
-  
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
@@ -96,7 +140,7 @@ export default function SpecialRequestDialog({
           <DialogTitle>request a print</DialogTitle>
           <DialogDescription>
             Fill out the form below to request a print of &quot;
-            {printDetails?.title}&quot;. The artist will get back to you with
+            {artPiece?.title}&quot;. The artist will get back to you with
             pricing and shipping details.
           </DialogDescription>
         </DialogHeader>
@@ -136,8 +180,7 @@ export default function SpecialRequestDialog({
             />
           </div>
           {/* Dimension Selection */}
-
-          <div className=" space-y-3">
+          <div className="space-y-3">
             <label className="text-sm font-medium text-foreground">
               Dimensions
             </label>
@@ -213,6 +256,7 @@ export default function SpecialRequestDialog({
               })}
             </div>
           </div>
+
           <div className="flex flex-col gap-2">
             <label
               htmlFor="message"

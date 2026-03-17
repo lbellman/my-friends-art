@@ -1,18 +1,28 @@
 "use client";
-import SearchBar from "@/components/molecules/search-bar/SearchBar";
-import Image from "next/image";
-import Link from "next/link";
-import { LogOut, Menu, Palette, Upload, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu as DropdownMenuPrimitive,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useRouter } from "next/navigation";
 import useAuth from "@/app/hooks/useAuth";
 import DropdownMenu from "@/components/atoms/dropdown-menu/DropdownMenu";
+import SearchBar from "@/components/molecules/search-bar/SearchBar";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenu as DropdownMenuPrimitive,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
+import { CirclePlus, LayoutGrid, LogOut, Menu, Palette, Plus, Upload, User } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+function getUserDisplayName(user: SupabaseUser | null): string {
+  if (!user) return "";
+  const name =
+    (user.user_metadata?.full_name as string) ??
+    (user.user_metadata?.name as string);
+  if (typeof name === "string" && name.trim()) return name.trim();
+  return user.email ?? "";
+}
 
 const navLinks = [
   { label: "About", href: "/about" },
@@ -57,12 +67,25 @@ export default function Navbar() {
             ))}
             {loading ? null : user ? (
               <DropdownMenu
+                header={getUserDisplayName(user)}
                 items={[
+                  {
+                    key: "dashboard",
+                    label: "Artist Dashboard",
+                    icon: <LayoutGrid className="size-4 text-foreground" />,
+                    href: "/dashboard",
+                  },
                   {
                     key: "submit-art",
                     label: "Submit Art Pieces",
-                    icon: <Palette className="size-4 text-foreground" />,
+                    icon: <Plus className="size-4 text-foreground" />,
                     href: "/submit-art-piece",
+                  },
+                  {
+                    key: "account",
+                    label: "Account",
+                    icon: <User className="size-4 text-foreground" />,
+                    href: "/account",
                   },
                   {
                     key: "sign-out",
