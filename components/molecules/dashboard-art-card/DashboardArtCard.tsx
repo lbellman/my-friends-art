@@ -37,7 +37,6 @@ export default function DashboardArtCard({ artPiece }: DashboardArtCardProps) {
     },
     enabled: !!artPiece.id,
   });
-  console.log(productRequests);
 
   return (
     <Link
@@ -80,13 +79,15 @@ export default function DashboardArtCard({ artPiece }: DashboardArtCardProps) {
               ? (ART_PIECE_STATUS_OPTIONS[artPiece.status] ?? artPiece.status)
               : "—"}
           </div>
-          <p className="text-xs text-muted-foreground">
-            {productRequests?.length === 0
-              ? "No product requests yet"
-              : `${productRequests?.length} product request${
-                  productRequests?.length === 1 ? "" : "s"
-                }`}
-          </p>
+          {artPiece.status === "approved" && (
+            <p className="text-xs text-muted-foreground">
+              {!productRequests || productRequests?.length === 0
+                ? "No product requests yet"
+                : `${productRequests?.length} product request${
+                    productRequests?.length === 1 ? "" : "s"
+                  }`}
+            </p>
+          )}
         </div>
       </div>
     </Link>

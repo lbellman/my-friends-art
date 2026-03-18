@@ -47,10 +47,10 @@ export function Dropzone({
               <CloudUploadIcon className="size-8" />
               <div>
                 <p className="font-semibold">Upload your art piece</p>
-                <p className="body2 text-muted-foreground">
+                <p className="body2 text-muted-foreground font-normal">
                   Accepted formats: .png, .jpg, .jpeg, .webp
                 </p>
-                <p className="body2 text-muted-foreground">Max size: 10MB</p>
+                <p className="body2 text-muted-foreground font-normal">Max size: 10MB</p>
               </div>
             </DropzoneTrigger>
           </DropZoneArea>

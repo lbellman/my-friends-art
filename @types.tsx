@@ -41,6 +41,7 @@ export const MEDIUM_OPTIONS: Record<MediumType, string> = {
   other: "Other",
 };
 
+export type ProductRequestRow = Database["public"]["Tables"]["product_request"]["Row"];
 export type ProductRequestStatusType = Database["public"]["Enums"]["product_request_statuses"];
 export const PRODUCT_REQUEST_STATUS_OPTIONS: Record<ProductRequestStatusType, string> = {
   pending: "Pending",

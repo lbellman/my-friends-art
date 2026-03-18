@@ -1,6 +1,11 @@
 "use client";
 
-import { PRINT_OPTION_LABELS, type PrintOptionType } from "@/@types";
+import {
+  PRINT_OPTION_LABELS,
+  ProductRequestRow,
+  ProductRequestStatusType,
+  type PrintOptionType,
+} from "@/@types";
 import type { Database } from "@/supabase";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -8,20 +13,21 @@ import { useState } from "react";
 import { Check, Undo, X } from "lucide-react";
 import ConfirmDialog from "@/components/organisms/confirm-dialog/ConfirmDialog";
 
-type ProductRequestRow = Database["public"]["Tables"]["product_request"]["Row"];
-type ProductRequestStatus =
-  Database["public"]["Enums"]["product_request_statuses"];
-
 interface ProductRequestCardProps {
   request: ProductRequestRow;
-  onChangeStatus: (id: string, status: ProductRequestStatus) => Promise<void>;
+  onChangeStatus: (
+    id: string,
+    status: ProductRequestStatusType,
+  ) => Promise<void>;
 }
 
 export default function ProductRequestCard({
   request,
   onChangeStatus,
 }: ProductRequestCardProps) {
-  const [status, setStatus] = useState<ProductRequestStatus>(request.status);
+  const [status, setStatus] = useState<ProductRequestStatusType>(
+    request.status,
+  );
   const [isSaving, setIsSaving] = useState(false);
 
   const [confirmFulfillDialogOpen, setConfirmFulfillDialogOpen] =
@@ -34,7 +40,7 @@ export default function ProductRequestCard({
     ? PRINT_OPTION_LABELS[request.print_option as PrintOptionType]
     : null;
 
-  const handleStatusChange = async (nextStatus: ProductRequestStatus) => {
+  const handleStatusChange = async (nextStatus: ProductRequestStatusType) => {
     if (nextStatus === status) return;
 
     setStatus(nextStatus);

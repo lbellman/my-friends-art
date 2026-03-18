@@ -215,6 +215,7 @@ export default function SpecialRequestDialog({
                   variant={
                     formData.dimensions === "custom" ? "default" : "outline"
                   }
+                  type="button"
                   onClick={() =>
                     setFormData({ ...formData, dimensions: "custom" })
                   }

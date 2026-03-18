@@ -18,6 +18,8 @@ export default function TextArea({
   id,
   required,
 }: TextAreaProps) {
+
+  const className ="min-w-[300px]"
   if (label && id) {
     return (
       <div className="flex flex-col gap-2">
@@ -32,6 +34,7 @@ export default function TextArea({
           disabled={disabled}
           placeholder={placeholder}
           required={required}
+          className={className}
         />
       </div>
     );
@@ -44,6 +47,7 @@ export default function TextArea({
       disabled={disabled}
       placeholder={placeholder}
       required={required}
+      className={className}
     />
   );
 }
