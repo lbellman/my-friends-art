@@ -43,8 +43,8 @@ export async function POST(req: Request) {
     const medium = formData.get(
       "medium",
     ) as Database["public"]["Enums"]["art_mediums"];
-    const productType = (formData.get("product_type") ||
-      null) as Database["public"]["Enums"]["product_types"] | null;
+    // const productType = (formData.get("product_type") ||
+    //   null) as Database["public"]["Enums"]["product_types"] | null;
 
     if (!title || !medium) {
       return NextResponse.json(
@@ -193,7 +193,7 @@ export async function POST(req: Request) {
         title,
         description,
         medium,
-        product_type: productType,
+        product_type: "print",
         status: "pending-approval",
         px_width: width,
         px_height: height,
@@ -228,7 +228,7 @@ export async function POST(req: Request) {
       `Title: ${title}`,
       `Description: ${description}`,
       `Medium: ${medium}`,
-      `Product Type: ${productType}`,
+      `Product Type: print`,
       `Width: ${width}`,
       `Height: ${height}`,
       `Aspect Ratio: ${aspectRatio}`,

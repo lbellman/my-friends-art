@@ -12,6 +12,7 @@ import SingleSelect from "@/components/atoms/single-select/SingleSelect";
 import TextArea from "@/components/atoms/text-area/TextArea";
 import { Dropzone } from "@/components/molecules/dropzone/Dropzone";
 import InternalLayout from "@/components/organisms/InternalLayout";
+import { Skeleton } from "@/components/ui/skeleton";
 import supabase from "@/lib/supabase/server";
 import { useQuery } from "@tanstack/react-query";
 import { redirect, useRouter } from "next/navigation";
@@ -21,7 +22,7 @@ type FormDataType = {
   title: string;
   description: string;
   medium: MediumType | null;
-  product_type: ProductType | null;
+  // product_type: ProductType | null;
   image: File | null;
 };
 
@@ -67,7 +68,7 @@ export default function ArtPieceSubmission() {
     title: "",
     description: "",
     medium: null,
-    product_type: null,
+    // product_type: null,
     image: null,
   });
 
@@ -83,11 +84,11 @@ export default function ArtPieceSubmission() {
       setSubmitError("Medium is required.");
       return;
     }
-    const needsProductType = formData.medium !== "digital";
-    if (needsProductType && !formData.product_type) {
-      setSubmitError("Product type is required for this medium.");
-      return;
-    }
+    // const needsProductType = formData.medium !== "digital";
+    // if (needsProductType && !formData.product_type) {
+    //   setSubmitError("Product type is required for this medium.");
+    //   return;
+    // }
     if (!formData.image) {
       setSubmitError("Please upload an image.");
       return;
@@ -99,9 +100,9 @@ export default function ArtPieceSubmission() {
       body.append("title", formData.title.trim());
       body.append("description", formData.description.trim());
       body.append("medium", formData.medium);
-      if (formData.product_type) {
-        body.append("product_type", formData.product_type);
-      }
+      // if (formData.product_type) {
+      //   body.append("product_type", formData.product_type);
+      // }
       body.append("image", formData.image);
 
       const {
@@ -136,10 +137,14 @@ export default function ArtPieceSubmission() {
 
   return (
     <InternalLayout title="submit an art piece">
-      {artist?.name && (
-        <div className="mx-auto max-w-3xl mb-4 ">
-          <p>Submitting as {artist?.name}</p>
-        </div>
+      {isLoadingArtist ? (
+        <Skeleton className="h-7 max-w-3xl mx-auto mb-4 rounded-lg" />
+      ) : (
+        artist?.name && (
+          <div className="mx-auto max-w-3xl mb-4 ">
+            <p>Submitting as {artist?.name}</p>
+          </div>
+        )
       )}
       <div className="flex justify-center">
         <div className="bg-card rounded-xl w-full max-w-3xl border p-6 shadow-md">
@@ -183,7 +188,7 @@ export default function ArtPieceSubmission() {
               />
 
               {/*  Product Type */}
-              {formData.medium !== "digital" && (
+              {/* {formData.medium !== "digital" && (
                 <SingleSelect
                   label="Product Type"
                   value={formData.product_type || ""}
@@ -201,7 +206,7 @@ export default function ArtPieceSubmission() {
                   )}
                   required
                 />
-              )}
+              )} */}
 
               {/* Image Upload */}
               <div className="flex flex-col gap-1">

@@ -16,6 +16,13 @@ export default function ArtPieceSubmissionSuccess() {
         <Link href="/submit-art-piece">
           <Button label="Submit another art piece" onClick={() => {}} />
         </Link>
+        <Link href="/dashboard">
+          <Button
+            label="Go to dashboard"
+            variant="secondary"
+            onClick={() => {}}
+          />
+        </Link>
       </div>
     </InternalLayout>
   );

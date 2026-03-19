@@ -17,7 +17,7 @@ import _ from "lodash";
 import useEmailJS from "@/app/hooks/useEmailJS";
 import supabase from "@/lib/supabase/server";
 
-export default function SpecialRequestDialog({
+export default function RequestPrintDialog({
   open,
   onOpenChange,
   printDetails,
@@ -73,7 +73,6 @@ export default function SpecialRequestDialog({
         artist_id: artPiece.artist.id,
         type: "print",
         dimensions: printDetails?.dimensions || formData.dimensions,
-
         from_email: formData.email,
         message: formData.message || null,
         name: formData.name,
@@ -92,6 +91,7 @@ export default function SpecialRequestDialog({
 
       // If database record successfully created, send email to artist
     } else {
+      // Send email to artist
       sendEmail({
         name: formData.name,
         fromEmail: formData.email,
@@ -128,6 +128,18 @@ export default function SpecialRequestDialog({
 
           setIsSubmitting(false);
         },
+        setIsSubmitting,
+      });
+
+      // Send email to customer
+      sendEmail({
+        name: "My Friend's Art",
+        fromEmail: "bellmanlindsey@gmail.com",
+        toEmail: formData.email,
+        subject: `My Friend's Art - Print Request Confirmation`,
+        message: `Thank you for your print request for ${artPiece?.title}. The artist will contact you directly with pricing and shipping details.`,
+        onSuccess: () => {},
+        onError: () => {},
         setIsSubmitting,
       });
     }

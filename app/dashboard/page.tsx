@@ -1,11 +1,17 @@
 "use client";
 
-import { ArtPieceStatusType, getPublicUrl } from "@/@types";
+import {
+  type ArtPiece,
+  ArtPieceStatusType,
+  type ProductRequestRow,
+  type ProductRequestStatusType,
+} from "@/@types";
 import useAuth from "@/app/hooks/useAuth";
 import Button from "@/components/atoms/button/Button";
 import Input from "@/components/atoms/input/Input";
 import TextArea from "@/components/atoms/text-area/TextArea";
 import DashboardArtCard from "@/components/molecules/dashboard-art-card/DashboardArtCard";
+import ProductRequestCard from "@/components/molecules/product-request-card/ProductRequestCard";
 import InternalLayout from "@/components/organisms/InternalLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import supabase from "@/lib/supabase/server";
@@ -23,25 +29,6 @@ export type DashboardArtPieceRow = {
   display_path: string | null;
   created_at: string | null;
 };
-
-function StatCard({
-  title,
-  value,
-  // status,
-}: {
-  title: string;
-  value: number;
-  status: ArtPieceStatusType | "total";
-}) {
-  return (
-    <div className={`bg-card border border-border rounded-lg p-4`}>
-      <div className="flex items-center gap-2 justify-between w-full">
-        <p className="text-2xl font-semibold text-foreground">{value}</p>
-      </div>
-      <p className="text-sm text-muted-foreground">{title}</p>
-    </div>
-  );
-}
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
@@ -72,6 +59,28 @@ export default function DashboardPage() {
         .eq("artist_id", artist?.id || "")
         .order("created_at", { ascending: false });
       return (data ?? []) as DashboardArtPieceRow[];
+    },
+    enabled: !!artist?.id,
+  });
+
+  const {
+    data: allProductRequests = [],
+    isLoading: isLoadingProductRequests,
+    refetch: refetchProductRequests,
+  } = useQuery({
+    queryKey: ["product-requests-dashboard", artist?.id],
+    queryFn: async (): Promise<ProductRequestRow[]> => {
+      const { data, error } = await supabase
+        .from("product_request")
+        .select(
+          "id, name, from_email, message, dimensions, print_option, created_at, status, type, art_piece_id",
+        )
+        .eq("status", "pending")
+        .eq("artist_id", artist?.id || "")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return (data ?? []) as ProductRequestRow[];
     },
     enabled: !!artist?.id,
   });
@@ -164,6 +173,21 @@ export default function DashboardPage() {
 
   type ArtFilter = "all" | "approved" | "pending-approval" | "not-approved";
   const [artFilter, setArtFilter] = useState<ArtFilter>("all");
+  const [showAllPrintRequests, setShowAllPrintRequests] = useState(false);
+  const [showAllArtPieces, setShowAllArtPieces] = useState(false);
+
+  const displayProductRequests = showAllPrintRequests
+    ? allProductRequests
+    : allProductRequests.slice(0, 6);
+  const hasMorePrintRequests = allProductRequests.length > 6;
+
+  const handleUpdateProductRequestStatus = async (
+    id: string,
+    status: ProductRequestStatusType,
+  ) => {
+    await supabase.from("product_request").update({ status }).eq("id", id);
+    void refetchProductRequests();
+  };
 
   const filteredArtPieces = useMemo(
     () =>
@@ -187,6 +211,11 @@ export default function DashboardPage() {
     [artPieces],
   );
   const totalCount = useMemo(() => artPieces.length, [artPieces]);
+
+  const displayArtPieces = showAllArtPieces
+    ? filteredArtPieces
+    : filteredArtPieces.slice(0, 6);
+  const hasMoreArtPieces = filteredArtPieces.length > 6;
 
   return (
     <InternalLayout title="artist dashboard">
@@ -305,6 +334,73 @@ export default function DashboardPage() {
           )}
         </section>
 
+        {/* Print requests */}
+        <section className="space-y-4">
+          <h4 className="text-foreground font-display tracking-wide">
+            Pending print requests
+          </h4>
+          {isLoadingProductRequests ? (
+            <div className="space-y-3">
+              <Skeleton className="h-32 w-full rounded-lg" />
+              <Skeleton className="h-32 w-full rounded-lg" />
+            </div>
+          ) : allProductRequests.length === 0 ? (
+            <div className="bg-card border border-border rounded-lg p-6 text-center">
+              <p className="text-muted-foreground text-sm">
+                No print requests yet. Requests will appear here when someone
+                asks for a print of your art.
+              </p>
+            </div>
+          ) : (
+            <>
+              <ul className="space-y-4">
+                {displayProductRequests.map((request) => {
+                  const piece = artPieces.find(
+                    (p) => p.id === request.art_piece_id,
+                  );
+                  const artPieceForCard: ArtPiece | null =
+                    piece && artist
+                      ? ({
+                          ...piece,
+                          artist: {
+                            id: artist.id,
+                            name: artist.name ?? "",
+                            email_address: "",
+                          },
+                        } as ArtPiece)
+                      : null;
+                  if (!artPieceForCard) return null;
+                  return (
+                    <li key={request.id}>
+                      <ProductRequestCard
+                        request={request}
+                        artPiece={artPieceForCard}
+                        onChangeStatus={handleUpdateProductRequestStatus}
+                        showImage
+                      />
+                    </li>
+                  );
+                })}
+              </ul>
+              {hasMorePrintRequests && (
+                <div className="flex justify-center pt-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    label={
+                      showAllPrintRequests
+                        ? "Show less"
+                        : `See all (${allProductRequests.length})`
+                    }
+                    onClick={() => setShowAllPrintRequests((prev) => !prev)}
+                  />
+                </div>
+              )}
+            </>
+          )}
+        </section>
+
         {/* Your art pieces */}
         <section className="space-y-6 ">
           <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -336,15 +432,6 @@ export default function DashboardPage() {
                   label={`Pending Approval (${pendingCount})`}
                   onClick={() => setArtFilter("pending-approval")}
                 />
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={
-                    artFilter === "not-approved" ? "primary" : "secondary"
-                  }
-                  label={`Not Approved (${notApprovedCount})`}
-                  onClick={() => setArtFilter("not-approved")}
-                />
               </div>
             )}
           </div>
@@ -368,7 +455,7 @@ export default function DashboardPage() {
               </p>
               <Link href="/submit-art-piece">
                 <Button
-                  icon={<Palette className="size-4" />}
+                  icon={<Plus className="size-4" />}
                   label="Submit your first piece"
                 />
               </Link>
@@ -390,13 +477,30 @@ export default function DashboardPage() {
               </p>
             </div>
           ) : (
-            <ul className="grid grid-cols-2 lg:grid-cols-3 gap-4  lg:gap-6">
-              {filteredArtPieces.map((piece) => (
-                <li key={piece.id}>
-                  <DashboardArtCard artPiece={piece} />
-                </li>
-              ))}
-            </ul>
+            <>
+              <ul className="grid grid-cols-2 lg:grid-cols-3 gap-4  lg:gap-6">
+                {displayArtPieces.map((piece) => (
+                  <li key={piece.id}>
+                    <DashboardArtCard artPiece={piece} />
+                  </li>
+                ))}
+              </ul>
+              {hasMoreArtPieces && (
+                <div className="flex justify-center pt-4">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    label={
+                      showAllArtPieces
+                        ? "Show less"
+                        : `See all (${filteredArtPieces.length})`
+                    }
+                    onClick={() => setShowAllArtPieces((prev) => !prev)}
+                  />
+                </div>
+              )}
+            </>
           )}
         </section>
       </div>

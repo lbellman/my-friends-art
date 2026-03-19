@@ -2,6 +2,7 @@
 
 import {
   ART_PIECE_STATUS_OPTIONS,
+  ArtPiece,
   getPublicUrl,
   type ArtPieceStatusType,
 } from "@/@types";
@@ -212,6 +213,7 @@ export default function DashboardArtPieceDetailPage() {
                     value={editTitle}
                     onChange={setEditTitle}
                     required
+                    disabled={artPiece.status !== "approved"}
                     placeholder="Title of your art piece"
                   />
                   <TextArea
@@ -219,6 +221,7 @@ export default function DashboardArtPieceDetailPage() {
                     id="edit-description"
                     value={editDescription}
                     onChange={setEditDescription}
+                    disabled={artPiece.status !== "approved"}
                     placeholder="Describe your art piece (optional)"
                   />
                   {detailsError && (
@@ -233,7 +236,7 @@ export default function DashboardArtPieceDetailPage() {
                   <Button
                     type="submit"
                     label={isSavingDetails ? "Saving…" : "Save details"}
-                    disabled={isSavingDetails}
+                    disabled={isSavingDetails || artPiece.status !== "approved"}
                     loading={isSavingDetails}
                   />
                 </form>
@@ -344,6 +347,7 @@ export default function DashboardArtPieceDetailPage() {
                     <ProductRequestCard
                       key={request.id}
                       request={request}
+                      artPiece={artPiece as ArtPiece}
                       onChangeStatus={handleUpdateProductRequestStatus}
                     />
                   ))}

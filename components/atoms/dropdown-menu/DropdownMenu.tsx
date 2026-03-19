@@ -46,7 +46,9 @@ export default function DropdownMenu({
           >
             {item.icon && <>{item.icon}</>}
             {item.href ? (
-              <Link href={item.href}>{item.label}</Link>
+              <Link href={item.href} className="w-full">
+                {item.label}
+              </Link>
             ) : (
               <span>{item.label}</span>
             )}
