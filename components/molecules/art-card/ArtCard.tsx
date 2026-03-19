@@ -8,7 +8,7 @@ interface ArtCardProps {
 }
 
 export function ArtCard({ artPiece, href }: ArtCardProps) {
-  const publicUrl = getPublicUrl(artPiece.display_path ?? "");
+  const publicUrl = getPublicUrl(artPiece.thumbnail_path ?? "");
   return (
     <Link
       href={href}

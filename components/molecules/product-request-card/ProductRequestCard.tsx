@@ -97,7 +97,7 @@ export default function ProductRequestCard({
     }
   };
 
-  const imagePath = artPiece.display_path ?? artPiece.thumbnail_path ?? null;
+  const imagePath = artPiece.thumbnail_path ?? null;
   const imageUrl = imagePath ? getPublicUrl(imagePath) : null;
 
   const content = (

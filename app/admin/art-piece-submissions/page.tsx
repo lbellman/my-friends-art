@@ -5,6 +5,7 @@ import ArtPieceSubmissionsView from "@/components/organisms/ArtPieceSubmissionsV
 import InternalLayout from "@/components/organisms/InternalLayout";
 import supabase from "@/lib/supabase/server";
 import Button from "@/components/atoms/button/Button";
+import SearchBar from "@/components/molecules/search-bar/SearchBar";
 import { useQuery } from "@tanstack/react-query";
 import { notFound } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -29,6 +30,7 @@ export default function AdminArtPieceSubmissionsPage() {
 
   type StatusFilter = "all" | "pending-approval" | "approved";
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { data: artPieces, error } = useQuery({
     queryKey: ["artPieces"],
@@ -47,9 +49,18 @@ export default function AdminArtPieceSubmissionsPage() {
 
   const filteredArtPieces = useMemo(() => {
     const items = artPieces ?? [];
-    if (statusFilter === "all") return items;
-    return items.filter((p) => p.status === statusFilter);
-  }, [artPieces, statusFilter]);
+    const statusFiltered =
+      statusFilter === "all"
+        ? items
+        : items.filter((p) => p.status === statusFilter);
+
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return statusFiltered;
+
+    return statusFiltered.filter((p) =>
+      (p.title ?? "").toLowerCase().includes(q),
+    );
+  }, [artPieces, statusFilter, searchTerm]);
 
   if (loading) {
     return (
@@ -96,6 +107,23 @@ export default function AdminArtPieceSubmissionsPage() {
           label="Approved"
           onClick={() => setStatusFilter("approved")}
         />
+
+        <SearchBar
+          onSearch={(q) => {
+            setSearchTerm(q);
+          }}
+          placeholder="Search by art title..."
+        />
+
+        {searchTerm.trim() ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            label="Clear search"
+            onClick={() => setSearchTerm("")}
+          />
+        ) : null}
       </div>
 
       <ArtPieceSubmissionsView artPieces={filteredArtPieces as ArtPiece[]} />

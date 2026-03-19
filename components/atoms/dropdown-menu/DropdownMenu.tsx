@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
+import { useState } from "react";
 
 export type MenuItem = {
   key: string;
@@ -29,8 +30,10 @@ export default function DropdownMenu({
   trigger,
   header,
 }: DropdownMenuProps) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <DropdownMenuPrimitive>
+    <DropdownMenuPrimitive open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
       <DropdownMenuContent>
         {header && (
@@ -39,20 +42,33 @@ export default function DropdownMenu({
           </DropdownMenuLabel>
         )}
         {items.map((item) => (
-          <DropdownMenuItem
-            key={item.key}
-            disabled={item.disabled}
-            onClick={item.onClick}
-          >
-            {item.icon && <>{item.icon}</>}
-            {item.href ? (
-              <Link href={item.href} className="w-full">
-                {item.label}
+          item.href ? (
+            <DropdownMenuItem key={item.key} disabled={item.disabled} asChild>
+              <Link
+                href={item.href}
+                className="w-full"
+                onClick={() => {
+                  item.onClick?.();
+                  setOpen(false);
+                }}
+              >
+                {item.icon && <>{item.icon}</>}
+                <span>{item.label}</span>
               </Link>
-            ) : (
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem
+              key={item.key}
+              disabled={item.disabled}
+              onClick={() => {
+                item.onClick?.();
+                setOpen(false);
+              }}
+            >
+              {item.icon && <>{item.icon}</>}
               <span>{item.label}</span>
-            )}
-          </DropdownMenuItem>
+            </DropdownMenuItem>
+          )
         ))}
       </DropdownMenuContent>
     </DropdownMenuPrimitive>

@@ -17,7 +17,8 @@ export default function ArtistsPage() {
         .from("artist")
         .select(
           "id, name, bio, profile_img_url, location, email_address, facebook, website, instagram",
-        );
+        )
+        .eq("status", "approved");
       if (error) {
         throw new Error(error.message);
       }

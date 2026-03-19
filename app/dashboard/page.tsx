@@ -152,23 +152,6 @@ export default function DashboardPage() {
     }
   };
 
-  const pending = useMemo(
-    () => artPieces.filter((p) => p.status === "pending-approval").length,
-    [artPieces],
-  );
-  const approved = useMemo(
-    () => artPieces.filter((p) => p.status === "approved").length,
-    [artPieces],
-  );
-  const notApproved = useMemo(
-    () => artPieces.filter((p) => p.status === "not-approved").length,
-    [artPieces],
-  );
-
-  const approvedClass = "bg-success/30 text-success-foreground";
-  const pendingClass = "bg-muted/10 text-muted-foreground";
-  const notApprovedClass = "bg-destructive/30 text-destructive-foreground";
-
   const isLoading = isLoadingArtist || isLoadingPieces || loading;
 
   type ArtFilter = "all" | "approved" | "pending-approval" | "not-approved";
@@ -206,10 +189,7 @@ export default function DashboardPage() {
     () => artPieces.filter((p) => p.status === "pending-approval").length,
     [artPieces],
   );
-  const notApprovedCount = useMemo(
-    () => artPieces.filter((p) => p.status === "not-approved").length,
-    [artPieces],
-  );
+
   const totalCount = useMemo(() => artPieces.length, [artPieces]);
 
   const displayArtPieces = showAllArtPieces
@@ -293,6 +273,7 @@ export default function DashboardPage() {
                 id="artist-bio"
                 value={bio}
                 onChange={setBio}
+                required
                 placeholder="Tell visitors a bit about yourself and your work."
               />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

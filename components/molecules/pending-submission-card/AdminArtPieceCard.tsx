@@ -30,7 +30,7 @@ export default function AdminArtPieceCard({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const { deleteArtPiece } = useArtPiece({ id: artPiece.id });
+  const { deleteArtPiece } = useArtPiece();
 
   const imagePath = artPiece.display_path ?? artPiece.thumbnail_path ?? "";
   const imageUrl = useMemo(() => {
@@ -91,7 +91,6 @@ export default function AdminArtPieceCard({
           .filter(Boolean)
           .join("\n");
       };
-      console.log("email", artPiece.artist.email_address);
 
       // Send an email to the artist to notify them of the status change
       sendEmail({
@@ -119,13 +118,19 @@ export default function AdminArtPieceCard({
   const handleDelete = async () => {
     setIsDeleting(true);
     deleteArtPiece({
+      artPieceId: artPiece.id,
+      thumbnailPath: artPiece.thumbnail_path ?? "",
+      originalPath: artPiece.original_path ?? "",
+      displayPath: artPiece.display_path ?? "",
       onSuccess: () => {
         toast.success("Art piece deleted.");
         setIsDeleting(false);
+        setDeleteDialogOpen(false);
       },
       onError: () => {
         toast.error("Failed to delete art piece.");
         setIsDeleting(false);
+        setDeleteDialogOpen(false);
       },
     });
     for (const key of invalidateQueryKeys) {
@@ -231,16 +236,14 @@ export default function AdminArtPieceCard({
               }}
             />
           )}
-          {currentStatus !== "pending-approval" && (
-            <Button
-              variant="destructive"
-              size="default"
-              label="Delete"
-              disabled={isUpdating || isDeleting}
-              loading={isDeleting}
-              onClick={() => setDeleteDialogOpen(true)}
-            />
-          )}
+          <Button
+            variant="destructive"
+            size="default"
+            label="Delete"
+            disabled={isUpdating || isDeleting}
+            loading={isDeleting}
+            onClick={() => setDeleteDialogOpen(true)}
+          />
         </div>
         {deleteDialogOpen && (
           <ConfirmDialog

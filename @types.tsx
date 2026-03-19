@@ -22,7 +22,9 @@ export type ArtPiece = Tables<"art_piece"> & {
 };
 
 export type MediumType = Database["public"]["Enums"]["art_mediums"];
-export const MEDIUM_OPTIONS: Record<MediumType, string> = {
+
+// TODO: Add back the physical mediums when original products are supported
+export const MEDIUM_OPTIONS: Record<Exclude<MediumType, "needle-felt" | "crochet" | "knit" | "wood" | "clay" | "paper-machet" | "pottery">, string> = {
   digital: "Digital",
   oil: "Oil",
   acrylic: "Acrylic",
@@ -30,14 +32,14 @@ export const MEDIUM_OPTIONS: Record<MediumType, string> = {
   pastel: "Pastel",
   pencil: "Pencil",
   "mixed-media": "Mixed Media",
-  "needle-felt": "Needle Felt",
-  crochet: "Crochet",
-  knit: "Knit",
+  // "needle-felt": "Needle Felt",
+  // crochet: "Crochet",
+  // knit: "Knit",
   pen: "Pen",
-  wood: "Wood",
-  clay: "Clay",
-  "paper-machet": "Paper Machet",
-  pottery: "Pottery",
+  // wood: "Wood",
+  // clay: "Clay",
+  // "paper-machet": "Paper Machet",
+  // pottery: "Pottery",
   other: "Other",
 };
 

@@ -1,38 +1,68 @@
 "use client";
+import { ArtPiece } from "@/@types";
 import supabase from "@/lib/supabase/server";
 
-export default function useArtPiece({ id }: { id: string }) {
-  const deleteArtPiece = async ({onSuccess, onError}:{
-
-    onSuccess: () => void,
-    onError: (error: Error) => void,
-  }
-  ) => {
+export default function useArtPiece() {
+  const deleteArtPiece = async ({
+    onSuccess,
+    onError,
+    artPieceId,
+    thumbnailPath,
+    originalPath,
+    displayPath,
+  }: {
+    onSuccess: () => void;
+    onError: (error: Error) => void;
+    artPieceId: string;
+    thumbnailPath: string;
+    originalPath: string;
+    displayPath: string;
+  }) => {
     try {
-      const { error } = await supabase.from("art_piece").delete().eq("id", id);
+      const { error } = await supabase
+        .from("art_piece")
+        .delete()
+        .eq("id", artPieceId);
       if (error) {
         onError(error);
         throw error;
       }
 
-      // Delete the image objects from the storage buckets
-      const { error: deleteError } = await supabase.storage
-        .from("art-pieces")
-        .remove([id]);
-      const { error: deleteOriginalError } = await supabase.storage
-        .from("originals")
-        .remove([id]);
-      if (deleteError) {
-        throw deleteError;
+      // Cleanup the images from the storage buckets
+      // Display path
+      if (displayPath) {
+        const { error: deleteError } = await supabase.storage
+          .from("art-pieces")
+          .remove([displayPath]);
+        if (deleteError) {
+          throw deleteError;
+        }
       }
-      if (deleteOriginalError) {
-        throw deleteOriginalError;
+
+      // Thumbnail path
+      if (thumbnailPath) {
+        const { error: deleteError } = await supabase.storage
+          .from("art-pieces")
+          .remove([thumbnailPath]);
+        if (deleteError) {
+          throw deleteError;
+        }
+      }
+
+      // Original path
+      if (originalPath) {
+        const { error: deleteError } = await supabase.storage
+          .from("originals")
+          .remove([originalPath]);
+        if (deleteError) {
+          throw deleteError;
+        }
       }
     } catch (error) {
       onError(error as Error);
       throw error;
     } finally {
-      // onSuccess();
+      onSuccess();
     }
   };
 

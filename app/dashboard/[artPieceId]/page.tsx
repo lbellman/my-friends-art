@@ -6,6 +6,7 @@ import {
   getPublicUrl,
   type ArtPieceStatusType,
 } from "@/@types";
+import useArtPiece from "@/app/hooks/useArtPiece";
 import Button from "@/components/atoms/button/Button";
 import Input from "@/components/atoms/input/Input";
 import TextArea from "@/components/atoms/text-area/TextArea";
@@ -24,6 +25,7 @@ import { toast } from "sonner";
 
 export default function DashboardArtPieceDetailPage() {
   const { artPieceId } = useParams<{ artPieceId: string }>();
+  const { deleteArtPiece } = useArtPiece();
   const router = useRouter();
 
   const {
@@ -36,7 +38,7 @@ export default function DashboardArtPieceDetailPage() {
       const { data, error } = await supabase
         .from("art_piece")
         .select(
-          "id, title, description, display_path, thumbnail_path, px_width, px_height, dpi, aspect_ratio, created_at, status, product_type",
+          "id, title, description, display_path, original_path, thumbnail_path, px_width, px_height, dpi, aspect_ratio, created_at, status, product_type",
         )
         .eq("id", artPieceId)
         .single();
@@ -86,7 +88,6 @@ export default function DashboardArtPieceDetailPage() {
   const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
   const [deleteRestrictedDialogOpen, setDeleteRestrictedDialogOpen] =
     useState(false);
-
 
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
@@ -390,16 +391,20 @@ export default function DashboardArtPieceDetailPage() {
                 confirmLabel="Delete"
                 onConfirm={async () => {
                   //  Delete the art piece
-                  const { error } = await supabase
-                    .from("art_piece")
-                    .delete()
-                    .eq("id", artPieceId);
-                  if (error) {
-                    toast.error("Failed to delete art piece");
-                  } else {
-                    toast.success("Art piece deleted successfully");
-                    router.replace("/dashboard");
-                  }
+                  deleteArtPiece({
+                    artPieceId: artPiece.id,
+                    thumbnailPath: artPiece.thumbnail_path ?? "",
+                    originalPath: artPiece.original_path ?? "",
+                    displayPath: artPiece.display_path ?? "",
+                    onSuccess: () => {
+                      toast.success("Art piece deleted successfully");
+                      setConfirmDeleteDialogOpen(false);
+                      router.replace("/dashboard");
+                    },
+                    onError: (error) => {
+                      toast.error("Failed to delete art piece");
+                    },
+                  });
                 }}
               />
             )}

@@ -126,18 +126,24 @@ export async function POST(req: Request) {
     const aspectRatio = inferAspectRatio(width, height);
 
     // Create display and thumbnail versions as webp
-    const displayBuffer = await image.webp({ quality: 90 }).toBuffer();
+    const displayBuffer = await image
+    .resize({ width: 1600 })
+    .webp({ quality: 90 })
+    .toBuffer();
+    
     const thumbnailBuffer = await image
       .resize({ width: 800 })
       .webp({ quality: 80 })
       .toBuffer();
 
     const id = crypto.randomUUID();
-    const originalsBasePath = `originals/${artistId}/${id}`;
-    const basePath = `art-pieces/${artistId}/${id}`;
-    const originalPath = `${originalsBasePath}-original`;
-    const displayPath = `${basePath}-display.webp`;
-    const thumbnailPath = `${basePath}-thumb.webp`;
+
+    // Paths for original images in the private "originals" bucket
+    const originalPath = `${artistId}/${id}`;
+
+    // Paths for display and thumbnail images in the public "art-pieces" bucket
+    const displayPath = `display/${artistId}/${id}.webp`;
+    const thumbnailPath = `thumbnails/${artistId}/${id}.webp`;
 
     // Upload original (unconverted) image to private "originals" bucket
     const originalUpload = await supabase.storage
