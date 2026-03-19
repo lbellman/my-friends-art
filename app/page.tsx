@@ -129,7 +129,7 @@ export default function Home() {
           all pieces
         </h4>
         {/* Digital Pieces */}
-        <ul className="grid grid-cols-3 md:grid-cols-3 gap-4 md:gap-8">
+        <ul className="grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-8">
           {artPieces?.map((piece) => (
             <ArtCard
               key={piece.id}
