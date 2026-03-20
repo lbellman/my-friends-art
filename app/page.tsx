@@ -3,6 +3,7 @@ import { ArtPiece } from "@/@types";
 import useHighlightedSectionAnchors from "@/app/hooks/useHighlightedSectionAnchors";
 import { ArtCard } from "@/components/molecules/art-card/ArtCard";
 import Subnav from "@/components/organisms/Subnav";
+import { Skeleton } from "@/components/ui/skeleton";
 import supabase from "@/lib/supabase/server";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
@@ -44,22 +45,24 @@ export default function Home() {
     highlightClass: "bg-secondary-hover",
   });
 
-  const { data: artPieces } = useQuery({
+  const { data: artPieces, isLoading: isLoadingArtPieces } = useQuery({
     queryKey: ["artPieces"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("art_piece")
         .select(
-          "id, title, thumbnail_path, display_path, medium, created_at, artist:artist_id(id, name)",
+          "id, title, thumbnail_path, status, display_path, medium, created_at, artist:artist_id(id, name)",
         )
         .order("created_at", { ascending: false });
       if (error) {
         throw new Error(error.message);
       }
-      return data?.map((piece) => ({
-        ...piece,
-        artist: piece.artist,
-      }));
+      return data
+        ?.filter((piece) => piece.status === "approved")
+        .map((piece) => ({
+          ...piece,
+          artist: piece.artist,
+        }));
     },
   });
 
@@ -130,13 +133,21 @@ export default function Home() {
         </h4>
         {/* Digital Pieces */}
         <ul className="grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-8">
-          {artPieces?.map((piece) => (
-            <ArtCard
-              key={piece.id}
-              artPiece={piece as ArtPiece}
-              href={`/${piece.id}`}
-            />
-          ))}
+          {isLoadingArtPieces ? (
+            <>
+              <Skeleton className="w-full" />
+              <Skeleton className="w-full" />
+              <Skeleton className="w-full aspect-square" />
+            </>
+          ) : (
+            artPieces?.map((piece) => (
+              <ArtCard
+                key={piece.id}
+                artPiece={piece as ArtPiece}
+                href={`/${piece.id}`}
+              />
+            ))
+          )}
         </ul>
       </div>
     </div>

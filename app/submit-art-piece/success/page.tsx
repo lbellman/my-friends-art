@@ -12,9 +12,16 @@ export default function ArtPieceSubmissionSuccess() {
           <CheckCircleIcon className="size-10 text-success-foreground" />
         </div>
         <h3>Thank you for your submission!</h3>
-        <p>We will review your submission and get back to you soon.</p>
-        <Link href="/art-piece-submission">
+        <p>I will review your submission and get back to you soon.</p>
+        <Link href="/submit-art-piece">
           <Button label="Submit another art piece" onClick={() => {}} />
+        </Link>
+        <Link href="/dashboard">
+          <Button
+            label="Go to dashboard"
+            variant="secondary"
+            onClick={() => {}}
+          />
         </Link>
       </div>
     </InternalLayout>

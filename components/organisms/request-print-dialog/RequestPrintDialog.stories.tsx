@@ -13,7 +13,6 @@ const meta: Meta<typeof RequestPrintDialog> = {
     open: true,
     onOpenChange: () => {},
     printDetails: {
-      title: "Windy Cliffside",
       dimensions: "8x10",
       printOption: "canvas",
     },
@@ -35,7 +34,6 @@ export const Default: Story = {
     open: true,
     onOpenChange: () => {},
     printDetails: {
-      title: "Windy Cliffside",
       dimensions: "8x10",
       printOption: "canvas",
     },

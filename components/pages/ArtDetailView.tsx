@@ -98,7 +98,6 @@ export default function ArtDetailView({
     useState<PrintOptionType | null>(null);
 
   const [requestPrintDialogOpen, setRequestPrintDialogOpen] = useState(false);
-
   // Derive default dimension during render (avoids setState in effect)
   const defaultDimension =
     dimensionOptions.length > 0
@@ -136,6 +135,7 @@ export default function ArtDetailView({
   //   },
   //   enabled: !!effectiveDimension && !!effectivePrintOption,
   // });
+
 
   return (
     <div className="min-h-screen flex flex-col items-center">
@@ -182,8 +182,8 @@ export default function ArtDetailView({
                 )}
               </div>
             )}
-            {/* Dimension Selection */}
 
+            {/* Dimension Selection */}
             <div className=" space-y-3">
               <label className="text-sm font-medium text-foreground">
                 Dimensions
@@ -222,6 +222,7 @@ export default function ArtDetailView({
             </div>
 
             {/* Print Option Selection */}
+
             <div className="space-y-3 ">
               <label className="text-sm font-medium text-foreground">
                 Print Type
@@ -269,21 +270,22 @@ export default function ArtDetailView({
                 <p className="text-sm text-muted-foreground">TBD</p>
               )}
             </div> */}
-              {/* Request a Print Button */}
-              <div className="w-full mt-10 border-t pt-6 ">
-                <Button
-                  className="w-full"
-                  size="lg"
-                  onClick={() => setRequestPrintDialogOpen(true)}
-                  disabled={!effectiveDimension || !effectivePrintOption}
-                >
-                  Request a Print
-                </Button>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Print requests are sent directly to the artist.
-              </p>
             </div>
+
+            {/* Request a Print Button */}
+            <div className="w-full mt-10 border-t pt-6 flex flex-col gap-2">
+              <Button
+                className="w-full"
+                size="lg"
+                onClick={() => setRequestPrintDialogOpen(true)}
+                disabled={!effectiveDimension || !effectivePrintOption}
+              >
+                Request a Print
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Requests are sent directly to the artist.
+            </p>
           </div>
         </div>
         {requestPrintDialogOpen && (
@@ -291,10 +293,10 @@ export default function ArtDetailView({
             open={requestPrintDialogOpen}
             onOpenChange={setRequestPrintDialogOpen}
             printDetails={{
-              title: artPiece?.title || "",
               dimensions: effectiveDimension || "",
               printOption: effectivePrintOption || "",
             }}
+            artPiece={artPiece as ArtPiece}
             emailAddress={
               artPiece?.artist?.email_address || "bellmanlindsey@gmail.com"
             }

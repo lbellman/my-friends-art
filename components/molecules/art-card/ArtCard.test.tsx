@@ -9,14 +9,18 @@ function renderArtCard(overrides: Partial<ArtPiece> = {}) {
     id: "piece-1",
     title: "Sunset Over Mountains",
     medium: "digital",
-    display_path: "art-pieces/sunset.png",
-    thumbnail_path: null,
+    thumbnail_path: "art-pieces/sunset.png",
+    display_path: null,
+    original_path: null,
     artist_id: "artist-1",
     aspect_ratio: "3:4",
     created_at: "2021-01-01",
     dpi: 100,
     px_height: 100,
     px_width: 100,
+    product_type: "print",
+    status: "approved",
+    description: "A beautiful sunset over mountains",
     artist: {
       id: "artist-1",
       name: "Test Artist",
@@ -58,7 +62,7 @@ describe("ArtCard", () => {
   });
 
   it("falls back to first letter of title when no image URL is available", () => {
-    const { artPiece } = renderArtCard({ display_path: null });
+    const { artPiece } = renderArtCard({ thumbnail_path: null });
 
     // Image should not be present
     const imgs = screen.queryAllByRole("img");

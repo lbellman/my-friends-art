@@ -1,4 +1,5 @@
 import { Button as ShadButton } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 type ButtonVariantType = "primary" | "secondary" | "destructive";
 
@@ -6,9 +7,11 @@ interface ButtonProps {
   variant?: ButtonVariantType;
   size?: "xs" | "sm" | "default" | "lg";
   disabled?: boolean;
-  onClick: () => void;
+  onClick?: () => void;
+  type?: "button" | "submit";
   label?: string;
   icon?: React.ReactNode;
+  loading?: boolean;
 }
 
 export default function Button({
@@ -16,12 +19,15 @@ export default function Button({
   size = "default",
   disabled = false,
   onClick,
+  type = "button",
   label,
   icon,
+  loading = false,
 }: ButtonProps) {
   const isIconVariant = icon && !label;
   return (
     <ShadButton
+      type={type}
       variant={
         variant === "primary"
           ? "default"
@@ -33,10 +39,10 @@ export default function Button({
       }
       size={isIconVariant ? "icon" : size}
       disabled={disabled}
-      onClick={onClick}
+      onClick={onClick ?? undefined}
     >
       <div className="flex items-center flex-nowrap gap-2">
-        {icon}
+        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : icon}
         {label}
       </div>
     </ShadButton>
