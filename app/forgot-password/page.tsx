@@ -27,9 +27,9 @@ export default function ForgotPasswordPage() {
     setLoading(true);
     try {
       const redirectTo =
-        typeof window !== "undefined"
-          ? `${window.location.origin}/reset-password`
-          : "";
+      typeof window !== "undefined" && window.location.hostname === "localhost"
+        ? `${window.location.origin}/reset-password`
+        : "https://myfriendsart.ca/reset-password";
 
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(
         trimmedEmail,
