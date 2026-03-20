@@ -22,6 +22,10 @@ const forArtists = [
     label: "Artist Support",
     href: "/artist-support",
   },
+  {
+    label: "Become an Artist",
+    href: "/become-an-artist",
+  },
 ];
 
 const footerLinks = [
