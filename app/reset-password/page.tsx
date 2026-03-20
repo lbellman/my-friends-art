@@ -77,6 +77,13 @@ export default function ResetPasswordPage() {
         return;
       }
 
+      // End recovery session so the user isn’t “logged in” until they sign in with the new password.
+      const { error: signOutError } = await supabase.auth.signOut();
+      if (signOutError) {
+        // eslint-disable-next-line no-console
+        console.error(signOutError);
+      }
+
       setSuccess(true);
       setTimeout(() => {
         router.push("/artist-login?reset=success");
