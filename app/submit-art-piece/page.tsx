@@ -39,6 +39,15 @@ type FormDataType = {
   } | null;
 };
 
+type UploadInitResponse = {
+  // Private bucket name used for temporary uploads only.
+  bucket: string;
+  // Server-scoped object key to upload into.
+  stagingPath: string;
+  // Short-lived signed token that authorizes exactly one upload.
+  uploadToken: string;
+};
+
 export default function ArtPieceSubmission() {
   const router = useRouter();
   const { user, loading } = useAuth();
@@ -100,28 +109,6 @@ export default function ArtPieceSubmission() {
 
     setIsSubmitting(true);
     try {
-      const body = new FormData();
-      body.append("title", formData.title.trim());
-      body.append("description", formData.description.trim());
-      body.append("medium", formData.medium);
-      if (formData.product_type) {
-        body.append("product_type", formData.product_type);
-      }
-      body.append("not_ai_generated", formData.not_ai_generated.toString());
-      body.append("authorized_to_sell", formData.authorized_to_sell.toString());
-      if (formData.price) {
-        body.append("price", formData.price.toString());
-        body.append(
-          "price_includes_shipping",
-          formData.price_includes_shipping ? "true" : "false",
-        );
-      }
-
-      if (formData.dimensions) {
-        body.append("dimensions", JSON.stringify(formData.dimensions));
-      }
-      body.append("image", formData.image);
-
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -131,16 +118,76 @@ export default function ArtPieceSubmission() {
         return;
       }
 
-      const res = await fetch("/api/submit-art-piece", {
+      // Step 1: Upload our image to a private supabase staging bucket
+      // This prevents large images being sent through a request body (which has content limits)
+      // Call the upload-url endpoint to get a staging path and a one-time signed upload token
+      const uploadInitRes = await fetch("/api/submit-art-piece/upload-url", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },
-        body,
+      });
+
+      const uploadInitData = (await uploadInitRes
+        .json()
+        .catch(() => ({}))) as Partial<UploadInitResponse> & {
+        error?: string;
+      };
+
+      if (!uploadInitRes.ok) {
+        setSubmitError(
+          uploadInitData.error ?? "Failed to initialize image upload.",
+        );
+        return;
+      }
+
+      if (
+        !uploadInitData.bucket ||
+        !uploadInitData.stagingPath ||
+        !uploadInitData.uploadToken
+      ) {
+        setSubmitError("Invalid upload session. Please try again.");
+        return;
+      }
+
+      // Step 2: Upload the raw image directly to staging bucket via the signed upload token and staging path
+      const stagingUpload = await supabase.storage
+        .from(uploadInitData.bucket)
+        .uploadToSignedUrl(
+          uploadInitData.stagingPath,
+          uploadInitData.uploadToken,
+          formData.image,
+        );
+
+      if (stagingUpload.error) {
+        setSubmitError("Image upload failed. Please try again.");
+        return;
+      }
+
+      // Step 3: Call the submit-art-piece endpoint and pass in the staging path
+      // This validates ownership, uploads the original image to the originals bucket, uploads converted display and thumbnails images, and creates a database record
+      const res = await fetch("/api/submit-art-piece", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: formData.title.trim(),
+          description: formData.description.trim(),
+          medium: formData.medium,
+          stagingPath: uploadInitData.stagingPath,
+        }),
       });
 
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
+        if (res.status === 413) {
+          setSubmitError(
+            "Submission payload is too large. Please retry with a smaller image.",
+          );
+          return;
+        }
         setSubmitError(data.error ?? "Submission failed. Please try again.");
         return;
       }
