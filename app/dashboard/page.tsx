@@ -264,7 +264,7 @@ export default function DashboardPage() {
                 label="Artist name"
                 id="artist-name"
                 value={artistName}
-                onChange={setArtistName}
+                onChange={(value) => setArtistName(value as string)}
                 placeholder="Your display name as an artist"
                 required
               />
@@ -272,7 +272,7 @@ export default function DashboardPage() {
                 label="Bio"
                 id="artist-bio"
                 value={bio}
-                onChange={setBio}
+                onChange={(value) => setBio(value as string)}
                 required
                 placeholder="Tell visitors a bit about yourself and your work."
               />
@@ -281,21 +281,21 @@ export default function DashboardPage() {
                   label="Website"
                   id="artist-website"
                   value={website}
-                  onChange={setWebsite}
+                  onChange={(value) => setWebsite(value as string)}
                   placeholder="https://example.com"
                 />
                 <Input
                   label="Instagram"
                   id="artist-instagram"
                   value={instagram}
-                  onChange={setInstagram}
+                  onChange={(value) => setInstagram(value as string)}
                   placeholder="https://instagram.com/you"
                 />
                 <Input
                   label="Facebook"
                   id="artist-facebook"
                   value={facebook}
-                  onChange={setFacebook}
+                  onChange={(value) => setFacebook(value as string)}
                   placeholder="https://facebook.com/you"
                 />
               </div>

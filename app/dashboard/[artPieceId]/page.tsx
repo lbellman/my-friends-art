@@ -212,7 +212,7 @@ export default function DashboardArtPieceDetailPage() {
                     label="Title"
                     id="edit-title"
                     value={editTitle}
-                    onChange={setEditTitle}
+                    onChange={(value) => setEditTitle(value as string)}
                     required
                     disabled={artPiece.status !== "approved"}
                     placeholder="Title of your art piece"
@@ -221,7 +221,7 @@ export default function DashboardArtPieceDetailPage() {
                     label="Description"
                     id="edit-description"
                     value={editDescription}
-                    onChange={setEditDescription}
+                    onChange={(value) => setEditDescription(value as string)}
                     disabled={artPiece.status !== "approved"}
                     placeholder="Describe your art piece (optional)"
                   />

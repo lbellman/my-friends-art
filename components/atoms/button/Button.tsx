@@ -12,6 +12,7 @@ interface ButtonProps {
   label?: string;
   icon?: React.ReactNode;
   loading?: boolean;
+  className?: string;
 }
 
 export default function Button({
@@ -23,6 +24,7 @@ export default function Button({
   label,
   icon,
   loading = false,
+  className,
 }: ButtonProps) {
   const isIconVariant = icon && !label;
   return (
@@ -40,6 +42,7 @@ export default function Button({
       size={isIconVariant ? "icon" : size}
       disabled={disabled}
       onClick={onClick ?? undefined}
+      className={className}
     >
       <div className="flex items-center flex-nowrap gap-2">
         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : icon}

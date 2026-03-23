@@ -4,6 +4,7 @@ import { Toaster } from "sonner";
 import "./globals.css";
 import Layout from "@/components/organisms/Layout";
 import QueryProvider from "@/components/providers/QueryProvider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -33,8 +34,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${outfit.variable} ${lacquer.variable} antialiased`}>
         <QueryProvider>
-          <Layout>{children}</Layout>
-          <Toaster richColors position="top-center" />
+          <TooltipProvider>
+            <Layout>{children}</Layout>
+            <Toaster richColors position="top-center" />
+          </TooltipProvider>
         </QueryProvider>
       </body>
     </html>

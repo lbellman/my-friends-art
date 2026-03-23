@@ -12,7 +12,9 @@ import SingleSelect from "@/components/atoms/single-select/SingleSelect";
 import TextArea from "@/components/atoms/text-area/TextArea";
 import { Dropzone } from "@/components/molecules/dropzone/Dropzone";
 import InternalLayout from "@/components/organisms/InternalLayout";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
+import SubmitArtPieceView from "@/components/views/SubmitArtPieceView/SubmitArtPieceView";
 import supabase from "@/lib/supabase/server";
 import { useQuery } from "@tanstack/react-query";
 import { redirect, useRouter } from "next/navigation";
@@ -22,14 +24,24 @@ type FormDataType = {
   title: string;
   description: string;
   medium: MediumType | null;
-  // product_type: ProductType | null;
+  product_type: ProductType | null;
+  not_ai_generated: boolean;
+  authorized_to_sell: boolean;
   image: File | null;
+
+  // For physical art pieces
+  price?: number | null;
+  price_includes_shipping?: boolean;
+  dimensions?: {
+    width_in?: number;
+    height_in?: number;
+    depth_in?: number;
+  } | null;
 };
 
 export default function ArtPieceSubmission() {
   const router = useRouter();
   const { user, loading } = useAuth();
-  const [artistId, setArtistId] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -52,23 +64,15 @@ export default function ArtPieceSubmission() {
     }
   }, [user, loading]);
 
-  useEffect(() => {
-    if (!user?.id) return;
-    (async () => {
-      const { data } = await supabase
-        .from("artist")
-        .select("id")
-        .eq("user_id", user.id)
-        .single();
-      if (data?.id) setArtistId(data.id);
-    })();
-  }, [user?.id]);
-
   const [formData, setFormData] = useState<FormDataType>({
     title: "",
     description: "",
     medium: null,
-    // product_type: null,
+    product_type: null,
+    not_ai_generated: false,
+    price: null,
+    price_includes_shipping: false,
+    authorized_to_sell: false,
     image: null,
   });
 
@@ -84,11 +88,11 @@ export default function ArtPieceSubmission() {
       setSubmitError("Medium is required.");
       return;
     }
-    // const needsProductType = formData.medium !== "digital";
-    // if (needsProductType && !formData.product_type) {
-    //   setSubmitError("Product type is required for this medium.");
-    //   return;
-    // }
+    const needsProductType = formData.medium !== "digital";
+    if (needsProductType && !formData.product_type) {
+      setSubmitError("Product type is required for this medium.");
+      return;
+    }
     if (!formData.image) {
       setSubmitError("Please upload an image.");
       return;
@@ -100,9 +104,22 @@ export default function ArtPieceSubmission() {
       body.append("title", formData.title.trim());
       body.append("description", formData.description.trim());
       body.append("medium", formData.medium);
-      // if (formData.product_type) {
-      //   body.append("product_type", formData.product_type);
-      // }
+      if (formData.product_type) {
+        body.append("product_type", formData.product_type);
+      }
+      body.append("not_ai_generated", formData.not_ai_generated.toString());
+      body.append("authorized_to_sell", formData.authorized_to_sell.toString());
+      if (formData.price) {
+        body.append("price", formData.price.toString());
+        body.append(
+          "price_includes_shipping",
+          formData.price_includes_shipping ? "true" : "false",
+        );
+      }
+
+      if (formData.dimensions) {
+        body.append("dimensions", JSON.stringify(formData.dimensions));
+      }
       body.append("image", formData.image);
 
       const {
@@ -135,112 +152,5 @@ export default function ArtPieceSubmission() {
     }
   };
 
-  return (
-    <InternalLayout title="submit an art piece">
-      {isLoadingArtist ? (
-        <Skeleton className="h-7 max-w-3xl mx-auto mb-4 rounded-lg" />
-      ) : (
-        artist?.name && (
-          <div className="mx-auto max-w-3xl mb-4 ">
-            <p>Submitting as {artist?.name}</p>
-          </div>
-        )
-      )}
-      <div className="flex justify-center">
-        <div className="bg-card rounded-xl w-full max-w-3xl border p-6 shadow-md">
-          <form onSubmit={handleSubmit}>
-            <div className="flex flex-col gap-6">
-              {/* Title */}
-              <Input
-                value={formData.title}
-                onChange={(value) => setFormData({ ...formData, title: value })}
-                placeholder="Enter the title of your art piece..."
-                label="Title"
-                id="title"
-                required
-              />
-
-              {/* Description */}
-              <TextArea
-                value={formData.description}
-                onChange={(value) =>
-                  setFormData({ ...formData, description: value })
-                }
-                placeholder="Tell us a little more about this art piece..."
-                label="Description"
-                id="description"
-                required
-              />
-
-              {/* Medium */}
-              <SingleSelect
-                value={formData.medium || ""}
-                onChange={(value) =>
-                  setFormData({ ...formData, medium: value as MediumType })
-                }
-                options={Object.entries(MEDIUM_OPTIONS).map(([key, value]) => ({
-                  key,
-                  label: value,
-                }))}
-                label="Medium"
-                id="medium"
-                required
-              />
-
-              {/*  Product Type */}
-              {/* {formData.medium !== "digital" && (
-                <SingleSelect
-                  label="Product Type"
-                  value={formData.product_type || ""}
-                  onChange={(value) =>
-                    setFormData({
-                      ...formData,
-                      product_type: value as ProductType,
-                    })
-                  }
-                  options={Object.entries(PRODUCT_TYPE_OPTIONS).map(
-                    ([key, value]) => ({
-                      key,
-                      label: value,
-                    }),
-                  )}
-                  required
-                />
-              )} */}
-
-              {/* Image Upload */}
-              <div className="flex flex-col gap-1">
-                <label>
-                  Image Upload <span className="text-red-500">*</span>
-                </label>
-                <Dropzone
-                  setFile={(file) => setFormData({ ...formData, image: file })}
-                />
-              </div>
-
-              {submitError && (
-                <p className="text-destructive text-sm">{submitError}</p>
-              )}
-
-              {/* Submit Button */}
-              <div className="flex flex-col gap-2 w-full">
-                <Button
-                  type="submit"
-                  label={isSubmitting ? "Submitting..." : "Submit Art Piece"}
-                  disabled={isSubmitting}
-                  loading={isSubmitting}
-                  size="lg"
-                />
-                <p className="body2 text-muted-foreground">
-                  Images may take a minute to process as they go through a few
-                  conversion and upload steps. Please don't close this window
-                  while the submission is processing.
-                </p>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-    </InternalLayout>
-  );
+  return <SubmitArtPieceView />;
 }

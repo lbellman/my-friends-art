@@ -1,6 +1,6 @@
 "use client";
 
-import ArtDetailView from "@/components/pages/ArtDetailView";
+import ArtDetailView from "@/components/views/ArtDetailView";
 import { useParams } from "next/navigation";
 
 export default function ArtistArtPieceDetailPage() {

@@ -24,7 +24,7 @@ export type ArtPiece = Tables<"art_piece"> & {
 export type MediumType = Database["public"]["Enums"]["art_mediums"];
 
 // TODO: Add back the physical mediums when original products are supported
-export const MEDIUM_OPTIONS: Record<Exclude<MediumType, "needle-felt" | "crochet" | "knit" | "wood" | "clay" | "paper-machet" | "pottery">, string> = {
+export const MEDIUM_OPTIONS: Record<MediumType, string> = {
   digital: "Digital",
   oil: "Oil",
   acrylic: "Acrylic",
@@ -32,39 +32,47 @@ export const MEDIUM_OPTIONS: Record<Exclude<MediumType, "needle-felt" | "crochet
   pastel: "Pastel",
   pencil: "Pencil",
   "mixed-media": "Mixed Media",
-  // "needle-felt": "Needle Felt",
-  // crochet: "Crochet",
-  // knit: "Knit",
+  "needle-felt": "Needle Felt",
+  crochet: "Crochet",
+  knit: "Knit",
   pen: "Pen",
-  // wood: "Wood",
-  // clay: "Clay",
-  // "paper-machet": "Paper Machet",
-  // pottery: "Pottery",
+  wood: "Wood",
+  clay: "Clay",
+  "paper-machet": "Paper Machet",
+  pottery: "Pottery",
   other: "Other",
 };
 
-export type ProductRequestRow = Database["public"]["Tables"]["product_request"]["Row"];
-export type ProductRequestStatusType = Database["public"]["Enums"]["product_request_statuses"];
-export const PRODUCT_REQUEST_STATUS_OPTIONS: Record<ProductRequestStatusType, string> = {
+export type ProductRequestRow =
+  Database["public"]["Tables"]["product_request"]["Row"];
+export type ProductRequestStatusType =
+  Database["public"]["Enums"]["product_request_statuses"];
+export const PRODUCT_REQUEST_STATUS_OPTIONS: Record<
+  ProductRequestStatusType,
+  string
+> = {
   pending: "Pending",
   fulfilled: "Fulfilled",
   cancelled: "Cancelled",
   "email-failed": "Email Failed",
 };
 
-export type ArtPieceStatusType = Database["public"]["Enums"]["art_piece_statuses"];
+export type ArtPieceStatusType =
+  Database["public"]["Enums"]["art_piece_statuses"];
 export const ART_PIECE_STATUS_OPTIONS: Record<ArtPieceStatusType, string> = {
   "pending-approval": "Pending Approval",
   approved: "Approved",
   "not-approved": "Not Approved",
 };
 
-export const ART_PIECE_STATUS_ICONS: Record<ArtPieceStatusType, React.ReactNode> = {
+export const ART_PIECE_STATUS_ICONS: Record<
+  ArtPieceStatusType,
+  React.ReactNode
+> = {
   "pending-approval": <Loader2 className="size-4 text-muted-foreground" />,
   approved: <CheckCircle className="size-4 text-success-foreground" />,
   "not-approved": <XCircle className="size-4 text-destructive-foreground" />,
 };
-
 
 export type ProductType = Database["public"]["Enums"]["product_types"];
 

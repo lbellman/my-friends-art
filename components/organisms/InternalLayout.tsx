@@ -1,5 +1,6 @@
 import Link from "@/components/atoms/link/Link";
 import Subnav from "@/components/organisms/Subnav";
+import { cn } from "@/lib/utils";
 import { ArrowLeftIcon } from "lucide-react";
 
 interface InternalLayoutProps {
@@ -11,6 +12,7 @@ interface InternalLayoutProps {
     href: string;
     label: string;
   } | null;
+  contentSize?: "sm" | "md" | "lg";
 }
 
 export default function InternalLayout({
@@ -19,13 +21,24 @@ export default function InternalLayout({
   sectionIds,
   sectionRefs,
   back = null,
+  contentSize = "md",
 }: InternalLayoutProps) {
+  const contentSizeClass = {
+    sm: "max-w-3xl",
+    md: "max-w-5xl",
+    lg: "max-w-7xl",
+  }[contentSize];
   return (
     <div className="relative min-h-screen flex flex-col items-center">
       {sectionIds && sectionRefs && (
         <Subnav sectionIds={sectionIds} sectionRefs={sectionRefs} />
       )}
-      <div className={"max-w-5xl flex flex-col w-full items-center px-6 py-12"}>
+      <div
+        className={cn(
+          "flex flex-col w-full items-center px-6 py-12",
+          contentSizeClass,
+        )}
+      >
         {back && (
           <div className="mb-4">
             <Link href={back.href} ariaLabel={back.label}>

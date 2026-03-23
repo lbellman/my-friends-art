@@ -13,13 +13,23 @@ import {
 import { CloudUploadIcon, Trash2Icon } from "lucide-react";
 
 export function Dropzone({
-  setFile,
+  files,
+  setFiles,
+  description,
+  maxFiles,
 }: {
-  setFile: (file: File | null) => void;
+  files: File[] | null;
+  setFiles: (files: File[] | null) => void;
+  description?: string;
+  maxFiles?: number;
 }) {
   const dropzone = useDropzone({
     onDropFile: (file: File) => {
-      setFile(file);
+      const newFiles = [...(files || []), file];
+      if (newFiles.length > (maxFiles ?? 1)) {
+        newFiles.shift();
+      }
+      setFiles(newFiles);
       return Promise.resolve({
         status: "success",
         result: URL.createObjectURL(file),
@@ -30,7 +40,7 @@ export function Dropzone({
         "image/*": [".png", ".jpg", ".jpeg", ".webp"],
       },
       maxSize: 10 * 1024 * 1024,
-      maxFiles: 1,
+      maxFiles: maxFiles ?? 1,
     },
   });
 
@@ -39,18 +49,22 @@ export function Dropzone({
       <DropzonePrimitive {...dropzone}>
         <div>
           <div className="flex justify-between">
-            <DropzoneDescription>Select an image to upload</DropzoneDescription>
+            <DropzoneDescription>
+              {description ?? "Select an image to upload"}
+            </DropzoneDescription>
             <DropzoneMessage />
           </div>
           <DropZoneArea>
             <DropzoneTrigger className="flex flex-col items-center gap-4 bg-transparent p-10 text-center text-sm">
               <CloudUploadIcon className="size-8" />
               <div>
-                <p className="font-semibold">Upload your art piece</p>
+                <p className="font-semibold">Upload an image</p>
                 <p className="body2 text-muted-foreground font-normal">
                   Accepted formats: .png, .jpg, .jpeg, .webp
                 </p>
-                <p className="body2 text-muted-foreground font-normal">Max size: 10MB</p>
+                <p className="body2 text-muted-foreground font-normal">
+                  Max size: 10MB
+                </p>
               </div>
             </DropzoneTrigger>
           </DropZoneArea>
@@ -84,7 +98,6 @@ export function Dropzone({
                 <DropzoneRemoveFile
                   variant="ghost"
                   className="shrink-0 hover:outline"
-                  
                 >
                   <Trash2Icon className="size-4" />
                 </DropzoneRemoveFile>

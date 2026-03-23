@@ -14,12 +14,13 @@ const meta: Meta<typeof Dropzone> = {
     layout: "centered",
   },
   args: {
-    setFile: (file: File | null) => {
-      console.log("file", file);
+    files: [],
+    setFiles: (files: File[] | null) => {
+      console.log("files", files);
     },
   },
   argTypes: {
-    setFile: {
+    setFiles: {
       control: "object",
       description: "Function to set the file",
     },
@@ -31,8 +32,9 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    setFile: (file: File | null) => {
-      console.log("file", file);
+    files: [],
+    setFiles: (files: File[] | null) => {
+      console.log("files", files);
     },
   },
 };

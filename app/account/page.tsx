@@ -140,14 +140,14 @@ export default function AccountPage() {
                   label="First name"
                   id="first-name"
                   value={firstName}
-                  onChange={setFirstName}
+                  onChange={(value) => setFirstName(value as string)}
                   placeholder="First name"
                 />
                 <Input
                   label="Last name"
                   id="last-name"
                   value={lastName}
-                  onChange={setLastName}
+                  onChange={(value) => setLastName(value as string)}
                   placeholder="Last name"
                 />
               </div>

@@ -1,0 +1,281 @@
+import { ArtistType, MediumType, ProductType } from "@/@types";
+import useAuth from "@/app/hooks/useAuth";
+import Button from "@/components/atoms/button/Button";
+import InternalLayout from "@/components/organisms/InternalLayout";
+import { Skeleton } from "@/components/ui/skeleton";
+import ArtPiecePreview from "@/components/views/SubmitArtPieceView/ArtPiecePreview";
+import BasicInformationStep from "@/components/views/SubmitArtPieceView/BasicInformationStep";
+import OriginalProductDetailsStep from "@/components/views/SubmitArtPieceView/OriginalProductDetailsStep";
+import UploadImageStep from "@/components/views/SubmitArtPieceView/UploadImageStep";
+import supabase from "@/lib/supabase/server";
+import { useQuery } from "@tanstack/react-query";
+import { redirect, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+export type ArtPieceFormDataType = {
+  title: string;
+  description: string;
+  medium: MediumType | null;
+  product_type: ProductType | null;
+  not_ai_generated: boolean;
+  authorized_to_sell: boolean;
+  print_quality_image?: File | null;
+  use_print_quality_image_as_display?: boolean;
+  display_images?: File[];
+
+  // For physical art pieces
+  price?: number | null;
+  price_includes_shipping?: boolean;
+  dimensions?: {
+    width_in?: number;
+    height_in?: number;
+    depth_in?: number;
+  } | null;
+};
+
+export type StepPropsType = {
+  formData: ArtPieceFormDataType;
+  setFormData: (data: ArtPieceFormDataType) => void;
+  setStep: (step: StepType) => void;
+};
+
+type StepType =
+  | "basic-information"
+  | "original-product-details"
+  | "upload-image";
+
+export default function SubmitArtPieceView() {
+  const router = useRouter();
+  const { user, loading: isLoadingUser } = useAuth();
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { data: artist, isLoading: isLoadingArtist } = useQuery({
+    queryKey: ["artist", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("artist")
+        .select("name")
+        .eq("user_id", user?.id || "")
+        .single();
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  // Redirect to home if user is not logged in
+  useEffect(() => {
+    if (!user && !isLoadingUser) {
+      redirect("/");
+    }
+  }, [user, isLoadingUser]);
+
+  const [step, setStep] = useState<StepType>("basic-information");
+  const [formData, setFormData] = useState<ArtPieceFormDataType>({
+    title: "",
+    description: "",
+    medium: null,
+    product_type: null,
+    not_ai_generated: false,
+    authorized_to_sell: false,
+    print_quality_image: null,
+    display_images: [],
+    use_print_quality_image_as_display: true,
+    price: null,
+    price_includes_shipping: false,
+    dimensions: null,
+  });
+
+  const stepProps: StepPropsType = {
+    formData,
+    setFormData,
+    setStep,
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSubmitError(null);
+
+    if (!formData.title.trim()) {
+      setSubmitError("Title is required.");
+      return;
+    }
+    if (!formData.medium) {
+      if (!formData.medium) {
+        setSubmitError("Medium is required.");
+        return;
+      }
+      const needsProductType = formData.medium !== "digital";
+      if (needsProductType && !formData.product_type) {
+        setSubmitError("Product type is required for this medium.");
+        return;
+      }
+      return;
+    }
+    const needsProductType = formData.medium !== "digital";
+    if (needsProductType && !formData.product_type) {
+      setSubmitError("Product type is required for this medium.");
+      return;
+    }
+    if (!formData.image) {
+      setSubmitError("Please upload an image.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const body = new FormData();
+      body.append("title", formData.title.trim());
+      body.append("description", formData.description.trim());
+      body.append("medium", formData.medium);
+      if (formData.product_type) {
+        body.append("product_type", formData.product_type);
+      }
+      body.append("not_ai_generated", formData.not_ai_generated.toString());
+      body.append("authorized_to_sell", formData.authorized_to_sell.toString());
+      if (formData.price) {
+        body.append("price", formData.price.toString());
+        body.append(
+          "price_includes_shipping",
+          formData.price_includes_shipping ? "true" : "false",
+        );
+      }
+
+      if (formData.dimensions) {
+        body.append("dimensions", JSON.stringify(formData.dimensions));
+      }
+      body.append("image", formData.image);
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        setSubmitError("You must be signed in to submit art.");
+        return;
+      }
+
+      const res = await fetch("/api/submit-art-piece", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body,
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setSubmitError(data.error ?? "Submission failed. Please try again.");
+        return;
+      }
+      router.push("/submit-art-piece/success");
+    } catch {
+      setSubmitError("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleNext = () => {
+    if (step === "basic-information") {
+      if (formData.product_type !== "print") {
+        setStep("original-product-details");
+      } else {
+        setStep("upload-image");
+      }
+    } else if (step === "original-product-details") {
+      setStep("upload-image");
+    }
+  };
+  const handlePrevious = () => {
+    if (step === "upload-image") {
+      if (formData.product_type !== "print") {
+        setStep("original-product-details");
+      } else {
+        setStep("basic-information");
+      }
+    } else if (step === "original-product-details") {
+      setStep("basic-information");
+    }
+    return;
+  };
+
+  const getIsNextDisabled = () => {
+    if (step === "basic-information") {
+      return (
+        !formData.title ||
+        !formData.medium ||
+        !formData.description ||
+        (formData.medium !== "digital" && !formData.product_type)
+      );
+    }
+    if (step === "original-product-details") {
+      return false;
+    }
+    if (step === "upload-image") {
+      return (
+        !formData.image ||
+        !formData.not_ai_generated ||
+        !formData.authorized_to_sell
+      );
+    }
+    return true;
+  };
+
+  return isLoadingUser ? null : (
+    <div className="flex w-full h-page-height-navbar">
+      {/* Editable Panel */}
+      <div className="w-full relative md:w-1/3 bg-card border-r flex flex-col ">
+        <form onSubmit={handleSubmit}>
+          <div
+            className="overflow-y-auto mb-10"
+            style={{
+              maxHeight: "calc(100vh - 190px)",
+            }}
+          >
+            {step === "basic-information" && (
+              <BasicInformationStep {...stepProps} />
+            )}
+            {step === "original-product-details" && (
+              <OriginalProductDetailsStep {...stepProps} />
+            )}
+            {step === "upload-image" && <UploadImageStep {...stepProps} />}
+          </div>
+
+          {/* Buttons */}
+          <div className=" absolute bottom-6 justify-between left-6 right-6 flex flex-col md:flex-row">
+            <div className="flex flex-col w-full gap-2">
+              {step !== "basic-information" && (
+                <Button
+                  variant="secondary"
+                  label="Back"
+                  onClick={handlePrevious}
+                />
+              )}
+              <div className="w-full">
+                <Button
+                  variant="primary"
+                  className="w-full"
+                  disabled={getIsNextDisabled()}
+                  type={step === "upload-image" ? "submit" : "button"}
+                  label={step === "upload-image" ? "Submit Art Piece" : "Next"}
+                  onClick={
+                    step === "upload-image" ? undefined : () => handleNext()
+                  }
+                />
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      {/* Preview */}
+      <div className="hidden md:block w-full md:w-2/3">
+        <ArtPiecePreview
+          formData={formData}
+          artistName={artist?.name ?? null}
+        />
+      </div>
+    </div>
+  );
+}
