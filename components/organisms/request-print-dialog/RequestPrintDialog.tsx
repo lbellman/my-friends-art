@@ -1,4 +1,4 @@
-import { ArtPiece, PRINT_OPTION_LABELS, PrintOptionType } from "@/@types";
+import { ArtPiece, CHAR_LIMITS, PRINT_OPTION_LABELS, PrintOptionType } from "@/@types";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Textarea } from "@/components/ui/textarea";
+import TextArea from "@/components/atoms/text-area/TextArea";
 import { useState } from "react";
 import { toast } from "sonner";
 import _ from "lodash";
@@ -277,13 +277,13 @@ export default function RequestPrintDialog({
             >
               Message (Optional)
             </label>
-            <Textarea
+            <TextArea
               id="message"
-              name="message"
+              label="Message"
               value={formData.message}
-              onChange={handleChange}
+              onChange={(value) => setFormData({ ...formData, message: value })}
               placeholder="Any specific requests or questions about the print?"
-              rows={4}
+              maxLength={CHAR_LIMITS.product_request_message}
             />
           </div>
           <DialogFooter>

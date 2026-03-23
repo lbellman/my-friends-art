@@ -1,10 +1,10 @@
+import { MAX_DISPLAY_IMAGES } from "@/@types";
 import Tooltip from "@/components/atoms/tooltip/Tooltip";
-import { Dropzone } from "@/components/molecules/dropzone/Dropzone";
 import FileUploader from "@/components/organisms/file-uploader/FileUploader";
 import { Checkbox } from "@/components/ui/checkbox";
 import Step from "@/components/views/SubmitArtPieceView/Step";
 import { StepPropsType } from "@/components/views/SubmitArtPieceView/SubmitArtPieceView";
-import { Info, InfoIcon } from "lucide-react";
+import { InfoIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function UploadImageStep({
@@ -69,8 +69,8 @@ export default function UploadImageStep({
     formData.use_print_quality_image_as_display,
   ]);
 
-  const [printQualityImageError, setPrintQualityImageError] = useState(false);
-  const [displayImagesError, setDisplayImagesError] = useState(false);
+  const [printQualityImageError, setPrintQualityImageError] = useState("");
+  const [displayImagesError, setDisplayImagesError] = useState("");
 
   return (
     <Step title="Upload Image" stepNumber={3}>
@@ -96,6 +96,7 @@ export default function UploadImageStep({
               error={printQualityImageError}
               setError={setPrintQualityImageError}
               supportedFileTypes={["image"]}
+              maxFiles={1}
             />
           </div>
         )}
@@ -148,7 +149,7 @@ export default function UploadImageStep({
               error={displayImagesError}
               setError={setDisplayImagesError}
               supportedFileTypes={["image"]}
-              allowMultiple={true}
+              maxFiles={MAX_DISPLAY_IMAGES}
             />
           )}
         </div>

@@ -47,6 +47,7 @@ export default function BasicInformationStep({
           label="Title"
           id="title"
           required
+          maxLength={50}
         />
 
         {/* Description */}
@@ -57,6 +58,7 @@ export default function BasicInformationStep({
           label="Description"
           id="description"
           required
+          maxLength={350}
         />
         {/*  Product Type */}
         {formData.medium !== "digital" && (

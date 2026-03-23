@@ -3,6 +3,7 @@
 import {
   type ArtPiece,
   ArtPieceStatusType,
+  CHAR_LIMITS,
   type ProductRequestRow,
   type ProductRequestStatusType,
 } from "@/@types";
@@ -267,6 +268,7 @@ export default function DashboardPage() {
                 onChange={(value) => setArtistName(value as string)}
                 placeholder="Your display name as an artist"
                 required
+                maxLength={CHAR_LIMITS.artist_name}
               />
               <TextArea
                 label="Bio"
@@ -275,6 +277,7 @@ export default function DashboardPage() {
                 onChange={(value) => setBio(value as string)}
                 required
                 placeholder="Tell visitors a bit about yourself and your work."
+                maxLength={CHAR_LIMITS.artist_bio}
               />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Input

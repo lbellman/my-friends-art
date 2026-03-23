@@ -2,6 +2,16 @@ import { Database, Tables } from "@/supabase";
 import supabase from "@/lib/supabase/server";
 import { CheckCircle, Loader2, XCircle } from "lucide-react";
 
+export const MAX_DISPLAY_IMAGES = 5;
+export const CHAR_LIMITS = {
+  art_piece_title: 50,
+  art_piece_description: 350,
+  product_request_name: 50,
+  product_request_message: 350,
+  artist_bio: 1000,
+  artist_name: 50,
+};
+
 export type PrintOptionType = Database["public"]["Enums"]["print_options"];
 
 export const PRINT_OPTION_LABELS: Record<PrintOptionType, string> = {

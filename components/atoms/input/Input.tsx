@@ -9,6 +9,10 @@ interface InputProps {
   id?: string;
   required?: boolean;
   type?: "text" | "number";
+  /** When set, enforces a max character length (text-like inputs). */
+  maxLength?: number;
+  /** When `maxLength` is set, show `current / max` (default: true). */
+  showCharCount?: boolean;
 }
 export default function Input({
   value,
@@ -19,7 +23,31 @@ export default function Input({
   id,
   required,
   type = "text",
+  maxLength,
+  showCharCount = true,
 }: InputProps) {
+  const showCount =
+    maxLength != null && showCharCount && type === "text";
+
+  const charCountEl = showCount ? (
+    <p className="text-xs text-muted-foreground text-right tabular-nums">
+      {String(value).length} / {maxLength}
+    </p>
+  ) : null;
+
+  const inputEl = (
+    <InputPrimitive
+      type={type}
+      id={id}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      disabled={disabled}
+      placeholder={placeholder}
+      required={required}
+      maxLength={type === "text" ? maxLength : undefined}
+    />
+  );
+
   if (label && id) {
     return (
       <div className="flex flex-col gap-2">
@@ -27,27 +55,20 @@ export default function Input({
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
-        <InputPrimitive
-          type={type}
-          id={id}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          disabled={disabled}
-          placeholder={placeholder}
-          required={required}
-        />
+        {inputEl}
+        {charCountEl}
       </div>
     );
   }
-  return (
-    <InputPrimitive
-      id={id}
-      type={type}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      disabled={disabled}
-      placeholder={placeholder}
-      required={required}
-    />
-  );
+
+  if (showCount) {
+    return (
+      <div className="flex flex-col gap-1">
+        {inputEl}
+        {charCountEl}
+      </div>
+    );
+  }
+
+  return inputEl;
 }

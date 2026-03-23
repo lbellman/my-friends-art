@@ -3,6 +3,7 @@
 import {
   ART_PIECE_STATUS_OPTIONS,
   ArtPiece,
+  CHAR_LIMITS,
   getPublicUrl,
   type ArtPieceStatusType,
 } from "@/@types";
@@ -216,6 +217,7 @@ export default function DashboardArtPieceDetailPage() {
                     required
                     disabled={artPiece.status !== "approved"}
                     placeholder="Title of your art piece"
+                    maxLength={CHAR_LIMITS.art_piece_title}
                   />
                   <TextArea
                     label="Description"
@@ -224,6 +226,7 @@ export default function DashboardArtPieceDetailPage() {
                     onChange={(value) => setEditDescription(value as string)}
                     disabled={artPiece.status !== "approved"}
                     placeholder="Describe your art piece (optional)"
+                    maxLength={CHAR_LIMITS.art_piece_description}
                   />
                   {detailsError && (
                     <p className="text-sm text-destructive">{detailsError}</p>

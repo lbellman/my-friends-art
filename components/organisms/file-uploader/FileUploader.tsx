@@ -19,17 +19,17 @@ export function formatFileSize(bytes: number, decimalPoint: number) {
 export default function FileUploader({
   files,
   setFiles,
-  error,
+  error = "Files could not be uploaded. Please ensure file types are supported and that they are not larger than 10MB.",
   setError,
   supportedFileTypes = [],
-  allowMultiple = false,
+  maxFiles = 1,
 }: {
   files: File[];
   setFiles: (files: File[]) => void;
-  error: boolean;
-  setError: (error: boolean) => void;
+  error: string;
+  setError: (error: string) => void;
   supportedFileTypes: SupportedFileTypesType[];
-  allowMultiple?: boolean;
+  maxFiles?: number;
 }) {
   const acceptableTypes: string[] = [];
   if (supportedFileTypes.includes("csv")) acceptableTypes.push("text/csv");
@@ -52,7 +52,7 @@ export default function FileUploader({
 
   const maxFileSize = 10;
 
-  const showDropzone = allowMultiple ? true : files.length === 0;
+  const showDropzone = files.length < maxFiles;
   const renderFiles = () => {
     return files?.map((file, fileIdx) => {
       const fileUrl = URL.createObjectURL(file);
@@ -98,23 +98,28 @@ export default function FileUploader({
               supportedFileTypes={supportedFileTypes}
               maxFileSize={maxFileSize}
               onDrop={(droppedFiles: File[]) => {
-                let error = false;
+                let error = "";
+                if (droppedFiles.length > maxFiles) {
+                  error = `Too many files. Maximum is ${maxFiles}.`;                  
+                }
                 droppedFiles.forEach((file) => {
                   if (!acceptableTypes.includes(file.type)) {
-                    error = true;
+                    error = "One or more file types are not supported.";
                     return;
                   }
                   if (file.size > maxFileSize * 1024 * 1024) {
-                    error = true;
+                    error = "One or more files are larger than 10MB.";
                     return;
                   }
                 });
+
                 setError(error);
+
                 if (error) {
                   // Don't clear files if multiple files are allowed
-                  if (allowMultiple) setFiles([...files]);
+                  if (files.length < maxFiles) setFiles([...files]);
                 } else {
-                  if (allowMultiple) {
+                  if (files.length < maxFiles) {
                     setFiles([...files, ...droppedFiles]);
                   } else {
                     setFiles(droppedFiles.slice(0, 1));
@@ -126,15 +131,12 @@ export default function FileUploader({
           {/* File list */}
           {error ? (
             <div className="my-1">
-              <p className="text-xs text-destructive">
-                File(s) could not be uploaded. Please ensure file types are
-                supported and that they are not larger than 10MB.
-              </p>
+              <p className="text-xs text-destructive">{error}</p>
             </div>
           ) : (
-            !allowMultiple && renderFiles()
+            maxFiles === 1 && renderFiles()
           )}
-          {allowMultiple && files.length > 0 && renderFiles()}
+          {maxFiles > 1 && files.length > 0 && renderFiles()}
         </div>
       </div>
     </div>

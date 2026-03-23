@@ -1,4 +1,4 @@
-import { MediumType, ProductType } from "@/@types";
+import { MAX_DISPLAY_IMAGES, MediumType, ProductType } from "@/@types";
 import useAuth from "@/app/hooks/useAuth";
 import Button from "@/components/atoms/button/Button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -128,7 +128,9 @@ export default function SubmitArtPieceView() {
       return;
     }
 
-    const requiresPrintQualityImage = getRequiresPrintQualityImage(formData.product_type);
+    const requiresPrintQualityImage = getRequiresPrintQualityImage(
+      formData.product_type,
+    );
     const requiresDisplayImages = getRequiresDisplayImages(formData);
 
     if (requiresPrintQualityImage && !formData.print_quality_image) {
@@ -137,6 +139,13 @@ export default function SubmitArtPieceView() {
     }
     if (requiresDisplayImages && (formData.display_images?.length ?? 0) < 1) {
       setSubmitError("Please upload at least one display image.");
+      return;
+    }
+    if (
+      formData.display_images?.length &&
+      formData.display_images.length > MAX_DISPLAY_IMAGES
+    ) {
+      setSubmitError("You can only upload up to 5 display images.");
       return;
     }
 
@@ -157,13 +166,15 @@ export default function SubmitArtPieceView() {
       // { fileKey: stagingPath }
       const stagedPathByFileKey = new Map<string, string>();
 
-      // Upload the file to a private staging bucket 
-      const stageFileAndGetStagingPath = async (file: File): Promise<string> => {
+      // Upload the file to a private staging bucket
+      const stageFileAndGetStagingPath = async (
+        file: File,
+      ): Promise<string> => {
         const key = getFileKey(file);
         const existing = stagedPathByFileKey.get(key);
         if (existing) return existing;
 
-        // Get a signed upload URL and staging path for the file 
+        // Get a signed upload URL and staging path for the file
         const uploadInitRes = await fetch("/api/submit-art-piece/upload-url", {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
@@ -171,7 +182,9 @@ export default function SubmitArtPieceView() {
 
         const uploadInitData = (await uploadInitRes
           .json()
-          .catch(() => ({}))) as Partial<UploadInitResponse> & { error?: string };
+          .catch(() => ({}))) as Partial<UploadInitResponse> & {
+          error?: string;
+        };
 
         if (!uploadInitRes.ok) {
           throw new Error(
@@ -198,25 +211,28 @@ export default function SubmitArtPieceView() {
           throw new Error("Image upload failed.");
         }
 
-        // Add the staging path to the map 
+        // Add the staging path to the map
         stagedPathByFileKey.set(key, uploadInitData.stagingPath);
         return uploadInitData.stagingPath;
       };
 
-
       // For each display image, upload it to the staging bucket and get the staging path
+      // Limit to 5 display images (this is already enforced on the client side, but another sanity check is nice)
       const displayStagingPaths: string[] = [];
-      for (const file of formData.display_images ?? []) {
+      for (const file of (formData.display_images ?? []).slice(
+        0,
+        MAX_DISPLAY_IMAGES,
+      )) {
         displayStagingPaths.push(await stageFileAndGetStagingPath(file));
       }
-
 
       // Upload the print quality image to the staging bucket and get the staging path
       let printQualityStagingPath: string | null = null;
       if (requiresPrintQualityImage && formData.print_quality_image) {
-        printQualityStagingPath = await stageFileAndGetStagingPath(formData.print_quality_image);
+        printQualityStagingPath = await stageFileAndGetStagingPath(
+          formData.print_quality_image,
+        );
       }
-
 
       // Submit the art piece to the server with the print quality staging path and display staging paths
       const res = await fetch("/api/submit-art-piece", {
@@ -254,7 +270,9 @@ export default function SubmitArtPieceView() {
       router.push("/submit-art-piece/success");
     } catch (err) {
       setSubmitError(
-        err instanceof Error ? err.message : "Something went wrong. Please try again.",
+        err instanceof Error
+          ? err.message
+          : "Something went wrong. Please try again.",
       );
     } finally {
       setIsSubmitting(false);
@@ -298,9 +316,12 @@ export default function SubmitArtPieceView() {
       return false;
     }
     if (step === "upload-image") {
-      const requiresPrintQualityImage = getRequiresPrintQualityImage(formData.product_type);
+      const requiresPrintQualityImage = getRequiresPrintQualityImage(
+        formData.product_type,
+      );
       const requiresDisplayImages = getRequiresDisplayImages(formData);
-      const printOk = !requiresPrintQualityImage || !!formData.print_quality_image;
+      const printOk =
+        !requiresPrintQualityImage || !!formData.print_quality_image;
       const displayOk =
         !requiresDisplayImages || (formData.display_images?.length ?? 0) > 0;
       return (
