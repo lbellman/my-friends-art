@@ -7,6 +7,8 @@ import useEmailJS from "@/app/hooks/useEmailJS";
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// Temporary upload bucket where the browser places raw bytes before finalize.
+const STAGING_BUCKET = "art-piece-staging";
 
 const supabase = createClient<Database>(
   SUPABASE_URL,
@@ -25,28 +27,27 @@ function inferAspectRatio(
   return "3:4";
 }
 
+function isValidStagingPath(stagingPath: string, artistId: string): boolean {
+  // Require exact prefix ownership: only paths under this artist namespace are valid.
+  if (!stagingPath.startsWith(`staging/${artistId}/`)) return false;
+  const segments = stagingPath.split("/");
+  // Enforce fixed shape: staging/{artistId}/{objectId}
+  if (segments.length !== 3) return false;
+  return segments[2].length > 0;
+}
+
 export async function POST(req: Request) {
   const { sendEmail } = useEmailJS();
+  // Keep track of path so that we can cleanup the temporary image after the database record has been created
+  let stagedPathForCleanup: string | null = null;
   try {
-    const formData = await req.formData();
+    const requestBody = await req.json().catch(() => null);
+    const title = String(requestBody?.title ?? "").trim();
+    const description = String(requestBody?.description ?? "").trim();
+    const medium = requestBody?.medium as Database["public"]["Enums"]["art_mediums"];
+    const stagingPath = String(requestBody?.stagingPath ?? "").trim();
 
-    const file = formData.get("image");
-    if (!(file instanceof Blob)) {
-      return NextResponse.json(
-        { error: "Missing image file." },
-        { status: 400 },
-      );
-    }
-
-    const title = String(formData.get("title") ?? "").trim();
-    const description = String(formData.get("description") ?? "").trim();
-    const medium = formData.get(
-      "medium",
-    ) as Database["public"]["Enums"]["art_mediums"];
-    // const productType = (formData.get("product_type") ||
-    //   null) as Database["public"]["Enums"]["product_types"] | null;
-
-    if (!title || !medium) {
+    if (!title || !medium || !stagingPath) {
       return NextResponse.json(
         { error: "Missing required fields." },
         { status: 400 },
@@ -104,9 +105,28 @@ export async function POST(req: Request) {
     }
 
     const artistId = artist.id;
+    if (!isValidStagingPath(stagingPath, artistId)) {
+      return NextResponse.json(
+        { error: "Invalid staging path." },
+        { status: 403 },
+      );
+    }
+    stagedPathForCleanup = stagingPath;
+
+    // Get the image from the staging bucket using the staging path
+    const stagedDownload = await supabase.storage
+      .from(STAGING_BUCKET)
+      .download(stagingPath);
+    if (stagedDownload.error || !stagedDownload.data) {
+      console.error(stagedDownload.error);
+      return NextResponse.json(
+        { error: "Unable to read staged image." },
+        { status: 400 },
+      );
+    }
 
     // Convert File/Blob to Buffer for Sharp
-    const arrayBuffer = await file.arrayBuffer();
+    const arrayBuffer = await stagedDownload.data.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
     const image = sharp(buffer);
@@ -125,7 +145,7 @@ export async function POST(req: Request) {
 
     const aspectRatio = inferAspectRatio(width, height);
 
-    // Create display and thumbnail versions as webp
+    // Create display and thumbnail derivatives from the original image
     const displayBuffer = await image
     .resize({ width: 1600 })
     .webp({ quality: 90 })
@@ -138,18 +158,18 @@ export async function POST(req: Request) {
 
     const id = crypto.randomUUID();
 
-    // Paths for original images in the private "originals" bucket
+    // Persist the raw original image in the private "originals" bucket
     const originalPath = `${artistId}/${id}`;
 
-    // Paths for display and thumbnail images in the public "art-pieces" bucket
+    // Persist the display and thumbnail images in the public "art-pieces" bucket
     const displayPath = `display/${artistId}/${id}.webp`;
     const thumbnailPath = `thumbnails/${artistId}/${id}.webp`;
 
-    // Upload original (unconverted) image to private "originals" bucket
+    // Upload the original image to the private "originals" bucket
     const originalUpload = await supabase.storage
       .from("originals")
       .upload(originalPath, buffer, {
-        contentType: file.type || "application/octet-stream",
+        contentType: stagedDownload.data.type || "application/octet-stream",
         upsert: false,
       });
     if (originalUpload.error) {
@@ -191,7 +211,7 @@ export async function POST(req: Request) {
     }
 
 
-    // If uploads are successful, create an art_piece in the DB with status = "pending-approval"
+    // If all uploads succeed, create a database record for the art piece "pending-approval"
     const insert = await supabase
       .from("art_piece")
       .insert({
@@ -215,7 +235,7 @@ export async function POST(req: Request) {
     if (insert.error || !insert.data) {
       console.error(insert.error);
       
-      // Remove the uploaded images from the buckets
+      // Delete the images from the buckets if the database record creation fails 
       await supabase.storage.from("originals").remove([originalPath]);
       await supabase.storage.from("art-pieces").remove([displayPath, thumbnailPath]);
 
@@ -266,6 +286,11 @@ export async function POST(req: Request) {
       { error: "Unexpected error while submitting art piece." },
       { status: 500 },
     );
+  } finally {
+    if (stagedPathForCleanup) {
+      // Cleanup the temporary image from the staging bucket regardless of success or failure
+      await supabase.storage.from(STAGING_BUCKET).remove([stagedPathForCleanup]);
+    }
   }
 }
 
