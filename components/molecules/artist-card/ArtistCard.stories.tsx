@@ -23,6 +23,7 @@ const meta: Meta<typeof ArtistCard> = {
       facebook: "https://facebook.com/lindsey",
       instagram: "@linds",
       website: "https://lindsey.com",
+      status: "approved",
     },
   },
 } satisfies Meta<typeof ArtistCard>;
@@ -44,6 +45,7 @@ export const Default: Story = {
       facebook: "https://facebook.com/lindsey",
       bio: "I’m Lindsey, an artist based in British Columbia. I have always felt a connection with painting and drawing, and I try to work in as many mediums as possible. I don't really have a consistent style because I am always trying new things and experimenting with different mediums. I live in a beautiful place by the ocean so I get a lot of inspiration from Vancouver Island nature. I also have very vivid and colourful dreams, so from time to time I will attempt to paint one. I love having the freedom to create whatever comes into my mind. Thank you for being here and sharing in this passion.",
       created_at: "2021-01-01",
+      status: "approved",
       updated_at: "2021-01-01",
     },
   },

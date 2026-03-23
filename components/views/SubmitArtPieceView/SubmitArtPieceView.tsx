@@ -1,7 +1,6 @@
-import { ArtistType, MediumType, ProductType } from "@/@types";
+import { MediumType, ProductType } from "@/@types";
 import useAuth from "@/app/hooks/useAuth";
 import Button from "@/components/atoms/button/Button";
-import InternalLayout from "@/components/organisms/InternalLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import ArtPiecePreview from "@/components/views/SubmitArtPieceView/ArtPiecePreview";
 import BasicInformationStep from "@/components/views/SubmitArtPieceView/BasicInformationStep";
@@ -43,6 +42,25 @@ type StepType =
   | "basic-information"
   | "original-product-details"
   | "upload-image";
+
+function getRequiresPrintQualityImage(
+  productType: ProductType | null,
+): boolean {
+  return productType === "print" || productType === "print-and-original";
+}
+
+function getRequiresDisplayImages(formData: ArtPieceFormDataType): boolean {
+  const needsPrint = getRequiresPrintQualityImage(formData.product_type);
+  return (
+    (needsPrint && !formData.use_print_quality_image_as_display) || !needsPrint
+  );
+}
+
+type UploadInitResponse = {
+  bucket: string;
+  stagingPath: string;
+  uploadToken: string;
+};
 
 export default function SubmitArtPieceView() {
   const router = useRouter();
@@ -101,15 +119,7 @@ export default function SubmitArtPieceView() {
       return;
     }
     if (!formData.medium) {
-      if (!formData.medium) {
-        setSubmitError("Medium is required.");
-        return;
-      }
-      const needsProductType = formData.medium !== "digital";
-      if (needsProductType && !formData.product_type) {
-        setSubmitError("Product type is required for this medium.");
-        return;
-      }
+      setSubmitError("Medium is required.");
       return;
     }
     const needsProductType = formData.medium !== "digital";
@@ -117,35 +127,21 @@ export default function SubmitArtPieceView() {
       setSubmitError("Product type is required for this medium.");
       return;
     }
-    if (!formData.image) {
-      setSubmitError("Please upload an image.");
+
+    const requiresPrintQualityImage = getRequiresPrintQualityImage(formData.product_type);
+    const requiresDisplayImages = getRequiresDisplayImages(formData);
+
+    if (requiresPrintQualityImage && !formData.print_quality_image) {
+      setSubmitError("Please upload a print-quality image.");
+      return;
+    }
+    if (requiresDisplayImages && (formData.display_images?.length ?? 0) < 1) {
+      setSubmitError("Please upload at least one display image.");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const body = new FormData();
-      body.append("title", formData.title.trim());
-      body.append("description", formData.description.trim());
-      body.append("medium", formData.medium);
-      if (formData.product_type) {
-        body.append("product_type", formData.product_type);
-      }
-      body.append("not_ai_generated", formData.not_ai_generated.toString());
-      body.append("authorized_to_sell", formData.authorized_to_sell.toString());
-      if (formData.price) {
-        body.append("price", formData.price.toString());
-        body.append(
-          "price_includes_shipping",
-          formData.price_includes_shipping ? "true" : "false",
-        );
-      }
-
-      if (formData.dimensions) {
-        body.append("dimensions", JSON.stringify(formData.dimensions));
-      }
-      body.append("image", formData.image);
-
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -155,22 +151,111 @@ export default function SubmitArtPieceView() {
         return;
       }
 
+      const token = session.access_token;
+      const getFileKey = (f: File) => `${f.name}-${f.size}-${f.lastModified}`;
+
+      // { fileKey: stagingPath }
+      const stagedPathByFileKey = new Map<string, string>();
+
+      // Upload the file to a private staging bucket 
+      const stageFileAndGetStagingPath = async (file: File): Promise<string> => {
+        const key = getFileKey(file);
+        const existing = stagedPathByFileKey.get(key);
+        if (existing) return existing;
+
+        // Get a signed upload URL and staging path for the file 
+        const uploadInitRes = await fetch("/api/submit-art-piece/upload-url", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const uploadInitData = (await uploadInitRes
+          .json()
+          .catch(() => ({}))) as Partial<UploadInitResponse> & { error?: string };
+
+        if (!uploadInitRes.ok) {
+          throw new Error(
+            uploadInitData.error ?? "Failed to initialize image upload.",
+          );
+        }
+        if (
+          !uploadInitData.bucket ||
+          !uploadInitData.stagingPath ||
+          !uploadInitData.uploadToken
+        ) {
+          throw new Error("Invalid upload session.");
+        }
+
+        const stagingUpload = await supabase.storage
+          .from(uploadInitData.bucket)
+          .uploadToSignedUrl(
+            uploadInitData.stagingPath,
+            uploadInitData.uploadToken,
+            file,
+          );
+
+        if (stagingUpload.error) {
+          throw new Error("Image upload failed.");
+        }
+
+        // Add the staging path to the map 
+        stagedPathByFileKey.set(key, uploadInitData.stagingPath);
+        return uploadInitData.stagingPath;
+      };
+
+
+      // For each display image, upload it to the staging bucket and get the staging path
+      const displayStagingPaths: string[] = [];
+      for (const file of formData.display_images ?? []) {
+        displayStagingPaths.push(await stageFileAndGetStagingPath(file));
+      }
+
+
+      // Upload the print quality image to the staging bucket and get the staging path
+      let printQualityStagingPath: string | null = null;
+      if (requiresPrintQualityImage && formData.print_quality_image) {
+        printQualityStagingPath = await stageFileAndGetStagingPath(formData.print_quality_image);
+      }
+
+
+      // Submit the art piece to the server with the print quality staging path and display staging paths
       const res = await fetch("/api/submit-art-piece", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        body,
+        body: JSON.stringify({
+          title: formData.title.trim(),
+          description: formData.description.trim(),
+          medium: formData.medium,
+          product_type: formData.product_type,
+          not_ai_generated: formData.not_ai_generated,
+          authorized_to_sell: formData.authorized_to_sell,
+          price: formData.price ?? null,
+          price_includes_shipping: formData.price_includes_shipping ?? false,
+          dimensions: formData.dimensions ?? null,
+          displayStagingPaths,
+          printQualityStagingPath,
+        }),
       });
 
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
+        if (res.status === 413) {
+          setSubmitError(
+            "Submission payload is too large. Please retry with smaller images.",
+          );
+          return;
+        }
         setSubmitError(data.error ?? "Submission failed. Please try again.");
         return;
       }
       router.push("/submit-art-piece/success");
-    } catch {
-      setSubmitError("Something went wrong. Please try again.");
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : "Something went wrong. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -213,14 +298,30 @@ export default function SubmitArtPieceView() {
       return false;
     }
     if (step === "upload-image") {
+      const requiresPrintQualityImage = getRequiresPrintQualityImage(formData.product_type);
+      const requiresDisplayImages = getRequiresDisplayImages(formData);
+      const printOk = !requiresPrintQualityImage || !!formData.print_quality_image;
+      const displayOk =
+        !requiresDisplayImages || (formData.display_images?.length ?? 0) > 0;
       return (
-        !formData.image ||
+        !printOk ||
+        !displayOk ||
         !formData.not_ai_generated ||
         !formData.authorized_to_sell
       );
     }
     return true;
   };
+
+  // Disable automatic form submission on enter key press
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+  }, []);
 
   return isLoadingUser ? null : (
     <div className="flex w-full h-page-height-navbar">
@@ -245,6 +346,9 @@ export default function SubmitArtPieceView() {
           {/* Buttons */}
           <div className=" absolute bottom-6 justify-between left-6 right-6 flex flex-col md:flex-row">
             <div className="flex flex-col w-full gap-2">
+              {submitError && (
+                <p className="text-destructive text-sm">{submitError}</p>
+              )}
               {step !== "basic-information" && (
                 <Button
                   variant="secondary"
@@ -256,9 +360,16 @@ export default function SubmitArtPieceView() {
                 <Button
                   variant="primary"
                   className="w-full"
-                  disabled={getIsNextDisabled()}
+                  disabled={getIsNextDisabled() || isSubmitting}
+                  loading={isSubmitting}
                   type={step === "upload-image" ? "submit" : "button"}
-                  label={step === "upload-image" ? "Submit Art Piece" : "Next"}
+                  label={
+                    step === "upload-image"
+                      ? isSubmitting
+                        ? "Submitting..."
+                        : "Submit Art Piece"
+                      : "Next"
+                  }
                   onClick={
                     step === "upload-image" ? undefined : () => handleNext()
                   }

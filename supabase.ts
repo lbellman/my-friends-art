@@ -88,13 +88,18 @@ export type Database = {
         Row: {
           artist_id: string | null
           aspect_ratio: Database["public"]["Enums"]["aspect_ratios"]
+          authorized_to_sell: boolean
           created_at: string | null
           description: string | null
           display_path: string | null
           dpi: number | null
           id: string
           medium: Database["public"]["Enums"]["art_mediums"]
+          not_ai_generated: boolean
           original_path: string | null
+          price: number | null
+          price_includes_shipping: boolean | null
+          product_dimensions_id: string | null
           product_type: Database["public"]["Enums"]["product_types"] | null
           px_height: number | null
           px_width: number | null
@@ -105,13 +110,18 @@ export type Database = {
         Insert: {
           artist_id?: string | null
           aspect_ratio: Database["public"]["Enums"]["aspect_ratios"]
+          authorized_to_sell?: boolean
           created_at?: string | null
           description?: string | null
           display_path?: string | null
           dpi?: number | null
           id?: string
           medium: Database["public"]["Enums"]["art_mediums"]
+          not_ai_generated?: boolean
           original_path?: string | null
+          price?: number | null
+          price_includes_shipping?: boolean | null
+          product_dimensions_id?: string | null
           product_type?: Database["public"]["Enums"]["product_types"] | null
           px_height?: number | null
           px_width?: number | null
@@ -122,13 +132,18 @@ export type Database = {
         Update: {
           artist_id?: string | null
           aspect_ratio?: Database["public"]["Enums"]["aspect_ratios"]
+          authorized_to_sell?: boolean
           created_at?: string | null
           description?: string | null
           display_path?: string | null
           dpi?: number | null
           id?: string
           medium?: Database["public"]["Enums"]["art_mediums"]
+          not_ai_generated?: boolean
           original_path?: string | null
+          price?: number | null
+          price_includes_shipping?: boolean | null
+          product_dimensions_id?: string | null
           product_type?: Database["public"]["Enums"]["product_types"] | null
           px_height?: number | null
           px_width?: number | null
@@ -144,6 +159,45 @@ export type Database = {
             referencedRelation: "artist"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "art_piece_product_dimensions_id_fkey"
+            columns: ["product_dimensions_id"]
+            isOneToOne: false
+            referencedRelation: "product_dimensions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      art_piece_display_image: {
+        Row: {
+          art_piece_id: string
+          created_at: string | null
+          id: string
+          idx: number
+          path: string
+        }
+        Insert: {
+          art_piece_id: string
+          created_at?: string | null
+          id?: string
+          idx: number
+          path: string
+        }
+        Update: {
+          art_piece_id?: string
+          created_at?: string | null
+          id?: string
+          idx?: number
+          path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "art_piece_display_image_art_piece_id_fkey"
+            columns: ["art_piece_id"]
+            isOneToOne: false
+            referencedRelation: "art_piece"
+            referencedColumns: ["id"]
+          },
         ]
       }
       artist: {
@@ -157,6 +211,7 @@ export type Database = {
           location: string | null
           name: string
           profile_img_url: string | null
+          status: Database["public"]["Enums"]["artist_statuses"]
           updated_at: string | null
           user_id: string | null
           website: string | null
@@ -171,6 +226,7 @@ export type Database = {
           location?: string | null
           name: string
           profile_img_url?: string | null
+          status?: Database["public"]["Enums"]["artist_statuses"]
           updated_at?: string | null
           user_id?: string | null
           website?: string | null
@@ -185,30 +241,10 @@ export type Database = {
           location?: string | null
           name?: string
           profile_img_url?: string | null
+          status?: Database["public"]["Enums"]["artist_statuses"]
           updated_at?: string | null
           user_id?: string | null
           website?: string | null
-        }
-        Relationships: []
-      }
-      dimensions: {
-        Row: {
-          aspect_ratio: Database["public"]["Enums"]["aspect_ratios"]
-          height: number
-          id: string
-          width: number
-        }
-        Insert: {
-          aspect_ratio: Database["public"]["Enums"]["aspect_ratios"]
-          height: number
-          id?: string
-          width: number
-        }
-        Update: {
-          aspect_ratio?: Database["public"]["Enums"]["aspect_ratios"]
-          height?: number
-          id?: string
-          width?: number
         }
         Relationships: []
       }
@@ -236,6 +272,48 @@ export type Database = {
           stripe_payment_intent_status?: Database["public"]["Enums"]["payment_intent_status"]
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      print_dimensions: {
+        Row: {
+          aspect_ratio: Database["public"]["Enums"]["aspect_ratios"]
+          height: number
+          id: string
+          width: number
+        }
+        Insert: {
+          aspect_ratio: Database["public"]["Enums"]["aspect_ratios"]
+          height: number
+          id?: string
+          width: number
+        }
+        Update: {
+          aspect_ratio?: Database["public"]["Enums"]["aspect_ratios"]
+          height?: number
+          id?: string
+          width?: number
+        }
+        Relationships: []
+      }
+      product_dimensions: {
+        Row: {
+          depth_in: number | null
+          height_in: number | null
+          id: string
+          width_in: number | null
+        }
+        Insert: {
+          depth_in?: number | null
+          height_in?: number | null
+          id?: string
+          width_in?: number | null
+        }
+        Update: {
+          depth_in?: number | null
+          height_in?: number | null
+          id?: string
+          width_in?: number | null
         }
         Relationships: []
       }
@@ -464,6 +542,7 @@ export type Database = {
           location: string | null
           name: string
           profile_img_url: string | null
+          status: Database["public"]["Enums"]["artist_statuses"]
           updated_at: string | null
           user_id: string | null
           website: string | null
@@ -495,6 +574,7 @@ export type Database = {
         | "pottery"
         | "other"
       art_piece_statuses: "pending-approval" | "approved" | "not-approved"
+      artist_statuses: "pending-approval" | "approved"
       aspect_ratios: "1:1" | "2:3" | "3:4"
       order_status: "pending" | "succeeded"
       payment_intent_status:
@@ -675,6 +755,7 @@ export const Constants = {
         "other",
       ],
       art_piece_statuses: ["pending-approval", "approved", "not-approved"],
+      artist_statuses: ["pending-approval", "approved"],
       aspect_ratios: ["1:1", "2:3", "3:4"],
       order_status: ["pending", "succeeded"],
       payment_intent_status: [

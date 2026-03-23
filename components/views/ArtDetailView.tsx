@@ -14,19 +14,21 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import supabase from "@/lib/supabase/server";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function ArtDetailView({
   artPieceIdentifier,
   back,
+  previewMode = false,
 }: {
   artPieceIdentifier: string;
   back: {
     href: string;
     label: string;
   };
+  previewMode?: boolean;
 }) {
   const { data: artPiece, isLoading: isLoadingArtPiece } = useQuery({
     queryKey: ["artPiece", artPieceIdentifier],
@@ -34,7 +36,7 @@ export default function ArtDetailView({
       const { data, error } = await supabase
         .from("art_piece")
         .select(
-          "*, artist:artist_id(id, name, bio, location, profile_img_url, website, instagram, facebook, email_address)",
+          "*, artist:artist_id(id, name, bio, location, profile_img_url, website, instagram, facebook, email_address), art_piece_display_image(path, idx)",
         )
         .eq("id", artPieceIdentifier)
         .single();
@@ -48,7 +50,24 @@ export default function ArtDetailView({
     },
   });
 
-  const publicUrl = getPublicUrl(artPiece?.display_path ?? "");
+  const galleryUrls = useMemo(() => {
+    const rows = [...(artPiece?.art_piece_display_images ?? [])].sort(
+      (a, b) => a.idx - b.idx,
+    );
+    if (rows.length > 0) {
+      return rows.map((r) => getPublicUrl(r.path)).filter(Boolean);
+    }
+    const fallback = getPublicUrl(artPiece?.display_path ?? "");
+    return fallback ? [fallback] : [];
+  }, [artPiece?.art_piece_display_images, artPiece?.display_path]);
+
+  const [galleryIndex, setGalleryIndex] = useState(0);
+
+  useEffect(() => {
+    setGalleryIndex(0);
+  }, [artPieceIdentifier, galleryUrls.length]);
+
+  const publicUrl = galleryUrls[galleryIndex] ?? galleryUrls[0] ?? "";
 
   // Fetch dimension options when art piece is loaded
   const { data: dimensionOptions = [], isLoading: loadingDimensionOptions } =
@@ -136,7 +155,6 @@ export default function ArtDetailView({
   //   enabled: !!effectiveDimension && !!effectivePrintOption,
   // });
 
-
   return (
     <div className="min-h-screen flex flex-col items-center">
       <div className=" py-12 px-6 max-w-6xl flex-nowrap w-full">
@@ -151,17 +169,53 @@ export default function ArtDetailView({
                 {back.label}
               </div>
             </Link>
-            <div className="mt-6">
+            <div className="mt-6 relative">
               {isLoadingArtPiece ? (
                 <Skeleton className="w-full min-w-[280px] rounded-md min-h-[400px]" />
               ) : (
-                <Image
-                  src={publicUrl || ""}
-                  alt={artPiece?.title || "Image of the art piece"}
-                  width={artPiece?.px_width ?? 800}
-                  height={artPiece?.px_height ?? 800}
-                  className="w-full h-auto min-w-[280px] border-6 border-white object-contain rounded-xl shadow-lg shadow-black/50"
-                />
+                <>
+                  <Image
+                    src={publicUrl || ""}
+                    alt={artPiece?.title || "Image of the art piece"}
+                    width={artPiece?.px_width ?? 800}
+                    height={artPiece?.px_height ?? 800}
+                    className="w-full h-auto min-w-[280px] border-6 border-white object-contain rounded-xl shadow-lg shadow-black/50"
+                  />
+                  {galleryUrls.length > 1 && (
+                    <>
+                      <div className="absolute left-2 top-1/2 -translate-y-1/2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          aria-label="Previous image"
+                          onClick={() =>
+                            setGalleryIndex((i) =>
+                              i === 0 ? galleryUrls.length - 1 : i - 1,
+                            )
+                          }
+                        >
+                          <ChevronLeft className="size-4" />
+                        </Button>
+                      </div>
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          aria-label="Next image"
+                          onClick={() =>
+                            setGalleryIndex((i) =>
+                              i === galleryUrls.length - 1 ? 0 : i + 1,
+                            )
+                          }
+                        >
+                          <ChevronRight className="size-4" />
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -278,7 +332,9 @@ export default function ArtDetailView({
                 className="w-full"
                 size="lg"
                 onClick={() => setRequestPrintDialogOpen(true)}
-                disabled={!effectiveDimension || !effectivePrintOption}
+                disabled={
+                  !effectiveDimension || !effectivePrintOption || previewMode
+                }
               >
                 Request a Print
               </Button>

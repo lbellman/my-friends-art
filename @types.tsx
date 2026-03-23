@@ -19,6 +19,7 @@ export type ArtPiece = Tables<"art_piece"> & {
     name: string;
     email_address: string;
   };
+  art_piece_display_images?: { idx: number; path: string }[] | null;
 };
 
 export type MediumType = Database["public"]["Enums"]["art_mediums"];

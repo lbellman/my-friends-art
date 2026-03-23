@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Step from "@/components/views/SubmitArtPieceView/Step";
 import { StepPropsType } from "@/components/views/SubmitArtPieceView/SubmitArtPieceView";
 import { Info, InfoIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function UploadImageStep({
   formData,
@@ -47,6 +47,28 @@ export default function UploadImageStep({
     return { files, setFiles };
   };
 
+  const printQualityFilesState = getPrintQualityFilesState();
+  const displayImagesFilesState = getDisplayImagesFilesState();
+
+  // If the print quality image is being used as the display image and gets removed, clear the display images
+  useEffect(() => {
+    if ((printQualityFilesState.files.length || 0) === 0) {
+      if (
+        formData.use_print_quality_image_as_display &&
+        displayImagesFilesState.files.length > 0
+      ) {
+        setFormData({
+          ...formData,
+          display_images: [],
+        });
+      }
+    }
+  }, [
+    printQualityFilesState,
+    displayImagesFilesState,
+    formData.use_print_quality_image_as_display,
+  ]);
+
   const [printQualityImageError, setPrintQualityImageError] = useState(false);
   const [displayImagesError, setDisplayImagesError] = useState(false);
 
@@ -69,8 +91,8 @@ export default function UploadImageStep({
             </div>
 
             <FileUploader
-              files={getPrintQualityFilesState().files}
-              setFiles={getPrintQualityFilesState().setFiles}
+              files={printQualityFilesState.files}
+              setFiles={printQualityFilesState.setFiles}
               error={printQualityImageError}
               setError={setPrintQualityImageError}
               supportedFileTypes={["image"]}
@@ -121,8 +143,8 @@ export default function UploadImageStep({
           {/* Display Images Upload */}
           {requiresDisplayImages && (
             <FileUploader
-              files={getDisplayImagesFilesState().files}
-              setFiles={getDisplayImagesFilesState().setFiles}
+              files={displayImagesFilesState.files}
+              setFiles={displayImagesFilesState.setFiles}
               error={displayImagesError}
               setError={setDisplayImagesError}
               supportedFileTypes={["image"]}

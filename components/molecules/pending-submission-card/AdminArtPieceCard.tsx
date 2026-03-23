@@ -2,7 +2,9 @@
 
 import { ArtPiece, getPublicUrl, type ArtPieceStatusType } from "@/@types";
 import Button from "@/components/atoms/button/Button";
+import { Button as ShadButton } from "@/components/ui/button";
 import Image from "next/image";
+import NextLink from "next/link";
 import { useMemo, useState } from "react";
 import supabase from "@/lib/supabase/server";
 import { toast } from "sonner";
@@ -160,8 +162,13 @@ export default function AdminArtPieceCard({
 
       <div className="flex flex-col gap-3 p-4 sm:p-8 flex-1 min-w-0">
         <div className="flex items-start justify-between gap-4">
-          <div className="space-y-1 min-w-0">
-            <p className="text-foreground truncate">{artPiece.title}</p>
+          <div className="space-y-1 min-w-0 w-full">
+            <div className="flex items-center gap-2 justify-between">
+              <p className="text-foreground truncate">{artPiece.title}</p>
+              <p className="text-sm text-muted-foreground">
+                Submitted by {artPiece.artist?.name ?? "—"}
+              </p>
+            </div>
             <p className="text-sm text-muted-foreground line-clamp-3">
               {artPiece.description ?? "—"}
             </p>
@@ -211,7 +218,12 @@ export default function AdminArtPieceCard({
           </div>
         </dl>
 
-        <div className="flex gap-2 mt-auto justify-end">
+        <div className="flex flex-wrap gap-2 mt-auto justify-end">
+          <ShadButton variant="outline" size="default" asChild>
+            <NextLink href={`/admin/art-piece-submissions/${artPiece.id}`}>
+              View details
+            </NextLink>
+          </ShadButton>
           {currentStatus === "pending-approval" && (
             <Button
               variant="primary"
