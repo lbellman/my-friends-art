@@ -1,28 +1,36 @@
 import { ArtPiece, getPublicUrl } from "@/@types";
 import Link from "@/components/atoms/link/Link";
+import { artListReturnStorageKey } from "@/lib/art-list-restore";
 import Image from "next/image";
 
 interface ArtCardProps {
   artPiece: ArtPiece;
   href: string;
+  /** When set, persists list page + scroll Y for restoring the gallery after navigating back. */
+  listRestore?: {
+    namespace: string;
+    page: number;
+  };
 }
 
-export function ArtCard({ artPiece, href }: ArtCardProps) {
+export function ArtCard({ artPiece, href, listRestore }: ArtCardProps) {
   const publicUrl = getPublicUrl(artPiece.thumbnail_path ?? "");
   return (
     <Link
       href={href}
+      className="block w-full max-w-full min-w-0"
       onClick={() => {
-        // Set the scroll position to the current position
-        if (typeof window !== "undefined") {
-          sessionStorage.setItem(
-            "home-scroll-position",
-            String(window.scrollY),
-          );
-        }
+        if (typeof window === "undefined" || !listRestore) return;
+        sessionStorage.setItem(
+          artListReturnStorageKey(listRestore.namespace),
+          JSON.stringify({
+            page: listRestore.page,
+            scrollY: window.scrollY,
+          }),
+        );
       }}
     >
-      <div className="group md:min-w-[200px]">
+      <div className="group md:min-w-[200px] w-full min-h-full size-full ">
         <div
           className={` relative overflow-hidden rounded-xl aspect-3/4 mb-4 transition-all duration-300 ease-out group-hover:shadow-xl group-hover:-translate-y-1`}
         >

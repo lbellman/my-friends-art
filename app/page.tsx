@@ -1,103 +1,75 @@
 "use client";
 import { ArtPiece } from "@/@types";
-import useHighlightedSectionAnchors from "@/app/hooks/useHighlightedSectionAnchors";
-import { ArtCard } from "@/components/molecules/art-card/ArtCard";
-import Subnav from "@/components/organisms/Subnav";
+import useRestoreArtList from "@/app/hooks/useRestoreArtList";
+import {
+  ART_PIECES_PAGE_SIZE,
+  PaginatedArtPieces,
+} from "@/components/organisms/paginated-art-pieces/PaginatedArtPieces";
 import { Skeleton } from "@/components/ui/skeleton";
 import supabase from "@/lib/supabase/server";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect } from "react";
 
-const mediumSections = ["digital", "pastel", "acrylic", "watercolor"];
 
-// function ArtSection({ title, pieces }: { title: string; pieces: ArtPiece[] }) {
-//   return (
-//     <div id={title} className="flex flex-col">
-//       <h4 className="mb-8 font-display tracking-wide text-foreground">
-//         {title}
-//       </h4>
-//       <ul className="grid grid-cols-3 gap-4 md:gap-8">
-//         {pieces.map((piece) => (
-//           <ArtCard
-//             key={piece.id}
-//             artPiece={piece as ArtPiece}
-//             href={`/${piece.id}`}
-//           />
-//         ))}
-//       </ul>
-//     </div>
-//   );
-// }
+function HomeContent() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const rawPage = searchParams.get("page");
+  const page = Math.max(1, parseInt(rawPage ?? "1", 10) || 1);
 
-export default function Home() {
-  const digitalRef = useRef<HTMLButtonElement | null>(null);
-  const acrylicRef = useRef<HTMLButtonElement | null>(null);
-  const pastelRef = useRef<HTMLButtonElement | null>(null);
-  const watercolorRef = useRef<HTMLButtonElement | null>(null);
-  const sectionRefs = [digitalRef, acrylicRef, pastelRef, watercolorRef];
-
-  useHighlightedSectionAnchors({
-    sections: mediumSections.map((medium, idx) => ({
-      id: medium,
-      titleRef: sectionRefs[idx],
-    })),
-    highlightClass: "bg-secondary-hover",
-  });
-
-  const { data: artPieces, isLoading: isLoadingArtPieces } = useQuery({
-    queryKey: ["artPieces"],
+  const { data, isLoading: isLoadingArtPieces } = useQuery({
+    queryKey: ["artPieces", page],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const from = (page - 1) * ART_PIECES_PAGE_SIZE;
+      const to = from + ART_PIECES_PAGE_SIZE - 1;
+      const {
+        data: rows,
+        error,
+        count,
+      } = await supabase
         .from("art_piece")
         .select(
           "id, title, thumbnail_path, status, display_path, medium, created_at, artist:artist_id(id, name)",
+          { count: "exact" },
         )
         .eq("status", "approved")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .range(from, to);
       if (error) {
         throw new Error(error.message);
       }
-      return data.map((piece) => ({
+      const items = (rows ?? []).map((piece) => ({
         ...piece,
         artist: piece.artist,
-      }));
+      })) as ArtPiece[];
+      return { items, count: count ?? 0 };
     },
   });
 
-  // Scroll to the last saved scroll position when the page is loaded
+  useRestoreArtList({
+    isLoading: isLoadingArtPieces,
+    namespace: "home",
+  });
+
+  const totalCount = data?.count ?? 0;
+  const artPieces = data?.items ?? [];
+  const totalPages =
+    totalCount > 0
+      ? Math.max(1, Math.ceil(totalCount / ART_PIECES_PAGE_SIZE))
+      : 0;
+
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const scrollPosition = sessionStorage.getItem("home-scroll-position");
-      if (!scrollPosition) return;
-
-      const y = Number(scrollPosition);
-      if (!Number.isNaN(y)) {
-        // use a small timeout so layout is ready
-        window.requestAnimationFrame(() => {
-          window.scrollTo({ top: y, behavior: "instant" as ScrollBehavior });
-        });
-      }
+    if (totalCount === 0 || totalPages === 0) return;
+    if (page > totalPages) {
+      router.replace(`${pathname}?page=${totalPages}`);
     }
-  }, []);
-
-  // Split the art pieces into mediums
-  // const digitalPieces = artPieces?.filter(
-  //   (piece) => piece.medium === "digital",
-  // ) as ArtPiece[];
-  // const acrylicPieces = artPieces?.filter(
-  //   (piece) => piece.medium === "acrylic",
-  // ) as ArtPiece[];
-  // const pastelPieces = artPieces?.filter(
-  //   (piece) => piece.medium === "pastel",
-  // ) as ArtPiece[];
-  // const watercolorPieces = artPieces?.filter(
-  //   (piece) => piece.medium === "watercolor",
-  // ) as ArtPiece[];
+  }, [totalCount, totalPages, page, router, pathname]);
 
   return (
     <div className="relative flex flex-col">
-      {/* Hero Section */}
       <div className="relative min-h-[60vh] flex items-center justify-center w-full overflow-hidden">
         <Image
           src="/art-pieces/seaside-meadow.webp"
@@ -124,31 +96,61 @@ export default function Home() {
           </h6>
         </div>
       </div>
-      {/*  Subnav */}
-      {/* <Subnav sectionIds={mediumSections} sectionRefs={sectionRefs} /> */}
       <div className="mx-auto w-full max-w-6xl flex flex-col gap-12 px-4 py-12">
         <h4 className="font-display tracking-wide text-foreground">
           all pieces
         </h4>
-        {/* Digital Pieces */}
-        <ul className="grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-8">
-          {isLoadingArtPieces ? (
-            <>
-              <Skeleton className="w-full" />
-              <Skeleton className="w-full" />
-              <Skeleton className="w-full aspect-square" />
-            </>
-          ) : (
-            artPieces?.map((piece) => (
-              <ArtCard
-                key={piece.id}
-                artPiece={piece as ArtPiece}
-                href={`/${piece.id}`}
-              />
-            ))
-          )}
-        </ul>
+        <PaginatedArtPieces
+          namespace="home"
+          items={artPieces}
+          totalCount={totalCount}
+          page={page}
+          pageSize={ART_PIECES_PAGE_SIZE}
+          isLoading={isLoadingArtPieces}
+          emptyContent={
+            <p className="text-muted-foreground">No art pieces yet.</p>
+          }
+          hrefForPiece={(piece) => `/${piece.id}`}
+          onPageChange={(next) => {
+            router.push(`${pathname}?page=${next}`);
+          }}
+        />
       </div>
     </div>
+  );
+}
+
+function HomeFallback() {
+  return (
+    <div className="relative flex flex-col">
+      <div className="relative min-h-[60vh] flex items-center justify-center w-full overflow-hidden">
+        <Image
+          src="/art-pieces/seaside-meadow.webp"
+          alt="Windy cliffside"
+          fill
+          className="object-cover object-[50%_50%]"
+          priority
+          sizes="100vw"
+          loading="eager"
+        />
+        <div className="absolute inset-0 bg-primary/75" />
+      </div>
+      <div className="mx-auto w-full max-w-6xl flex flex-col gap-12 px-4 py-12">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-8">
+          {Array.from({ length: ART_PIECES_PAGE_SIZE }).map((_, i) => (
+            <Skeleton key={i} className="w-full aspect-3/4 rounded-xl" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<HomeFallback />}>
+      <HomeContent />
+    </Suspense>
   );
 }

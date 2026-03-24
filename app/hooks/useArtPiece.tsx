@@ -19,6 +19,27 @@ export default function useArtPiece() {
     displayPath: string;
   }) => {
     try {
+      const { data: displayImageRows, error: displayFetchError } = await supabase
+        .from("art_piece_display_image")
+        .select("path")
+        .eq("art_piece_id", artPieceId);
+
+      if (displayFetchError) {
+        onError(displayFetchError);
+        throw displayFetchError;
+      }
+
+      const pathsFromDisplayImages = (displayImageRows ?? [])
+        .map((row) => row.path)
+        .filter((p): p is string => Boolean(p));
+
+      const displayStoragePaths = [
+        ...new Set([
+          ...pathsFromDisplayImages,
+          ...(displayPath ? [displayPath] : []),
+        ]),
+      ];
+
       const { error } = await supabase
         .from("art_piece")
         .delete()
@@ -29,11 +50,11 @@ export default function useArtPiece() {
       }
 
       // Cleanup the images from the storage buckets
-      // Display path
-      if (displayPath) {
+      // Display images 
+      if (displayStoragePaths.length > 0) {
         const { error: deleteError } = await supabase.storage
           .from("art-pieces")
-          .remove([displayPath]);
+          .remove(displayStoragePaths);
         if (deleteError) {
           throw deleteError;
         }

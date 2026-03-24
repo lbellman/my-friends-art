@@ -10,6 +10,7 @@ interface LinkProps {
   inline?: boolean;
   asChild?: boolean;
   onClick?: () => void;
+  className?: string;
 }
 
 export default function Link({
@@ -21,6 +22,7 @@ export default function Link({
   inline = false,
   asChild = false,
   onClick = () => {},
+  className,
 }: LinkProps) {
   return (
     <NextLink
@@ -36,6 +38,7 @@ export default function Link({
               inline
                 ? "text-primary-foreground"
                 : "text-foreground hover:text-primary-foreground ",
+              className,
             )
       }
       aria-label={ariaLabel}

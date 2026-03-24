@@ -11,7 +11,9 @@ export default function SearchResultsArtPieceDetailPage() {
     <ArtDetailView
       artPieceIdentifier={artPieceId}
       back={{
-        href: `/search-results?q=${searchQuery}`,
+        href: searchQuery
+          ? `/search-results?q=${encodeURIComponent(searchQuery)}`
+          : "/search-results",
         label: "Back to search results",
       }}
     />
