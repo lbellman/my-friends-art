@@ -37,7 +37,7 @@ export default function UploadImageStep({
   };
 
   const getDisplayImagesFilesState = () => {
-    const files = formData.display_images ? formData.display_images : [];
+    const files = formData.display_images ?? [];
     const setFiles = (files: File[]) => {
       setFormData({
         ...formData,
@@ -52,7 +52,10 @@ export default function UploadImageStep({
 
   // If the print quality image is being used as the display image and gets removed, clear the display images
   useEffect(() => {
-    if ((printQualityFilesState.files.length || 0) === 0) {
+    if (
+      requiresPrintQualityImage &&
+      (printQualityFilesState.files.length || 0) === 0
+    ) {
       if (
         formData.use_print_quality_image_as_display &&
         displayImagesFilesState.files.length > 0
@@ -64,6 +67,7 @@ export default function UploadImageStep({
       }
     }
   }, [
+    requiresPrintQualityImage,
     printQualityFilesState,
     displayImagesFilesState,
     formData.use_print_quality_image_as_display,

@@ -4,19 +4,21 @@ import {
   ArtistType,
   ArtPiece,
   getPublicUrl,
-  PRINT_OPTION_LABELS,
-  PrintOptionType,
+  PRODUCT_TYPE_OPTIONS,
 } from "@/@types";
 import Link from "@/components/atoms/link/Link";
 import { ArtistCard } from "@/components/molecules/artist-card/ArtistCard";
+import MultiImageDisplay from "@/components/molecules/multi-image-display/MultiImageDisplay";
+import ContactArtistDialog from "@/components/organisms/contact-artist-dialog/ContactArtistDialog";
 import RequestPrintDialog from "@/components/organisms/request-print-dialog/RequestPrintDialog";
+import RequestToPurchaseDialog from "@/components/organisms/request-to-purchase-dialog/RequestToPurchaseDialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import supabase from "@/lib/supabase/server";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeftIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeftIcon } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 export default function ArtDetailView({
   artPieceIdentifier,
@@ -36,7 +38,7 @@ export default function ArtDetailView({
       const { data, error } = await supabase
         .from("art_piece")
         .select(
-          "*, artist:artist_id(id, name, bio, location, profile_img_url, website, instagram, facebook, email_address), art_piece_display_image(path, idx)",
+          "*, artist:artist_id(id, name, bio, location, profile_img_url, website, instagram, facebook, email_address), art_piece_display_image(path, idx), product_dimensions:product_dimensions_id(width_in, height_in, depth_in)",
         )
         .eq("id", artPieceIdentifier)
         .single();
@@ -50,8 +52,22 @@ export default function ArtDetailView({
     },
   });
 
+  const isSellingPrint = useMemo(() => {
+    return (
+      artPiece?.product_type === "print-and-original" ||
+      artPiece?.product_type === "print"
+    );
+  }, [artPiece?.product_type]);
+
+  const isSellingOriginal = useMemo(() => {
+    return (
+      artPiece?.product_type === "print-and-original" ||
+      artPiece?.product_type === "original"
+    );
+  }, [artPiece?.product_type]);
+
   const galleryUrls = useMemo(() => {
-    const rows = [...(artPiece?.art_piece_display_images ?? [])].sort(
+    const rows = [...(artPiece?.art_piece_display_image ?? [])].sort(
       (a, b) => a.idx - b.idx,
     );
     if (rows.length > 0) {
@@ -59,176 +75,79 @@ export default function ArtDetailView({
     }
     const fallback = getPublicUrl(artPiece?.display_path ?? "");
     return fallback ? [fallback] : [];
-  }, [artPiece?.art_piece_display_images, artPiece?.display_path]);
+  }, [artPiece?.art_piece_display_image, artPiece?.display_path]);
 
-  const [galleryIndex, setGalleryIndex] = useState(0);
-
-  useEffect(() => {
-    setGalleryIndex(0);
-  }, [artPieceIdentifier, galleryUrls.length]);
-
-  const publicUrl = galleryUrls[galleryIndex] ?? galleryUrls[0] ?? "";
-
-  // Fetch dimension options when art piece is loaded
-  const { data: dimensionOptions = [], isLoading: loadingDimensionOptions } =
-    useQuery({
-      queryKey: [
-        "dimensionOptions",
-        artPiece?.px_width,
-        artPiece?.px_height,
-        artPiece?.dpi,
-        artPiece?.aspect_ratio,
-      ],
-      queryFn: async () => {
-        if (
-          !artPiece?.px_width ||
-          !artPiece?.px_height ||
-          !artPiece?.dpi ||
-          !artPiece?.aspect_ratio
-        ) {
-          return [];
-        }
-
-        const { data, error } = await supabase.rpc("get_dimension_options", {
-          px_width: artPiece.px_width,
-          px_height: artPiece.px_height,
-          dpi: artPiece.dpi,
-          aspect_ratio: artPiece.aspect_ratio,
-        });
-
-        if (error) {
-          throw error;
-        }
-
-        return data || [];
-      },
-      enabled:
-        !!artPiece &&
-        !!artPiece.px_width &&
-        !!artPiece.px_height &&
-        !!artPiece.dpi &&
-        !!artPiece.aspect_ratio,
-    });
-
-  const [selectedDimension, setSelectedDimension] = useState<string | null>(
-    null,
-  );
-  const [selectedPrintOption, setSelectedPrintOption] =
-    useState<PrintOptionType | null>(null);
+  const artistAvatarUrl = useMemo(() => {
+    const raw = artPiece?.artist?.profile_img_url;
+    if (!raw) return "";
+    return getPublicUrl(raw);
+  }, [artPiece?.artist?.profile_img_url]);
 
   const [requestPrintDialogOpen, setRequestPrintDialogOpen] = useState(false);
-  // Derive default dimension during render (avoids setState in effect)
-  const defaultDimension =
-    dimensionOptions.length > 0
-      ? `${dimensionOptions[0].width}x${dimensionOptions[0].height}`
-      : "custom";
-  const effectiveDimension = selectedDimension ?? defaultDimension;
-  const defaultPrintOption = Object.keys(
-    PRINT_OPTION_LABELS,
-  )[0] as PrintOptionType;
-  const effectivePrintOption = selectedPrintOption ?? defaultPrintOption;
-
-  // Calculate price when both dimension and print option are selected
-  // const { data: price, isLoading: loadingPrice } = useQuery<number | null>({
-  //   queryKey: ["price", effectiveDimension, effectivePrintOption],
-  //   queryFn: async () => {
-  //     if (!effectiveDimension || !effectivePrintOption) {
-  //       return null;
-  //     }
-
-  //     // Parse dimension string (format: "widthxheight")
-  //     const [width, height] = effectiveDimension.split("x").map(Number);
-
-  //     const { data, error } = await supabase.rpc("calculate_price", {
-  //       p_height: height,
-  //       p_width: width,
-  //       p_print_type: effectivePrintOption,
-  //     });
-
-  //     if (error) {
-  //       console.error("Price calculation error:", error);
-  //       throw error;
-  //     }
-
-  //     return (data as number) ?? null;
-  //   },
-  //   enabled: !!effectiveDimension && !!effectivePrintOption,
-  // });
+  const [requestToPurchaseDialogOpen, setRequestToPurchaseDialogOpen] =
+    useState(false);
+  const [contactArtistDialogOpen, setContactArtistDialogOpen] = useState(false);
+  const dimensions = useMemo(() => {
+    return artPiece?.product_dimensions;
+  }, [artPiece?.product_dimensions]);
 
   return (
     <div className="min-h-screen flex flex-col items-center">
       <div className=" py-12 px-6 max-w-6xl flex-nowrap w-full">
+        {/* Back button */}
+        <Link href={back.href} ariaLabel={back.label}>
+          <div className="flex items-center gap-2">
+            <ArrowLeftIcon className="w-4 h-4" />
+            {back.label}
+          </div>
+        </Link>
         {/* Art Details */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 ">
+        <div className="grid grid-cols-1 mt-6  md:grid-cols-2 gap-6 md:gap-8 ">
           {/* Art Piece Image */}
           <div className="flex-1 flex flex-col flex-nowrap">
-            {/* Back button */}
-            <Link href={back.href} ariaLabel={back.label}>
-              <div className="flex items-center gap-2">
-                <ArrowLeftIcon className="w-4 h-4" />
-                {back.label}
-              </div>
-            </Link>
-            <div className="mt-6 relative">
-              {isLoadingArtPiece ? (
-                <Skeleton className="w-full min-w-[280px] rounded-md min-h-[400px]" />
-              ) : (
-                <>
-                  <Image
-                    src={publicUrl || ""}
-                    alt={artPiece?.title || "Image of the art piece"}
-                    width={artPiece?.px_width ?? 800}
-                    height={artPiece?.px_height ?? 800}
-                    className="w-full h-auto min-w-[280px] border-6 border-white object-contain rounded-xl shadow-lg shadow-black/50"
-                  />
-                  {galleryUrls.length > 1 && (
-                    <>
-                      <div className="absolute left-2 top-1/2 -translate-y-1/2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          aria-label="Previous image"
-                          onClick={() =>
-                            setGalleryIndex((i) =>
-                              i === 0 ? galleryUrls.length - 1 : i - 1,
-                            )
-                          }
-                        >
-                          <ChevronLeft className="size-4" />
-                        </Button>
-                      </div>
-                      <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          aria-label="Next image"
-                          onClick={() =>
-                            setGalleryIndex((i) =>
-                              i === galleryUrls.length - 1 ? 0 : i + 1,
-                            )
-                          }
-                        >
-                          <ChevronRight className="size-4" />
-                        </Button>
-                      </div>
-                    </>
-                  )}
-                </>
-              )}
+            <div className="relative h-full w-full aspect-3/4">
+              <MultiImageDisplay
+                imageSrcs={galleryUrls}
+                alt={artPiece?.title || "Image of the art piece"}
+                fallbackTitle={artPiece?.title ?? ""}
+                isLoading={isLoadingArtPiece}
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 40vw"
+              />
             </div>
           </div>
           {/* Details */}
-          <div className="flex-1 flex flex-col justify-center flex-nowrap gap-8">
+          <div className="flex-1 flex flex-col rounded-lg flex-nowrap py-6 gap-4">
             {isLoadingArtPiece ? (
               <Skeleton className="w-full h-10 rounded-md" />
             ) : (
               <div className="flex flex-col flex-nowrap gap-2">
+                <p className="uppercase-overline text-muted-foreground">
+                  {artPiece?.medium}
+                </p>
                 <h5 className="font-medium">{artPiece?.title}</h5>
-                <Link href={`/artists/${artPiece?.artist_id}`}>
-                  {artPiece?.artist?.name}
-                </Link>
+                {artPiece?.artist && (
+                  <Link
+                    href={`/artists/${artPiece?.artist_id}`}
+                    className="inline-flex items-center gap-2"
+                  >
+                    <span className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full bg-muted ring-1 ring-border">
+                      {artistAvatarUrl ? (
+                        <Image
+                          src={artistAvatarUrl}
+                          alt=""
+                          width={32}
+                          height={32}
+                          className="h-8 w-8 object-cover"
+                        />
+                      ) : (
+                        <span className="flex h-full w-full items-center justify-center text-xs font-medium text-muted-foreground">
+                          {artPiece.artist.name?.charAt(0) ?? "?"}
+                        </span>
+                      )}
+                    </span>
+                    Made by {artPiece?.artist?.name}
+                  </Link>
+                )}
                 {artPiece?.description && (
                   <p className="body2 text-muted-foreground">
                     {artPiece?.description}
@@ -237,127 +156,105 @@ export default function ArtDetailView({
               </div>
             )}
 
-            {/* Dimension Selection */}
-            <div className=" space-y-3">
-              <label className="text-sm font-medium text-foreground">
-                Dimensions
-              </label>
-              {loadingDimensionOptions ? (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {Array.from({ length: 4 }).map((_, index) => (
-                    <Skeleton key={index} className="h-9 w-20" />
-                  ))}
+            {/* Product Dimensions */}
+            <div className="items-start flex flex-col">
+              {/* Product Dimensions */}
+              <div className="flex flex-col flex-nowrap">
+                {[
+                  dimensions?.width_in
+                    ? {
+                        label: "Width",
+                        value: dimensions?.width_in
+                          ? `${dimensions.width_in}"`
+                          : "-",
+                      }
+                    : null,
+                  dimensions?.height_in
+                    ? {
+                        label: "Height",
+                        value: dimensions?.height_in
+                          ? `${dimensions.height_in}"`
+                          : "-",
+                      }
+                    : null,
+                  dimensions?.depth_in
+                    ? {
+                        label: "Depth",
+                        value: dimensions?.depth_in
+                          ? `${dimensions.depth_in}"`
+                          : "-",
+                      }
+                    : null,
+                ]
+                  .filter(Boolean)
+                  .map(
+                    (dimension) =>
+                      dimension && (
+                        <div
+                          key={dimension?.label}
+                          className="flex items-center gap-2"
+                        >
+                          <p className="body2 text-muted-foreground">
+                            {dimension?.label}
+                          </p>
+                          <p className="body2 text-foreground">
+                            {dimension?.value}
+                          </p>
+                        </div>
+                      ),
+                  )}
+              </div>
+
+              {/* Request a Print Button */}
+              <div className="flex flex-col flex-nowrap gap-2 mt-2 w-full">
+                <div className="flex w-full items-center gap-2">
+                  {isSellingPrint && (
+                    <Button
+                      className="flex-1"
+                      size="lg"
+                      variant="default"
+                      onClick={() => setRequestPrintDialogOpen(true)}
+                      // disabled={previewMode}
+                    >
+                      Request a Print
+                    </Button>
+                  )}
+                  {isSellingOriginal && (
+                    <Button
+                      className="flex-1"
+                      size="lg"
+                      variant="outline"
+                      onClick={() => setRequestToPurchaseDialogOpen(true)}
+                      // disabled={previewMode}
+                    >
+                      Request to Purchase
+                    </Button>
+                  )}
                 </div>
-              ) : (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {dimensionOptions.map((dim) => {
-                    const dimensionValue = `${dim.width}x${dim.height}`;
-                    const isSelected = effectiveDimension === dimensionValue;
-                    return (
-                      <Button
-                        key={dimensionValue}
-                        variant={isSelected ? "default" : "outline"}
-                        onClick={() => setSelectedDimension(dimensionValue)}
-                      >
-                        {dimensionValue}&quot;
-                      </Button>
-                    );
-                  })}
-                  <Button
-                    variant={
-                      effectiveDimension === "custom" ? "default" : "outline"
-                    }
-                    onClick={() => setSelectedDimension("custom")}
-                  >
-                    Custom
-                  </Button>
-                </div>
-              )}
+                <Button
+                  className="w-full"
+                  size="lg"
+                  variant="outline"
+                  onClick={() => setContactArtistDialogOpen(true)}
+                >
+                  Contact Artist
+                </Button>
+              </div>
             </div>
-
-            {/* Print Option Selection */}
-
-            <div className="space-y-3 ">
-              <label className="text-sm font-medium text-foreground">
-                Print Type
-              </label>
-              {isLoadingArtPiece ? (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {Array.from({ length: 4 }).map((_, index) => (
-                    <Skeleton key={index} className="h-9 w-32" />
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {Object.keys(PRINT_OPTION_LABELS).map((option) => {
-                    const isSelected = effectivePrintOption === option;
-                    return (
-                      <Button
-                        key={option}
-                        variant={isSelected ? "default" : "outline"}
-                        onClick={() =>
-                          setSelectedPrintOption(option as PrintOptionType)
-                        }
-                        className={
-                          isSelected
-                            ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                            : ""
-                        }
-                      >
-                        {PRINT_OPTION_LABELS[option as PrintOptionType]}
-                      </Button>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Price Display
-            <div className="flex items-center justify-between pt-2 mt-6 border-t border-border ">
-              <p className="text-sm font-medium text-foreground">Subtotal</p>
-              {loadingPrice ? (
-                <Skeleton className="w-32 h-6" />
-              ) : price !== null && price !== undefined ? (
-                <p className="text-lg font-medium text-foreground">
-                  ${price.toFixed(2)}
-                </p>
-              ) : (
-                <p className="text-sm text-muted-foreground">TBD</p>
-              )}
-            </div> */}
-            </div>
-
-            {/* Request a Print Button */}
-            <div className="w-full mt-10 border-t pt-6 flex flex-col gap-2">
-              <Button
-                className="w-full"
-                size="lg"
-                onClick={() => setRequestPrintDialogOpen(true)}
-                disabled={
-                  !effectiveDimension || !effectivePrintOption || previewMode
-                }
-              >
-                Request a Print
-              </Button>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Requests are sent directly to the artist.
-            </p>
           </div>
         </div>
-        {requestPrintDialogOpen && (
-          <RequestPrintDialog
-            open={requestPrintDialogOpen}
-            onOpenChange={setRequestPrintDialogOpen}
-            printDetails={{
-              dimensions: effectiveDimension || "",
-              printOption: effectivePrintOption || "",
-            }}
+        {requestToPurchaseDialogOpen && (
+          <RequestToPurchaseDialog
+            open={requestToPurchaseDialogOpen}
+            onOpenChange={setRequestToPurchaseDialogOpen}
             artPiece={artPiece as ArtPiece}
-            emailAddress={
-              artPiece?.artist?.email_address || "bellmanlindsey@gmail.com"
-            }
-            dimensionOptions={dimensionOptions}
-            loadingDimensionOptions={loadingDimensionOptions}
+          />
+        )}
+        {contactArtistDialogOpen && (
+          <ContactArtistDialog
+            open={contactArtistDialogOpen}
+            onOpenChange={setContactArtistDialogOpen}
+            artist={artPiece?.artist as ArtistType}
           />
         )}
         {/* About The Artist */}

@@ -14,7 +14,7 @@ import { useState } from "react";
 import { Check, Undo, X } from "lucide-react";
 import Image from "next/image";
 import ConfirmDialog from "@/components/organisms/confirm-dialog/ConfirmDialog";
-import useEmailJS from "@/app/hooks/useEmailJS";
+import useSendEmail from "@/app/hooks/useSendEmail";
 import { toast } from "sonner";
 
 interface ProductRequestCardProps {
@@ -33,7 +33,7 @@ export default function ProductRequestCard({
   artPiece,
   showImage = false,
 }: ProductRequestCardProps) {
-  const { sendEmail } = useEmailJS();
+  const { sendEmail } = useSendEmail();
   const [status, setStatus] = useState<ProductRequestStatusType>(
     request.status,
   );
@@ -72,14 +72,7 @@ export default function ProductRequestCard({
     setIsSaving(true);
     try {
       await onChangeStatus(request.id, nextStatus);
-    } catch {
-      // Revert on error
-      setStatus(request.status);
-    } finally {
-      setIsSaving(false);
-
-      // Send an email to the customer to notify them of the status change
-      sendEmail({
+      await sendEmail({
         name: "My Friend's Art",
         fromEmail: "bellmanlindsey@gmail.com",
         toEmail: request.from_email,
@@ -94,6 +87,10 @@ export default function ProductRequestCard({
         onError: () => {},
         setIsSubmitting: () => {},
       });
+    } catch {
+      setStatus(request.status);
+    } finally {
+      setIsSaving(false);
     }
   };
 

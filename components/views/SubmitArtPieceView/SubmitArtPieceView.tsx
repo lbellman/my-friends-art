@@ -1,4 +1,9 @@
-import { MAX_DISPLAY_IMAGES, MediumType, ProductType } from "@/@types";
+import {
+  getPublicUrl,
+  MAX_DISPLAY_IMAGES,
+  MediumType,
+  ProductType,
+} from "@/@types";
 import useAuth from "@/app/hooks/useAuth";
 import Button from "@/components/atoms/button/Button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -73,7 +78,7 @@ export default function SubmitArtPieceView() {
     queryFn: async () => {
       const { data } = await supabase
         .from("artist")
-        .select("name")
+        .select("name, profile_img_url")
         .eq("user_id", user?.id || "")
         .single();
       return data;
@@ -110,8 +115,7 @@ export default function SubmitArtPieceView() {
     setStep,
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setSubmitError(null);
 
     if (!formData.title.trim()) {
@@ -348,57 +352,57 @@ export default function SubmitArtPieceView() {
     <div className="flex w-full h-page-height-navbar">
       {/* Editable Panel */}
       <div className="w-full relative md:w-1/3 bg-card border-r flex flex-col ">
-        <form onSubmit={handleSubmit}>
-          <div
-            className="overflow-y-auto mb-10"
-            style={{
-              maxHeight: "calc(100vh - 190px)",
-            }}
-          >
-            {step === "basic-information" && (
-              <BasicInformationStep {...stepProps} />
-            )}
-            {step === "original-product-details" && (
-              <OriginalProductDetailsStep {...stepProps} />
-            )}
-            {step === "upload-image" && <UploadImageStep {...stepProps} />}
-          </div>
+        <div
+          className="overflow-y-auto mb-10"
+          style={{
+            maxHeight: "calc(100vh - 190px)",
+          }}
+        >
+          {step === "basic-information" && (
+            <BasicInformationStep {...stepProps} />
+          )}
+          {step === "original-product-details" && (
+            <OriginalProductDetailsStep {...stepProps} />
+          )}
+          {step === "upload-image" && <UploadImageStep {...stepProps} />}
+        </div>
 
-          {/* Buttons */}
-          <div className=" absolute bottom-6 justify-between left-6 right-6 flex flex-col md:flex-row">
-            <div className="flex flex-col w-full gap-2">
-              {submitError && (
-                <p className="text-destructive text-sm">{submitError}</p>
-              )}
-              {step !== "basic-information" && (
-                <Button
-                  variant="secondary"
-                  label="Back"
-                  onClick={handlePrevious}
-                />
-              )}
-              <div className="w-full">
-                <Button
-                  variant="primary"
-                  className="w-full"
-                  disabled={getIsNextDisabled() || isSubmitting}
-                  loading={isSubmitting}
-                  type={step === "upload-image" ? "submit" : "button"}
-                  label={
-                    step === "upload-image"
-                      ? isSubmitting
-                        ? "Submitting..."
-                        : "Submit Art Piece"
-                      : "Next"
-                  }
-                  onClick={
-                    step === "upload-image" ? undefined : () => handleNext()
-                  }
-                />
-              </div>
+        {/* Buttons */}
+        <div className=" absolute bottom-6 justify-between left-6 right-6 flex flex-col md:flex-row">
+          <div className="flex flex-col w-full gap-2">
+            {submitError && (
+              <p className="text-destructive text-sm">{submitError}</p>
+            )}
+            {step !== "basic-information" && (
+              <Button
+                variant="secondary"
+                label="Back"
+                onClick={handlePrevious}
+              />
+            )}
+            <div className="w-full">
+              <Button
+                variant="primary"
+                className="w-full"
+                disabled={getIsNextDisabled() || isSubmitting}
+                loading={isSubmitting}
+                type={step === "upload-image" ? "submit" : "button"}
+                label={
+                  step === "upload-image"
+                    ? isSubmitting
+                      ? "Submitting..."
+                      : "Submit Art Piece"
+                    : "Next"
+                }
+                onClick={
+                  step === "upload-image"
+                    ? () => handleSubmit()
+                    : () => handleNext()
+                }
+              />
             </div>
           </div>
-        </form>
+        </div>
       </div>
 
       {/* Preview */}
@@ -406,6 +410,11 @@ export default function SubmitArtPieceView() {
         <ArtPiecePreview
           formData={formData}
           artistName={artist?.name ?? null}
+          artistProfileImgUrl={
+            artist?.profile_img_url
+              ? getPublicUrl(artist.profile_img_url)
+              : null
+          }
         />
       </div>
     </div>

@@ -37,15 +37,15 @@ export default function AdminArtPieceSubmissionsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("art_piece")
-        .select("*, artist (id, name, email_address)")
+        .select(
+          "*, artist (id, name, email_address), art_piece_display_image(path, idx)",
+        )
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as ArtPiece[];
     },
     enabled: !!user && isAdmin,
   });
-
-  console.log(artPieces);
 
   const filteredArtPieces = useMemo(() => {
     const items = artPieces ?? [];

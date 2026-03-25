@@ -20,8 +20,8 @@ export default function DeleteRestrictedDialog({
         <DialogHeader>
           <DialogTitle>cannot delete art piece</DialogTitle>
           <p className="body2 text-muted-foreground">
-            There are still pending print requests
-            associated with this art piece. Please fulfill or cancel all print requests
+            There are still pending product requests
+            associated with this art piece. Please fulfill or cancel all product requests
             before deleting the art piece.
           </p>
           <DialogFooter>

@@ -1,6 +1,6 @@
 "use client";
 
-import useEmailJS from "@/app/hooks/useEmailJS";
+import useSendEmail from "@/app/hooks/useSendEmail";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,7 +8,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 export default function BecomeAnArtistPage() {
-  const { sendEmail } = useEmailJS();
+  const { sendEmail } = useSendEmail();
   const [formData, setFormData] = useState({
     name: "",
     email_address: "",
@@ -47,7 +47,7 @@ export default function BecomeAnArtistPage() {
       formData.bio.trim(),
     ].join("\n");
 
-    sendEmail({
+    await sendEmail({
       name: formData.name.trim(),
       fromEmail: formData.email_address.trim(),
       toEmail: "bellmanlindsey@gmail.com",

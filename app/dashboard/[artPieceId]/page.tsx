@@ -19,9 +19,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import supabase from "@/lib/supabase/server";
 import type { Database } from "@/supabase";
 import { useQuery } from "@tanstack/react-query";
-import Image from "next/image";
+import MultiImageDisplay from "@/components/molecules/multi-image-display/MultiImageDisplay";
+import { Download } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 export default function DashboardArtPieceDetailPage() {
@@ -39,7 +40,7 @@ export default function DashboardArtPieceDetailPage() {
       const { data, error } = await supabase
         .from("art_piece")
         .select(
-          "id, title, description, display_path, original_path, thumbnail_path, px_width, px_height, dpi, aspect_ratio, created_at, status, product_type",
+          "id, title, description, display_path, original_path, thumbnail_path, px_width, px_height, dpi, aspect_ratio, created_at, status, product_type, art_piece_display_image(path, idx)",
         )
         .eq("id", artPieceId)
         .single();
@@ -95,9 +96,21 @@ export default function DashboardArtPieceDetailPage() {
   const [isSavingDetails, setIsSavingDetails] = useState(false);
   const [detailsError, setDetailsError] = useState<string | null>(null);
   const [detailsSuccess, setDetailsSuccess] = useState(false);
+  const [isDownloadingOriginal, setIsDownloadingOriginal] = useState(false);
 
-  const imagePath = artPiece?.display_path ?? artPiece?.thumbnail_path ?? "";
-  const imageUrl = imagePath ? getPublicUrl(imagePath) : "";
+  const galleryUrls = useMemo(() => {
+    if (!artPiece) return [];
+    const rows = [...(artPiece.art_piece_display_image ?? [])].sort(
+      (a, b) => a.idx - b.idx,
+    );
+    if (rows.length > 0) {
+      return rows.map((r) => getPublicUrl(r.path)).filter(Boolean);
+    }
+    const fallback = getPublicUrl(
+      artPiece.display_path ?? artPiece.thumbnail_path ?? "",
+    );
+    return fallback ? [fallback] : [];
+  }, [artPiece]);
 
   const formattedCreatedAt = artPiece?.created_at
     ? new Date(artPiece.created_at).toLocaleString()
@@ -163,6 +176,39 @@ export default function DashboardArtPieceDetailPage() {
     }
   };
 
+  const handleDownloadPrintQualityImage = async () => {
+    if (!artPiece?.original_path) return;
+    setIsDownloadingOriginal(true);
+    try {
+      const { data: blob, error } = await supabase.storage
+        .from("originals")
+        .download(artPiece.original_path);
+      if (error || !blob) {
+        toast.error("Could not download file.");
+        return;
+      }
+      const safeTitle = (artPiece.title || "print-quality")
+        .replace(/[^a-z0-9-_]+/gi, "-")
+        .replace(/^-|-$/g, "")
+        .slice(0, 80);
+      const extFromType = blob.type?.split("/")[1];
+      const filename = `${safeTitle || "print-quality"}-print-quality.${extFromType || "bin"}`;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success("Download started.");
+    } catch {
+      toast.error("Download failed.");
+    } finally {
+      setIsDownloadingOriginal(false);
+    }
+  };
+
   return (
     <InternalLayout
       title={"art piece details"}
@@ -190,21 +236,12 @@ export default function DashboardArtPieceDetailPage() {
             {/* Header: image + edit details card */}
             <div className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] items-start">
               <div className="relative w-full aspect-3/4 rounded-xl overflow-hidden bg-muted border border-border">
-                {imageUrl ? (
-                  <Image
-                    src={imageUrl}
-                    alt={artPiece.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 40vw"
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-4xl font-light text-muted-foreground/50">
-                      {artPiece.title.charAt(0)}
-                    </span>
-                  </div>
-                )}
+                <MultiImageDisplay
+                  imageSrcs={galleryUrls}
+                  alt={artPiece.title ?? "Your art piece"}
+                  fallbackTitle={artPiece.title ?? ""}
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 40vw"
+                />
               </div>
               <section className="bg-card border border-border rounded-xl p-6 space-y-4">
                 <h3 className="text-base text-foreground">details</h3>
@@ -249,7 +286,36 @@ export default function DashboardArtPieceDetailPage() {
 
             {/* Metadata */}
             <section className="bg-card border border-border rounded-xl p-6 space-y-4">
-              <h3 className="text-base text-foreground">metadata</h3>
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <h3 className="text-base text-foreground">metadata</h3>
+
+                {/* Download print quality image */}
+                {artPiece.product_type !== "original" && (
+                  <div className="">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="secondary"
+                      label={
+                        isDownloadingOriginal
+                          ? "Preparing download…"
+                          : "Download Print Quality Image"
+                      }
+                      icon={<Download className="size-4" />}
+                      disabled={
+                        !artPiece.original_path || isDownloadingOriginal
+                      }
+                      loading={isDownloadingOriginal}
+                      onClick={() => void handleDownloadPrintQualityImage()}
+                    />
+                    {!artPiece.original_path && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        No print-quality original is stored for this piece.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
               <dl className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-4 text-sm">
                 <div>
                   <dt className="text-muted-foreground">Pixel height</dt>
@@ -291,7 +357,9 @@ export default function DashboardArtPieceDetailPage() {
             {/* Product requests */}
             <section className="space-y-4">
               <div className="flex items-center justify-between gap-3 flex-wrap">
-                <h5 className="font-display text-foreground">Print requests</h5>
+                <h5 className="font-display text-foreground">
+                  Product requests
+                </h5>
                 {!isLoadingRequests && productRequests.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     <Button
@@ -342,7 +410,7 @@ export default function DashboardArtPieceDetailPage() {
               ) : filteredProductRequests.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
                   {requestFilter === "all"
-                    ? "There are no print requests for this piece yet."
+                    ? "There are no product requests for this piece yet."
                     : `There are no ${requestFilter} requests for this piece.`}
                 </p>
               ) : (
@@ -362,7 +430,7 @@ export default function DashboardArtPieceDetailPage() {
             <section className="bg-card border border-border rounded-xl p-6 space-y-3">
               <h3 className="text-base text-foreground">actions</h3>
               <p className="text-sm text-muted-foreground">
-                Ensure there are no pending print requests for this art piece
+                Ensure there are no pending product requests for this art piece
                 before deleting.
               </p>
               <div className="flex flex-wrap gap-3">

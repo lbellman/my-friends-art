@@ -1,6 +1,7 @@
 "use client";
 import { ArtPiece } from "@/@types";
 import useRestoreArtList from "@/app/hooks/useRestoreArtList";
+import { ArtCard } from "@/components/molecules/art-card/ArtCard";
 import {
   ART_PIECES_PAGE_SIZE,
   PaginatedArtPieces,
@@ -101,7 +102,6 @@ function HomeContent() {
           all pieces
         </h4>
         <PaginatedArtPieces
-          namespace="home"
           items={artPieces}
           totalCount={totalCount}
           page={page}
@@ -110,10 +110,16 @@ function HomeContent() {
           emptyContent={
             <p className="text-muted-foreground">No art pieces yet.</p>
           }
-          hrefForPiece={(piece) => `/${piece.id}`}
           onPageChange={(next) => {
             router.push(`${pathname}?page=${next}`);
           }}
+          renderArtPiece={(piece) => (
+            <ArtCard
+              artPiece={piece}
+              href={`/${piece.id}`}
+              listRestore={{ namespace: "home", page }}
+            />
+          )}
         />
       </div>
     </div>

@@ -24,9 +24,9 @@ export default function InternalLayout({
   contentSize = "md",
 }: InternalLayoutProps) {
   const contentSizeClass = {
-    sm: "max-w-3xl",
-    md: "max-w-5xl",
-    lg: "max-w-7xl",
+    sm: "max-w-4xl",
+    md: "max-w-6xl",
+    lg: "max-w-8xl",
   }[contentSize];
   return (
     <div className="relative min-h-screen flex flex-col items-center">

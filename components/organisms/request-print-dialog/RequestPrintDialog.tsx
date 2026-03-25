@@ -14,7 +14,7 @@ import TextArea from "@/components/atoms/text-area/TextArea";
 import { useState } from "react";
 import { toast } from "sonner";
 import _ from "lodash";
-import useEmailJS from "@/app/hooks/useEmailJS";
+import useSendEmail from "@/app/hooks/useSendEmail";
 import supabase from "@/lib/supabase/server";
 
 export default function RequestPrintDialog({
@@ -40,7 +40,7 @@ export default function RequestPrintDialog({
   loadingDimensionOptions?: boolean;
   emailAddress: string;
 }) {
-  const { sendEmail } = useEmailJS();
+  const { sendEmail } = useSendEmail();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -88,51 +88,32 @@ export default function RequestPrintDialog({
           "Please try again or contact bellmanlindsey@gmail.com for support.",
       });
       setIsSubmitting(false);
-
-      // If database record successfully created, send email to artist
     } else {
-      // Send email to artist
-      sendEmail({
+      const artistOk = await sendEmail({
         name: formData.name,
         fromEmail: formData.email,
         toEmail: emailAddress,
         subject: `My Friend's Art - Print Request`,
         message: printRequestMessage,
-        onSuccess: () => {
-          toast.success("Print request created!", {
-            description:
-              "The artist will get back to you soon about pricing and shipping. Thank you!",
-          });
-          setFormData({
-            name: "",
-            email: "",
-            message: "",
-            dimensions: printDetails?.dimensions || "",
-            printOption: printDetails?.printOption || "",
-          });
-          setIsSubmitting(false);
-          onOpenChange(false);
-        },
+        onSuccess: () => {},
         onError: async () => {
           toast.error("Failed to send request", {
             description: "Please try again or contact me directly via email.",
           });
 
-          // Update the print request status to "email-failed"
           await supabase
             .from("product_request")
             .update({
               status: "email-failed",
             })
             .eq("id", productRequest?.id);
-
-          setIsSubmitting(false);
         },
         setIsSubmitting,
       });
 
-      // Send email to customer
-      sendEmail({
+      if (!artistOk) return;
+
+      await sendEmail({
         name: "My Friend's Art",
         fromEmail: "bellmanlindsey@gmail.com",
         toEmail: formData.email,
@@ -142,6 +123,19 @@ export default function RequestPrintDialog({
         onError: () => {},
         setIsSubmitting,
       });
+
+      toast.success("Print request created!", {
+        description:
+          "The artist will get back to you soon about pricing and shipping. Thank you!",
+      });
+      setFormData({
+        name: "",
+        email: "",
+        message: "",
+        dimensions: printDetails?.dimensions || "",
+        printOption: printDetails?.printOption || "",
+      });
+      onOpenChange(false);
     }
   };
 

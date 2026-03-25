@@ -14,13 +14,17 @@ import TextArea from "@/components/atoms/text-area/TextArea";
 import DashboardArtCard from "@/components/molecules/dashboard-art-card/DashboardArtCard";
 import ProductRequestCard from "@/components/molecules/product-request-card/ProductRequestCard";
 import InternalLayout from "@/components/organisms/InternalLayout";
+import {
+  ART_PIECES_PAGE_SIZE,
+  PaginatedArtPieces,
+} from "@/components/organisms/paginated-art-pieces/PaginatedArtPieces";
 import { Skeleton } from "@/components/ui/skeleton";
 import supabase from "@/lib/supabase/server";
 import { useQuery } from "@tanstack/react-query";
-import { Palette, Plus, User } from "lucide-react";
+import { Plus, User } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { redirect, usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useMemo, useState } from "react";
 
 export type DashboardArtPieceRow = {
   id: string;
@@ -31,8 +35,13 @@ export type DashboardArtPieceRow = {
   created_at: string | null;
 };
 
-export default function DashboardPage() {
+function DashboardContent() {
   const { user, loading } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const rawPage = searchParams.get("page");
+  const page = Math.max(1, parseInt(rawPage ?? "1", 10) || 1);
 
   const {
     data: artist,
@@ -158,7 +167,13 @@ export default function DashboardPage() {
   type ArtFilter = "all" | "approved" | "pending-approval" | "not-approved";
   const [artFilter, setArtFilter] = useState<ArtFilter>("all");
   const [showAllPrintRequests, setShowAllPrintRequests] = useState(false);
-  const [showAllArtPieces, setShowAllArtPieces] = useState(false);
+
+  const pickArtFilter = (f: ArtFilter) => {
+    setArtFilter(f);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", "1");
+    router.replace(`${pathname}?${params.toString()}`);
+  };
 
   const displayProductRequests = showAllPrintRequests
     ? allProductRequests
@@ -193,10 +208,32 @@ export default function DashboardPage() {
 
   const totalCount = useMemo(() => artPieces.length, [artPieces]);
 
-  const displayArtPieces = showAllArtPieces
-    ? filteredArtPieces
-    : filteredArtPieces.slice(0, 6);
-  const hasMoreArtPieces = filteredArtPieces.length > 6;
+  const filteredTotalCount = filteredArtPieces.length;
+  const filteredTotalPages =
+    filteredTotalCount > 0
+      ? Math.max(1, Math.ceil(filteredTotalCount / ART_PIECES_PAGE_SIZE))
+      : 0;
+
+  const pagedDashboardPieces = useMemo(() => {
+    const from = (page - 1) * ART_PIECES_PAGE_SIZE;
+    return filteredArtPieces.slice(from, from + ART_PIECES_PAGE_SIZE);
+  }, [filteredArtPieces, page]);
+
+  useEffect(() => {
+    if (filteredTotalCount === 0 || filteredTotalPages === 0) return;
+    if (page > filteredTotalPages) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("page", String(filteredTotalPages));
+      router.replace(`${pathname}?${params.toString()}`);
+    }
+  }, [
+    filteredTotalCount,
+    filteredTotalPages,
+    page,
+    router,
+    pathname,
+    searchParams,
+  ]);
 
   return (
     <InternalLayout title="artist dashboard">
@@ -321,7 +358,7 @@ export default function DashboardPage() {
         {/* Print requests */}
         <section className="space-y-4">
           <h4 className="text-foreground font-display tracking-wide">
-            Pending print requests
+            Pending product requests
           </h4>
           {isLoadingProductRequests ? (
             <div className="space-y-3">
@@ -331,8 +368,8 @@ export default function DashboardPage() {
           ) : allProductRequests.length === 0 ? (
             <div className="bg-card border border-border rounded-lg p-6 text-center">
               <p className="text-muted-foreground text-sm">
-                No print requests yet. Requests will appear here when someone
-                asks for a print of your art.
+                No product requests yet. Requests will appear here when someone
+                requests to purchase your art.
               </p>
             </div>
           ) : (
@@ -398,14 +435,14 @@ export default function DashboardPage() {
                   size="sm"
                   variant={artFilter === "all" ? "primary" : "secondary"}
                   label={`All (${totalCount})`}
-                  onClick={() => setArtFilter("all")}
+                  onClick={() => pickArtFilter("all")}
                 />
                 <Button
                   type="button"
                   size="sm"
                   variant={artFilter === "approved" ? "primary" : "secondary"}
                   label={`Approved (${approvedCount})`}
-                  onClick={() => setArtFilter("approved")}
+                  onClick={() => pickArtFilter("approved")}
                 />
                 <Button
                   type="button"
@@ -414,7 +451,7 @@ export default function DashboardPage() {
                     artFilter === "pending-approval" ? "primary" : "secondary"
                   }
                   label={`Pending Approval (${pendingCount})`}
-                  onClick={() => setArtFilter("pending-approval")}
+                  onClick={() => pickArtFilter("pending-approval")}
                 />
               </div>
             )}
@@ -461,33 +498,55 @@ export default function DashboardPage() {
               </p>
             </div>
           ) : (
-            <>
-              <ul className="grid grid-cols-2 lg:grid-cols-3 gap-4  lg:gap-6">
-                {displayArtPieces.map((piece) => (
-                  <li key={piece.id}>
-                    <DashboardArtCard artPiece={piece} />
-                  </li>
-                ))}
-              </ul>
-              {hasMoreArtPieces && (
-                <div className="flex justify-center pt-4">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    label={
-                      showAllArtPieces
-                        ? "Show less"
-                        : `See all (${filteredArtPieces.length})`
-                    }
-                    onClick={() => setShowAllArtPieces((prev) => !prev)}
-                  />
-                </div>
+            <PaginatedArtPieces
+              items={pagedDashboardPieces}
+              totalCount={filteredTotalCount}
+              page={page}
+              pageSize={ART_PIECES_PAGE_SIZE}
+              isLoading={false}
+              emptyContent={null}
+              onPageChange={(next) => {
+                const params = new URLSearchParams(searchParams.toString());
+                params.set("page", String(next));
+                router.push(`${pathname}?${params.toString()}`);
+              }}
+              renderArtPiece={(piece) => (
+                <DashboardArtCard artPiece={piece} />
               )}
-            </>
+              gridClassName="grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 w-full"
+            />
           )}
         </section>
       </div>
     </InternalLayout>
+  );
+}
+
+function DashboardPageFallback() {
+  return (
+    <InternalLayout title="artist dashboard">
+      <div className="w-full max-w-6xl mx-auto flex flex-col gap-12">
+        <Skeleton className="h-8 w-64" />
+        <div className="grid grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="rounded-xl overflow-hidden">
+              <Skeleton className="aspect-3/4 w-full rounded-none" />
+              <div className="p-3 space-y-2">
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="h-4 w-24 rounded-full" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </InternalLayout>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<DashboardPageFallback />}>
+      <DashboardContent />
+    </Suspense>
   );
 }

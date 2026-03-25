@@ -1,5 +1,3 @@
-import type { ArtPiece } from "@/@types";
-import { ArtCard } from "@/components/molecules/art-card/ArtCard";
 import {
   Pagination,
   PaginationContent,
@@ -11,6 +9,7 @@ import {
 } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
 
 export const ART_PIECES_PAGE_SIZE = 25;
 
@@ -40,34 +39,31 @@ function getPagePaginationItems(totalPages: number, currentPage: number) {
   };
 }
 
-export interface PaginatedArtPiecesProps {
-  items: ArtPiece[];
+export interface PaginatedArtPiecesProps<T extends { id: string }> {
+  items: T[];
   totalCount: number;
   page: number;
   pageSize?: number;
   isLoading: boolean;
   emptyContent: React.ReactNode;
-  hrefForPiece: (piece: ArtPiece) => string;
   onPageChange: (page: number) => void;
-  /** When set, each ArtCard saves `{ page, scrollY }` to `${namespace}-list-return` in sessionStorage. */
-  namespace: string;
+  renderArtPiece: (piece: T) => ReactNode;
   className?: string;
   gridClassName?: string;
 }
 
-export function PaginatedArtPieces({
+export function PaginatedArtPieces<T extends { id: string }>({
   items,
   totalCount,
   page,
   pageSize = ART_PIECES_PAGE_SIZE,
   isLoading,
   emptyContent,
-  hrefForPiece,
   onPageChange,
-  namespace,
+  renderArtPiece,
   className,
   gridClassName,
-}: PaginatedArtPiecesProps) {
+}: PaginatedArtPiecesProps<T>) {
   const totalPages =
     totalCount > 0 ? Math.max(1, Math.ceil(totalCount / pageSize)) : 0;
 
@@ -109,18 +105,7 @@ export function PaginatedArtPieces({
       >
         {items.map((piece) => (
           <li key={piece.id} className="min-w-0 w-full">
-            <ArtCard
-              artPiece={piece}
-              href={hrefForPiece(piece)}
-              listRestore={
-                namespace
-                  ? {
-                      namespace,
-                      page,
-                    }
-                  : undefined
-              }
-            />
+            {renderArtPiece(piece)}
           </li>
         ))}
       </ul>

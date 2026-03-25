@@ -49,7 +49,7 @@ export default function TextArea({
   if (label && id) {
     return (
       <div className="flex flex-col gap-2">
-        <label htmlFor={id} className="font-semibold">
+        <label htmlFor={id} className="body2">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>

@@ -28,8 +28,15 @@ export type ArtPiece = Tables<"art_piece"> & {
     id: string;
     name: string;
     email_address: string;
+    profile_img_url?: string | null;
   };
-  art_piece_display_images?: { idx: number; path: string }[] | null;
+  /** Nested rows from `art_piece_display_image(path, idx)` embed */
+  art_piece_display_image?: { idx: number; path: string }[] | null;
+  product_dimensions: {
+    width_in: number;
+    height_in: number;
+    depth_in: number;
+  };
 };
 
 export type MediumType = Database["public"]["Enums"]["art_mediums"];
@@ -87,7 +94,7 @@ export const ART_PIECE_STATUS_ICONS: Record<
 
 export type ProductType = Database["public"]["Enums"]["product_types"];
 
-export const PRODUCT_TYPE_OPTIONS: Record<NonNullable<ProductType>, string> = {
+export const PRODUCT_TYPE_OPTIONS: Record<ProductType, string> = {
   print: "Print (digital item, can be sold multiple times)",
   original: "Original (physical item, can only sell once)",
   "print-and-original":

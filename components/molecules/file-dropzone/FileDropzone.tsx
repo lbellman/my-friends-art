@@ -70,7 +70,7 @@ export default function FileDropzone({
                 <p className="body2 mt-1 text-center">OR</p>
               </>
             )}
-            <Button variant="outline" className="mt-1">
+            <Button variant="outline" className="mt-1" type="button">
               Browse Files
             </Button>
             {supportedFileTypes && fileTypes.length > 0 && (

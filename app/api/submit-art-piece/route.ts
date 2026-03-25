@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import sharp from "sharp";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/supabase";
-import useEmailJS from "@/app/hooks/useEmailJS";
+import { sendTransactionalEmail } from "@/lib/email/send-transactional";
 import { ProductType } from "@/@types";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -41,7 +41,6 @@ function requiresPrintQualityFile(productType: ProductType | null): boolean {
 }
 
 export async function POST(req: Request) {
-  const { sendEmail } = useEmailJS();
   const stagedPathsForCleanup: string[] = [];
   const uploadedOriginals: string[] = [];
   const uploadedPublic: string[] = [];
@@ -406,21 +405,17 @@ export async function POST(req: Request) {
       `Thumbnail Path: ${thumbnailPath}`,
     ].join("\n");
 
-    sendEmail({
-      name: "",
-      fromEmail: "",
-      toEmail: "bellmanlindsey@gmail.com",
-      subject: `New Art Piece Submitted`,
-      message: messageBody,
-      onSuccess: () => {
-        console.log("Email sent successfully");
-      },
-      onError: () => {
-        console.error("Failed to send email");
-      },
-      accessToken: process.env.EMAILJS_PRIVATE_KEY,
-      setIsSubmitting: () => {},
-    });
+    try {
+      await sendTransactionalEmail({
+        name: "",
+        fromEmail: "",
+        toEmail: "bellmanlindsey@gmail.com",
+        subject: "New Art Piece Submitted",
+        message: messageBody,
+      });
+    } catch (emailErr) {
+      console.error("Failed to send new submission notification:", emailErr);
+    }
 
     return NextResponse.json({ id: insert.data.id }, { status: 201 });
   } catch (error) {

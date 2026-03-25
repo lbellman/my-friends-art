@@ -1,5 +1,6 @@
 "use client";
 import InternalLayout from "@/components/organisms/InternalLayout";
+import { ArtCard } from "@/components/molecules/art-card/ArtCard";
 import {
   ART_PIECES_PAGE_SIZE,
   PaginatedArtPieces,
@@ -112,7 +113,6 @@ function ArtistDetailContent() {
           </h4>
 
           <PaginatedArtPieces
-            namespace="artist-detail"
             items={artPieces}
             totalCount={totalCount}
             page={page}
@@ -123,10 +123,16 @@ function ArtistDetailContent() {
                 This artist doesn&apos;t have any pieces published yet.
               </p>
             }
-            hrefForPiece={(piece) => `/artists/${artistId}/${piece.id}`}
             onPageChange={(next) => {
               router.push(`${pathname}?page=${next}`);
             }}
+            renderArtPiece={(piece) => (
+              <ArtCard
+                artPiece={piece}
+                href={`/artists/${artistId}/${piece.id}`}
+                listRestore={{ namespace: "artist-detail", page }}
+              />
+            )}
             gridClassName="grid-cols-2 md:grid-cols-3 gap-4 md:gap-6"
           />
         </section>

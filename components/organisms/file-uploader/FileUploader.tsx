@@ -78,6 +78,7 @@ export default function FileUploader({
                   setFiles(files.filter((f) => f !== file));
                   URL.revokeObjectURL(fileUrl);
                 }}
+                type="button"
               >
                 Remove
               </Button>
@@ -120,6 +121,7 @@ export default function FileUploader({
                   if (files.length < maxFiles) setFiles([...files]);
                 } else {
                   if (files.length < maxFiles) {
+                    console.log("setting files", [...files, ...droppedFiles]);
                     setFiles([...files, ...droppedFiles]);
                   } else {
                     setFiles(droppedFiles.slice(0, 1));

@@ -1,6 +1,7 @@
 "use client";
 import { ArtPiece } from "@/@types";
 import InternalLayout from "@/components/organisms/InternalLayout";
+import { ArtCard } from "@/components/molecules/art-card/ArtCard";
 import {
   ART_PIECES_PAGE_SIZE,
   PaginatedArtPieces,
@@ -136,7 +137,6 @@ function SearchResultsContent() {
           </p>
         ) : (
           <PaginatedArtPieces
-            namespace="search-results"
             items={pagedArtPieces}
             totalCount={totalArtCount}
             page={page}
@@ -147,12 +147,18 @@ function SearchResultsContent() {
                 No pieces match &quot;{searchQuery}&quot;.
               </p>
             }
-            hrefForPiece={(piece) => `/search-results/${piece.id}?q=${qParam}`}
             onPageChange={(next) => {
               const params = new URLSearchParams(searchParams.toString());
               params.set("page", String(next));
               router.push(`${pathname}?${params.toString()}`);
             }}
+            renderArtPiece={(piece) => (
+              <ArtCard
+                artPiece={piece}
+                href={`/search-results/${piece.id}?q=${qParam}`}
+                listRestore={{ namespace: "search-results", page }}
+              />
+            )}
             gridClassName="grid-cols-4 md:grid-cols-4 gap-4 md:gap-6 w-full"
           />
         )}
