@@ -1,6 +1,24 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
+import type { ArtPiece } from "@/@types";
 import RequestPrintDialog from "@/components/organisms/request-print-dialog/RequestPrintDialog";
+
+const mockArtPiece = {
+  id: "piece-1",
+  title: "Windy Cliffside",
+  artist_id: "artist-1",
+  medium: "digital",
+  aspect_ratio: "3:4",
+  authorized_to_sell: true,
+  not_ai_generated: true,
+  px_width: 3600,
+  px_height: 4800,
+  artist: {
+    id: "artist-1",
+    name: "Test Artist",
+    email_address: "artist@example.com",
+  },
+} as unknown as ArtPiece;
 
 const meta: Meta<typeof RequestPrintDialog> = {
   title: "Components/organisms/RequestPrintDialog",
@@ -12,17 +30,11 @@ const meta: Meta<typeof RequestPrintDialog> = {
   args: {
     open: true,
     onOpenChange: () => {},
-    printDetails: {
-      dimensions: "8x10",
-      printOption: "canvas",
-    },
-    dimensionOptions: [
-      { width: 8, height: 10 },
-      { width: 10, height: 12 },
-      { width: 12, height: 16 },
-    ],
-    loadingDimensionOptions: false,
+    printOption: "canvas",
     emailAddress: "artist@example.com",
+    artPiece: mockArtPiece,
+    pxWidth: 3600,
+    pxHeight: 4800,
   },
 } satisfies Meta<typeof RequestPrintDialog>;
 
@@ -33,16 +45,18 @@ export const Default: Story = {
   args: {
     open: true,
     onOpenChange: () => {},
-    printDetails: {
-      dimensions: "8x10",
-      printOption: "canvas",
-    },
-    dimensionOptions: [
-      { width: 8, height: 10 },
-      { width: 10, height: 12 },
-      { width: 12, height: 16 },
-    ],
-    loadingDimensionOptions: false,
+    printOption: "canvas",
     emailAddress: "artist@example.com",
+    artPiece: mockArtPiece,
+    pxWidth: 3600,
+    pxHeight: 4800,
+  },
+};
+
+export const MissingPixels: Story = {
+  args: {
+    ...Default.args,
+    pxWidth: null,
+    pxHeight: null,
   },
 };

@@ -502,18 +502,6 @@ export type Database = {
         }
         Returns: number
       }
-      get_dimension_options: {
-        Args: {
-          aspect_ratio: Database["public"]["Enums"]["aspect_ratios"]
-          dpi: number
-          px_height: number
-          px_width: number
-        }
-        Returns: {
-          height: number
-          width: number
-        }[]
-      }
       rpc_search_art_pieces: {
         Args: { query: string }
         Returns: {

@@ -6,7 +6,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type OptionType = {
+export type SingleSelectOptionType = {
   key: string;
   label: string;
   disabled?: boolean;
@@ -16,8 +16,9 @@ type OptionType = {
 interface SingleSelectProps {
   value: string;
   onChange: (key: string) => void;
-  options: OptionType[];
+  options: SingleSelectOptionType[];
   disabled?: boolean;
+  renderOption?: (option: SingleSelectOptionType) => React.ReactNode;
   placeholder?: string;
   label?: string;
   id?: string;
@@ -29,6 +30,7 @@ export default function SingleSelect({
   onChange,
   options,
   disabled,
+  renderOption,
   placeholder = "Select an option...",
   label,
   id,
@@ -37,13 +39,13 @@ export default function SingleSelect({
   return (
     <div className="flex flex-col gap-2">
       {label && (
-        <label htmlFor={id} className="font-semibold">
+        <label htmlFor={id} className="body2">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
       <Select value={value} onValueChange={onChange} disabled={disabled}>
-        <SelectTrigger className="w-full">
+        <SelectTrigger id={id} className="w-full min-w-0">
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
@@ -53,10 +55,14 @@ export default function SingleSelect({
               value={option.key}
               disabled={option.disabled}
             >
-              <div className="flex items-center gap-2">
-                {option.icon}
-                <span>{option.label}</span>
-              </div>
+              {renderOption ? (
+                renderOption(option)
+              ) : (
+                <div className="flex items-center gap-2">
+                  {option.icon}
+                  <span>{option.label}</span>
+                </div>
+              )}
             </SelectItem>
           ))}
         </SelectContent>

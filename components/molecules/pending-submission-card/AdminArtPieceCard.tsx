@@ -84,7 +84,7 @@ export default function AdminArtPieceCard({
 
       const buildMessage = (s: ArtPieceStatusType) => {
         return [
-          `Your art piece with the title "${artPiece.title}" has ${s === "approved" ? "been approved" : "not been approved."}.`,
+          `Your art piece with the title "${artPiece.title}" has ${s === "approved" ? "been approved" : "not been approved"}.`,
           s === "approved"
             ? `Your art piece is now live on My Friend's Art at https://myfriendsart.ca/${artPiece.id}`
             : null,
@@ -94,7 +94,6 @@ export default function AdminArtPieceCard({
           s === "not-approved"
             ? `Please contact Lindsey Bellman at bellmanlindsey@gmail.com for more information.`
             : null,
-          "Thank you!",
         ]
           .filter(Boolean)
           .join("\n");
@@ -104,7 +103,7 @@ export default function AdminArtPieceCard({
         name: "Lindsey Bellman",
         fromEmail: "bellmanlindsey@gmail.com",
         toEmail: artPiece.artist.email_address,
-        subject: `My Friend's Art - Your art piece has ${nextStatus === "approved" ? "been approved" : "not been approved."}.`,
+        subject: `Your art piece has ${nextStatus === "approved" ? "been approved" : "not been approved"}.`,
         message: buildMessage(nextStatus),
         onSuccess: () => {
           toast.success("Email sent to artist.");
@@ -136,6 +135,7 @@ export default function AdminArtPieceCard({
         toast.success("Art piece deleted.");
         setIsDeleting(false);
         setDeleteDialogOpen(false);
+        setRejectDialogOpen(false);
       },
       onError: () => {
         toast.error("Failed to delete art piece.");

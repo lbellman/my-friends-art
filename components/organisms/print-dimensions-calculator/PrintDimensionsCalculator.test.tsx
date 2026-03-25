@@ -81,7 +81,7 @@ describe("PrintDimensionsCalculator", () => {
     await waitFor(() => {
       expect(
         screen.getByText(
-          "Available print dimensions (width × height in inches)",
+          "Available print sizes by quality (width × height in inches)",
         ),
       ).toBeInTheDocument();
 

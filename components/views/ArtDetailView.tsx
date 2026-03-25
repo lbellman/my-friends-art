@@ -11,6 +11,10 @@ import { ArtistCard } from "@/components/molecules/artist-card/ArtistCard";
 import MultiImageDisplay from "@/components/molecules/multi-image-display/MultiImageDisplay";
 import ContactArtistDialog from "@/components/organisms/contact-artist-dialog/ContactArtistDialog";
 import RequestPrintDialog from "@/components/organisms/request-print-dialog/RequestPrintDialog";
+import DimensionsSingleSelect, {
+  resolveDimensionSelectValue,
+} from "@/components/molecules/dimensions-single-select/DimensionsSingleSelect";
+import QualityChart from "@/components/molecules/quality-chart/QualityChart";
 import RequestToPurchaseDialog from "@/components/organisms/request-to-purchase-dialog/RequestToPurchaseDialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,7 +22,7 @@ import supabase from "@/lib/supabase/server";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeftIcon } from "lucide-react";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function ArtDetailView({
   artPieceIdentifier,
@@ -87,9 +91,17 @@ export default function ArtDetailView({
   const [requestToPurchaseDialogOpen, setRequestToPurchaseDialogOpen] =
     useState(false);
   const [contactArtistDialogOpen, setContactArtistDialogOpen] = useState(false);
+  const [printDimensions, setPrintDimensions] = useState("");
   const dimensions = useMemo(() => {
     return artPiece?.product_dimensions;
   }, [artPiece?.product_dimensions]);
+
+  useEffect(() => {
+    if (!artPiece || !isSellingPrint) return;
+    setPrintDimensions(
+      resolveDimensionSelectValue("", artPiece.px_width, artPiece.px_height),
+    );
+  }, [artPiece?.id, artPiece?.px_width, artPiece?.px_height, isSellingPrint]);
 
   return (
     <div className="min-h-screen flex flex-col items-center">
@@ -102,7 +114,7 @@ export default function ArtDetailView({
           </div>
         </Link>
         {/* Art Details */}
-        <div className="grid grid-cols-1 mt-6  md:grid-cols-2 gap-6 md:gap-8 ">
+        <div className="grid grid-cols-1 items-start mt-6 md:grid-cols-2 gap-6 md:gap-8 ">
           {/* Art Piece Image */}
           <div className="flex-1 flex flex-col flex-nowrap">
             <div className="relative h-full w-full aspect-3/4">
@@ -205,6 +217,22 @@ export default function ArtDetailView({
                   )}
               </div>
 
+              {isSellingPrint && artPiece && !isLoadingArtPiece ? (
+                <>
+                  <DimensionsSingleSelect
+                    id="art-detail-print-dimensions"
+                    label="Print size"
+                    value={printDimensions}
+                    onChange={setPrintDimensions}
+                    pxWidth={artPiece.px_width}
+                    pxHeight={artPiece.px_height}
+                  />
+                  <div className="mt-2 w-full">
+                    <QualityChart />
+                  </div>
+                </>
+              ) : null}
+
               {/* Request a Print Button */}
               <div className="flex flex-col flex-nowrap gap-2 mt-2 w-full">
                 <div className="flex w-full items-center gap-2">
@@ -255,6 +283,18 @@ export default function ArtDetailView({
             open={contactArtistDialogOpen}
             onOpenChange={setContactArtistDialogOpen}
             artist={artPiece?.artist as ArtistType}
+          />
+        )}
+        {isSellingPrint && artPiece && (
+          <RequestPrintDialog
+            open={requestPrintDialogOpen}
+            onOpenChange={setRequestPrintDialogOpen}
+            artPiece={artPiece as ArtPiece}
+            emailAddress={artPiece.artist?.email_address ?? ""}
+            pxWidth={artPiece.px_width}
+            pxHeight={artPiece.px_height}
+            dimensions={printDimensions}
+            onDimensionsChange={setPrintDimensions}
           />
         )}
         {/* About The Artist */}

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArtistType,
   type ArtPiece,
   ArtPieceStatusType,
   CHAR_LIMITS,
@@ -23,7 +24,12 @@ import supabase from "@/lib/supabase/server";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, User } from "lucide-react";
 import Link from "next/link";
-import { redirect, usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  redirect,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 
 export type DashboardArtPieceRow = {
@@ -52,7 +58,7 @@ function DashboardContent() {
     queryFn: async () => {
       const { data } = await supabase
         .from("artist")
-        .select("id, name, bio, website, instagram, facebook")
+        .select("id, name, bio, website, email_address, instagram, facebook")
         .eq("user_id", user?.id || "")
         .single();
       return data;
@@ -398,6 +404,7 @@ function DashboardContent() {
                         artPiece={artPieceForCard}
                         onChangeStatus={handleUpdateProductRequestStatus}
                         showImage
+                        artist={artist as ArtistType}
                       />
                     </li>
                   );
@@ -510,9 +517,7 @@ function DashboardContent() {
                 params.set("page", String(next));
                 router.push(`${pathname}?${params.toString()}`);
               }}
-              renderArtPiece={(piece) => (
-                <DashboardArtCard artPiece={piece} />
-              )}
+              renderArtPiece={(piece) => <DashboardArtCard artPiece={piece} />}
               gridClassName="grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 w-full"
             />
           )}

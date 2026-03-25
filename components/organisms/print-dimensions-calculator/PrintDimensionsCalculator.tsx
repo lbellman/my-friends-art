@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import supabase from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,6 +11,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Database } from "@/supabase";
+import {
+  getPrintDimensionRows,
+  PRINT_QUALITY_LABELS,
+} from "@/lib/print-dimensions";
 
 type AspectRatio = Database["public"]["Enums"]["aspect_ratios"];
 
@@ -23,18 +26,21 @@ const ASPECT_RATIO_OPTIONS: { value: AspectRatio; label: string }[] = [
 
 const DEFAULT_DPI = 300;
 
-type DimensionOption = { width: number; height: number };
+type RowDisplay = {
+  key: string;
+  label: string;
+};
 
 export function PrintDimensionsCalculator() {
   const [pxWidth, setPxWidth] = useState<string>("");
   const [pxHeight, setPxHeight] = useState<string>("");
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("3:4");
   const [dpi, setDpi] = useState<string>(String(DEFAULT_DPI));
-  const [dimensions, setDimensions] = useState<DimensionOption[] | null>(null);
+  const [dimensions, setDimensions] = useState<RowDisplay[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleCalculate() {
+  function handleCalculate() {
     const w = parseInt(pxWidth, 10);
     const h = parseInt(pxHeight, 10);
     const d = parseInt(dpi, 10);
@@ -55,22 +61,15 @@ export function PrintDimensionsCalculator() {
     setDimensions(null);
 
     try {
-      const { data, error: rpcError } = await supabase.rpc(
-        "get_dimension_options",
-        {
-          px_width: w,
-          px_height: h,
-          dpi: d,
-          aspect_ratio: aspectRatio,
-        },
+      void aspectRatio;
+      void d;
+      const rows = getPrintDimensionRows(w, h);
+      setDimensions(
+        rows.map((r) => ({
+          key: `${r.width_in}x${r.height_in}`,
+          label: `${r.width_in}×${r.height_in}" (${PRINT_QUALITY_LABELS[r.quality]})`,
+        })),
       );
-
-      if (rpcError) {
-        setError(rpcError.message);
-        return;
-      }
-
-      setDimensions(data ?? []);
     } finally {
       setIsLoading(false);
     }
@@ -162,7 +161,7 @@ export function PrintDimensionsCalculator() {
       {dimensions !== null && (
         <div className="flex flex-col gap-2">
           <h4 className="font-medium">
-            Available print dimensions (width × height in inches)
+            Available print sizes by quality (width × height in inches)
           </h4>
           {dimensions.length === 0 ? (
             <p className="text-sm text-muted-foreground">
@@ -173,10 +172,10 @@ export function PrintDimensionsCalculator() {
             <ul className="flex flex-wrap gap-2">
               {dimensions.map((dim) => (
                 <li
-                  key={`${dim.width}x${dim.height}`}
+                  key={dim.key}
                   className="rounded-md border border-border bg-muted/50 px-3 py-1.5 text-sm font-medium"
                 >
-                  {dim.width}×{dim.height}&quot;
+                  {dim.label}
                 </li>
               ))}
             </ul>

@@ -127,7 +127,7 @@ export async function POST(req: Request) {
 
     const { data: artist, error: artistError } = await supabase
       .from("artist")
-      .select("id")
+      .select("id, name, email_address")
       .eq("user_id", user.id)
       .single();
 
@@ -389,11 +389,7 @@ export async function POST(req: Request) {
     }
 
     const messageBody = [
-      "New Art Piece Submitted",
-      "---",
-      `Artist ID: ${artistId}`,
-      `Art Piece ID: ${insert.data.id}`,
-      "---",
+      `Artist: ${artist.name} (${artist.email_address})`,
       `Title: ${title}`,
       `Description: ${description}`,
       `Medium: ${medium}`,
@@ -401,8 +397,6 @@ export async function POST(req: Request) {
       `Width: ${width}`,
       `Height: ${height}`,
       `Aspect Ratio: ${aspectRatio}`,
-      `Display paths: ${finalDisplayPaths.join(", ")}`,
-      `Thumbnail Path: ${thumbnailPath}`,
     ].join("\n");
 
     try {
@@ -410,7 +404,7 @@ export async function POST(req: Request) {
         name: "",
         fromEmail: "",
         toEmail: "bellmanlindsey@gmail.com",
-        subject: "New Art Piece Submitted",
+        subject: `${artist.name} submitted a new art piece`,
         message: messageBody,
       });
     } catch (emailErr) {

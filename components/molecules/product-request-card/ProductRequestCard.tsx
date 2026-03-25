@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArtistType,
   ArtPiece,
   getPublicUrl,
   PRINT_OPTION_LABELS,
@@ -25,6 +26,7 @@ interface ProductRequestCardProps {
     status: ProductRequestStatusType,
   ) => Promise<void>;
   showImage?: boolean;
+  artist: ArtistType;
 }
 
 export default function ProductRequestCard({
@@ -32,6 +34,7 @@ export default function ProductRequestCard({
   onChangeStatus,
   artPiece,
   showImage = false,
+  artist
 }: ProductRequestCardProps) {
   const { sendEmail } = useSendEmail();
   const [status, setStatus] = useState<ProductRequestStatusType>(
@@ -73,10 +76,10 @@ export default function ProductRequestCard({
     try {
       await onChangeStatus(request.id, nextStatus);
       await sendEmail({
-        name: "My Friend's Art",
-        fromEmail: "bellmanlindsey@gmail.com",
+        name: artist?.name,
+        fromEmail: artist?.email_address ?? "",
         toEmail: request.from_email,
-        subject: `My Friend's Art - Print Request Status Update for ${artPiece.title}`,
+        subject: `Purchase Request Status Update for ${artPiece.title}`,
         message: statusUpdateMessage(nextStatus),
         onSuccess: () => {
           toast.success("Status has been updated.", {

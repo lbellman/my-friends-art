@@ -50,13 +50,11 @@ jest.mock('@/lib/supabase/server', () => ({
     from: mockFrom,
     rpc: (name) =>
       Promise.resolve(
-        name === 'get_dimension_options'
-          ? { data: [{ width: 8, height: 10 }], error: null }
-          : name === 'rpc_search_art_pieces'
-            ? { data: [], error: null }
-            : name === 'rpc_search_artists'
-              ? { data: fakeArtists, error: null }
-              : { data: null, error: null }
+        name === 'rpc_search_art_pieces'
+          ? { data: [], error: null }
+          : name === 'rpc_search_artists'
+            ? { data: fakeArtists, error: null }
+            : { data: null, error: null }
       ),
     storage: {
       from: () => ({

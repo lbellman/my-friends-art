@@ -1,8 +1,23 @@
-// components/molecules/ArtCard.test.tsx
-import React from "react";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import type { ArtPiece } from "@/@types";
+import { render, screen } from "@testing-library/react";
 import RequestPrintDialog from "./RequestPrintDialog";
-import userEvent from "@testing-library/user-event";
+
+const mockArtPiece = {
+  id: "piece-1",
+  title: "Windy Cliffside",
+  artist_id: "artist-1",
+  medium: "digital",
+  aspect_ratio: "3:4",
+  authorized_to_sell: true,
+  not_ai_generated: true,
+  px_width: 3600,
+  px_height: 4800,
+  artist: {
+    id: "artist-1",
+    name: "Test Artist",
+    email_address: "artist@example.com",
+  },
+} as unknown as ArtPiece;
 
 describe("RequestPrintDialog", () => {
   it("renders a heading and input elements with correct labels", () => {
@@ -10,25 +25,15 @@ describe("RequestPrintDialog", () => {
       <RequestPrintDialog
         open={true}
         onOpenChange={() => {}}
-        printDetails={{
-          title: "Windy Cliffside",
-          dimensions: "8x10",
-          printOption: "canvas",
-        }}
-        dimensionOptions={[
-          { width: 8, height: 10 },
-          { width: 10, height: 12 },
-          { width: 12, height: 16 },
-        ]}
-        loadingDimensionOptions={false}
+        printOption="canvas"
         emailAddress="artist@example.com"
+        artPiece={mockArtPiece}
+        pxWidth={3600}
+        pxHeight={4800}
       />,
     );
-    const nameInput = screen.getByLabelText("Name");
-    expect(nameInput).toBeInTheDocument();
-    const emailInput = screen.getByLabelText("Email");
-    expect(emailInput).toBeInTheDocument();
-    
-
+    expect(screen.getByLabelText(/^Name/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Email/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Dimensions/)).toBeInTheDocument();
   });
 });

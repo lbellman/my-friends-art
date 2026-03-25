@@ -2,6 +2,7 @@
 
 import {
   ART_PIECE_STATUS_OPTIONS,
+  ArtistType,
   ArtPiece,
   CHAR_LIMITS,
   getPublicUrl,
@@ -40,7 +41,7 @@ export default function DashboardArtPieceDetailPage() {
       const { data, error } = await supabase
         .from("art_piece")
         .select(
-          "id, title, description, display_path, original_path, thumbnail_path, px_width, px_height, dpi, aspect_ratio, created_at, status, product_type, art_piece_display_image(path, idx)",
+          "id, title, description, display_path, original_path, thumbnail_path, px_width, px_height, dpi, aspect_ratio, created_at, status, product_type, art_piece_display_image(path, idx), artist:artist_id(id, name, email_address)",
         )
         .eq("id", artPieceId)
         .single();
@@ -421,6 +422,7 @@ export default function DashboardArtPieceDetailPage() {
                       request={request}
                       artPiece={artPiece as ArtPiece}
                       onChangeStatus={handleUpdateProductRequestStatus}
+                      artist={artPiece.artist as ArtistType}
                     />
                   ))}
                 </div>

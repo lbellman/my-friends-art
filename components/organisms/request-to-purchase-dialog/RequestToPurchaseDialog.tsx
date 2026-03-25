@@ -37,12 +37,8 @@ export default function RequestToPurchaseDialog({
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const requestMessage = [
-    "Request to Purchase",
-    "---",
-    `${formData.name} has requested to purchase ${artPiece?.title}.`,
-    `Email: ${formData.email}`,
+    `${formData.name} has requested to purchase "${artPiece?.title}".`,
     `Message: ${formData.message}`,
-    "---",
     "Please respond at your earliest convenience. Thank you!",
   ].join("\n");
 
@@ -58,6 +54,12 @@ export default function RequestToPurchaseDialog({
         toast.success("Email sent successfully", {
           description: "The artist will get back to you soon!",
         });
+        setFormData({
+          name: "",
+          email: "",
+          message: "",
+        });
+        onOpenChange(false);
       },
       onError: () => {
         toast.error("Failed to send email");
@@ -112,7 +114,7 @@ export default function RequestToPurchaseDialog({
               />
             </div>
             <div className="flex justify-end mt-4">
-              <Button type="submit">
+              <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "Submitting..." : "Submit Request"}
               </Button>
             </div>

@@ -1,4 +1,12 @@
-import { ArtPiece, CHAR_LIMITS, PRINT_OPTION_LABELS, PrintOptionType } from "@/@types";
+"use client";
+
+import {
+  ArtPiece,
+  CHAR_LIMITS,
+  PRINT_OPTION_LABELS,
+  PrintOptionType,
+} from "@/@types";
+import TextArea from "@/components/atoms/text-area/TextArea";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,54 +16,94 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import TextArea from "@/components/atoms/text-area/TextArea";
-import { useState } from "react";
-import { toast } from "sonner";
-import _ from "lodash";
-import useSendEmail from "@/app/hooks/useSendEmail";
+
+import DimensionsSingleSelect, {
+  resolveDimensionSelectValue,
+} from "@/components/molecules/dimensions-single-select/DimensionsSingleSelect";
 import supabase from "@/lib/supabase/server";
+import useSendEmail from "@/app/hooks/useSendEmail";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
+import Input from "@/components/atoms/input/Input";
 
 export default function RequestPrintDialog({
   open,
   onOpenChange,
-  printDetails,
-  dimensionOptions,
-  loadingDimensionOptions,
+  printOption,
   emailAddress,
   artPiece,
+  pxWidth,
+  pxHeight,
+  dimensions: dimensionsProp,
+  onDimensionsChange,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  printDetails: {
-    dimensions: string;
-    printOption: PrintOptionType;
-  };
+  printOption?: PrintOptionType;
   artPiece: ArtPiece;
-  dimensionOptions: {
-    width: number;
-    height: number;
-  }[];
-  loadingDimensionOptions?: boolean;
   emailAddress: string;
+  pxWidth?: number | null;
+  pxHeight?: number | null;
+  /** When set with `onDimensionsChange`, dimensions are controlled by the parent (e.g. ArtDetailView). */
+  dimensions?: string;
+  onDimensionsChange?: (key: string) => void;
 }) {
   const { sendEmail } = useSendEmail();
+  const isDimensionsControlled =
+    dimensionsProp !== undefined && onDimensionsChange !== undefined;
+
+  const [internalDimensions, setInternalDimensions] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     message: "",
-    dimensions: printDetails?.dimensions || "",
-    printOption: printDetails?.printOption || "",
+    printOption: printOption || "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
+  const dimensionsValue = isDimensionsControlled
+    ? dimensionsProp!
+    : internalDimensions;
+  const setDimensionsValue = isDimensionsControlled
+    ? onDimensionsChange!
+    : setInternalDimensions;
+
+  const dimensionSelectValue = useMemo(
+    () =>
+      resolveDimensionSelectValue(dimensionsValue, pxWidth, pxHeight),
+    [dimensionsValue, pxWidth, pxHeight],
+  );
+
+  const prevOpen = useRef(false);
+  useEffect(() => {
+    if (open && !prevOpen.current && !isDimensionsControlled) {
+      setInternalDimensions(
+        resolveDimensionSelectValue("", pxWidth, pxHeight),
+      );
+      setFormData((prev) => ({
+        ...prev,
+        printOption: printOption || "canvas",
+      }));
+    }
+    if (open && !prevOpen.current && isDimensionsControlled) {
+      setFormData((prev) => ({
+        ...prev,
+        printOption: printOption || "canvas",
+      }));
+    }
+    prevOpen.current = open;
+  }, [
+    open,
+    isDimensionsControlled,
+    printOption,
+    pxWidth,
+    pxHeight,
+  ]);
+
+  const handleChange = (name: string, value: string | number) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
 
@@ -63,20 +111,22 @@ export default function RequestPrintDialog({
     e.preventDefault();
     setIsSubmitting(true);
 
-    const printRequestMessage = `${formData.name} has requested a print of ${artPiece?.title || "Art Piece"} with the following details: \n\n Dimensions: ${printDetails?.dimensions || ""} \n\nPrint Option: ${printDetails?.printOption || ""}\n\n${formData.message ? "Message: " + formData.message : ""} \n\n Please contact them at ${formData.email} to discuss pricing and shipping details. Thanks! `;
+    const dimsForMessage = dimensionSelectValue;
+    const printOptForMessage = formData.printOption || printOption || "";
 
-    // Create a new product request in the database
+    const printRequestMessage = `${formData.name} has requested a print of ${artPiece?.title || "Art Piece"} with the following details: \n\n Dimensions: ${dimsForMessage} \n\nPrint Option: ${printOptForMessage}\n\n${formData.message ? "Message: " + formData.message : ""} \n\n Please contact them at ${formData.email} to discuss pricing and shipping details. Thanks! `;
+
     const { data: productRequest, error } = await supabase
       .from("product_request")
       .insert({
         art_piece_id: artPiece.id,
         artist_id: artPiece.artist.id,
         type: "print",
-        dimensions: printDetails?.dimensions || formData.dimensions,
+        dimensions: dimsForMessage,
         from_email: formData.email,
         message: formData.message || null,
         name: formData.name,
-        print_option: printDetails?.printOption as PrintOptionType,
+        print_option: formData.printOption as PrintOptionType,
         status: "pending",
       })
       .select("id")
@@ -132,9 +182,11 @@ export default function RequestPrintDialog({
         name: "",
         email: "",
         message: "",
-        dimensions: printDetails?.dimensions || "",
-        printOption: printDetails?.printOption || "",
+        printOption: printOption || "",
       });
+      if (!isDimensionsControlled) {
+        setInternalDimensions("");
+      }
       onOpenChange(false);
     }
   };
@@ -152,87 +204,38 @@ export default function RequestPrintDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex flex-col gap-2">
-            <label
-              htmlFor="name"
-              className="text-sm font-medium text-foreground"
-            >
-              Name
-            </label>
             <Input
               id="name"
-              name="name"
               type="text"
+              label="Name"
               value={formData.name}
-              onChange={handleChange}
+              onChange={(value) => handleChange("name", value)}
               required
               placeholder="Your name"
             />
           </div>
           <div className="flex flex-col gap-2">
-            <label
-              htmlFor="email"
-              className="text-sm font-medium text-foreground"
-            >
-              Email
-            </label>
             <Input
               id="email"
-              name="email"
+              label="Email"
               type="email"
               value={formData.email}
-              onChange={handleChange}
+              onChange={(value) => handleChange("email", value)}
               required
               placeholder="your.email@example.com"
             />
           </div>
-          {/* Dimension Selection */}
-          <div className="space-y-3">
-            <label className="text-sm font-medium text-foreground">
-              Dimensions
-            </label>
-            {loadingDimensionOptions ? (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <Skeleton key={index} className="h-9 w-20" />
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {dimensionOptions.map((dim) => {
-                  const dimensionValue = `${dim.width}x${dim.height}`;
-                  const isSelected = formData.dimensions === dimensionValue;
-                  return (
-                    <Button
-                      key={dimensionValue}
-                      type="button" // stops it from submitting the form everytime you click it (buttons in <form> elements are default type="submit")
-                      variant={isSelected ? "default" : "outline"}
-                      onClick={() =>
-                        setFormData({
-                          ...formData,
-                          dimensions: dimensionValue,
-                        })
-                      }
-                    >
-                      {dimensionValue}&quot;
-                    </Button>
-                  );
-                })}
-                <Button
-                  variant={
-                    formData.dimensions === "custom" ? "default" : "outline"
-                  }
-                  type="button"
-                  onClick={() =>
-                    setFormData({ ...formData, dimensions: "custom" })
-                  }
-                >
-                  Custom
-                </Button>
-              </div>
-            )}
-          </div>
+          <DimensionsSingleSelect
+            id="print-dimensions"
+            value={dimensionsValue}
+            onChange={setDimensionsValue}
+            pxWidth={pxWidth}
+            pxHeight={pxHeight}
+            label="Dimensions"
+            required
+            placeholder="Select a print size"
+          />
 
-          {/* Print Option Selection */}
           <div className="space-y-3 ">
             <label className="text-sm font-medium text-foreground">
               Print Type
@@ -265,15 +268,9 @@ export default function RequestPrintDialog({
           </div>
 
           <div className="flex flex-col gap-2">
-            <label
-              htmlFor="message"
-              className="text-sm font-medium text-foreground"
-            >
-              Message (Optional)
-            </label>
             <TextArea
               id="message"
-              label="Message"
+              label="Message (optional)"
               value={formData.message}
               onChange={(value) => setFormData({ ...formData, message: value })}
               placeholder="Any specific requests or questions about the print?"

@@ -8,7 +8,7 @@ interface InputProps {
   label?: string;
   id?: string;
   required?: boolean;
-  type?: "text" | "number";
+  type?: "text" | "number" | "email";
   /** When set, enforces a max character length (text-like inputs). */
   maxLength?: number;
   /** When `maxLength` is set, show `current / max` (default: true). */
