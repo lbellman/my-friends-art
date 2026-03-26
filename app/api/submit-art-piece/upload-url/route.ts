@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/supabase";
+import { tokens } from "@/config";
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const SUPABASE_URL = tokens.supabaseUrl;
+const SUPABASE_SERVICE_ROLE_KEY = tokens.supabaseServiceRoleKey;
+const SUPABASE_ANON_KEY = tokens.supabaseAnonKey;
 
 // Private staging bucket so that the client doesn't have to send large images in a request body
 // Image files are uploaded temporarily, and then deleted after the database record has been created and proper storage buckets have been fulfilled

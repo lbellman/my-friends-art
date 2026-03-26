@@ -2,7 +2,6 @@
 import { ArtPiece } from "@/@types";
 import useHighlightedSectionAnchors from "@/app/hooks/useHighlightedSectionAnchors";
 import { ArtCard } from "@/components/molecules/art-card/ArtCard";
-import Subnav from "@/components/organisms/Subnav";
 import { Skeleton } from "@/components/ui/skeleton";
 import supabase from "@/lib/supabase/server";
 import { useQuery } from "@tanstack/react-query";
