@@ -242,7 +242,7 @@ export default function ArtDetailView({
                       size="lg"
                       variant="default"
                       onClick={() => setRequestPrintDialogOpen(true)}
-                      // disabled={previewMode}
+                      disabled={isLoadingArtPiece}
                     >
                       Request a Print
                     </Button>
@@ -253,7 +253,7 @@ export default function ArtDetailView({
                       size="lg"
                       variant="outline"
                       onClick={() => setRequestToPurchaseDialogOpen(true)}
-                      // disabled={previewMode}
+                      disabled={isLoadingArtPiece}
                     >
                       Request to Purchase
                     </Button>
@@ -263,6 +263,7 @@ export default function ArtDetailView({
                   className="w-full"
                   size="lg"
                   variant="outline"
+                  disabled={isLoadingArtPiece}
                   onClick={() => setContactArtistDialogOpen(true)}
                 >
                   Contact Artist

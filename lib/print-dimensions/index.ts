@@ -109,28 +109,28 @@ export type PrintQualityChartRow = {
  */
 export const PRINT_QUALITY_CHART_ROWS: PrintQualityChartRow[] = [
   {
-    tier: "low",
-    dpiRange: "Under 100 DPI",
+    tier: "highest",
+    dpiRange: "220 DPI and above",
     description:
-      "Noticeably soft or blurry; generally not suitable for physical prints.",
-  },
-  {
-    tier: "good",
-    dpiRange: "100–150 DPI",
-    description:
-      "Acceptable for large prints that will be viewed from a distance.",
+      "Sharp, high-quality output; 220–300 DPI is a common target for fine art prints, and gains beyond ~300 DPI are often subtle at typical viewing distances.",
   },
   {
     tier: "high",
     dpiRange: "150–220 DPI",
     description:
       "Solid quality; typical for many mid-size prints and posters.",
-  },
+    },
+    {
+      tier: "good",
+      dpiRange: "100–150 DPI",
+      description:
+        "Acceptable for large prints that will be viewed from a distance.",
+    },
   {
-    tier: "highest",
-    dpiRange: "220 DPI and above",
+    tier: "low",
+    dpiRange: "Under 100 DPI",
     description:
-      "Sharp, high-quality output; 220–300 DPI is a common target for fine art prints, and gains beyond ~300 DPI are often subtle at typical viewing distances.",
+      "Noticeably soft or blurry; generally not suitable for physical prints.",
   },
 ];
 

@@ -143,7 +143,7 @@ export default function RequestPrintDialog({
         name: formData.name,
         fromEmail: formData.email,
         toEmail: emailAddress,
-        subject: `My Friend's Art - Print Request`,
+        subject: `Print Request for ${artPiece?.title}`,
         message: printRequestMessage,
         onSuccess: () => {},
         onError: async () => {
@@ -164,14 +164,14 @@ export default function RequestPrintDialog({
       if (!artistOk) return;
 
       await sendEmail({
-        name: "My Friend's Art",
-        fromEmail: "bellmanlindsey@gmail.com",
+        name: formData.name,
+        fromEmail: formData.email,
         toEmail: formData.email,
-        subject: `My Friend's Art - Print Request Confirmation`,
-        message: `Thank you for your print request for ${artPiece?.title}. The artist will contact you directly with pricing and shipping details.`,
+        subject: `Print Request Confirmation`,
+        message: `Thank you for your print request for ${artPiece?.title}. The artist will contact you directly with pricing and shipping details. Thank you!`,
         onSuccess: () => {},
         onError: () => {},
-        setIsSubmitting,
+        setIsSubmitting: () => {},
       });
 
       toast.success("Print request created!", {

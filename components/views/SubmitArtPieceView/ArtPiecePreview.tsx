@@ -157,7 +157,7 @@ export default function ArtPiecePreview({
                 <div className="flex flex-col gap-2 flex-nowrap">
                   {isPhysicalProduct && (
                     <Button variant="outline" size="default">
-                      Request Original
+                      Request to Purchase
                     </Button>
                   )}
                   {(formData.product_type === "print" ||
