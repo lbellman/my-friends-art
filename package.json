@@ -16,7 +16,10 @@
     "serve-storybook": "serve storybook-static",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:update-snapshot": "jest --updateSnapshot"
+    "test:update-snapshot": "jest --updateSnapshot",
+    "db:link:dev": "supabase link --project-ref gtjbbfpmizasecylryxn",
+    "db:link:prod": "supabase link --project-ref gqqdhvhyzvtymhrkhrsu",
+    "db:deploy:prod": "supabase link --project-ref gqqdhvhyzvtymhrkhrsu && supabase db deploy"
   },
   "dependencies": {
     "@react-email/components": "^1.0.10",

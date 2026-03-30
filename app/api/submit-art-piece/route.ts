@@ -1,13 +1,16 @@
+import { ProductType } from "@/@types";
+import { tokens } from "@/config";
+import { sendTransactionalEmail } from "@/lib/email/send-transactional";
+import type { Database } from "@/supabase";
+import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import sharp from "sharp";
-import { createClient } from "@supabase/supabase-js";
-import type { Database } from "@/supabase";
-import { sendTransactionalEmail } from "@/lib/email/send-transactional";
-import { ProductType } from "@/@types";
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const SUPABASE_URL = tokens.supabaseUrl;
+const SUPABASE_SERVICE_ROLE_KEY = tokens.supabaseServiceRoleKey;
+const SUPABASE_ANON_KEY = tokens.supabaseAnonKey;
+
+// Temporary upload bucket where the browser places raw bytes before finalize.
 const STAGING_BUCKET = "art-piece-staging";
 
 const supabase = createClient<Database>(

@@ -116,21 +116,21 @@ export default function RequestPrintDialog({
 
     const printRequestMessage = `${formData.name} has requested a print of ${artPiece?.title || "Art Piece"} with the following details: \n\n Dimensions: ${dimsForMessage} \n\nPrint Option: ${printOptForMessage}\n\n${formData.message ? "Message: " + formData.message : ""} \n\n Please contact them at ${formData.email} to discuss pricing and shipping details. Thanks! `;
 
-    const { data: productRequest, error } = await supabase
-      .from("product_request")
-      .insert({
-        art_piece_id: artPiece.id,
-        artist_id: artPiece.artist.id,
-        type: "print",
-        dimensions: dimsForMessage,
-        from_email: formData.email,
-        message: formData.message || null,
-        name: formData.name,
-        print_option: formData.printOption as PrintOptionType,
-        status: "pending",
-      })
-      .select("id")
-      .single();
+    // Anonymous users have INSERT on product_request but no SELECT policy.
+    // Generate id client-side so we can update by id later without a returning select.
+    const productRequestId = crypto.randomUUID();
+    const { error } = await supabase.from("product_request").insert({
+      id: productRequestId,
+      art_piece_id: artPiece.id,
+      artist_id: artPiece.artist.id,
+      type: "print",
+      dimensions: dimsForMessage,
+      from_email: formData.email,
+      message: formData.message || null,
+      name: formData.name,
+      print_option: formData.printOption as PrintOptionType,
+      status: "pending",
+    })
 
     if (error) {
       toast.error("Failed to create print request", {
@@ -156,7 +156,9 @@ export default function RequestPrintDialog({
             .update({
               status: "email-failed",
             })
-            .eq("id", productRequest?.id);
+            .eq("id", productRequestId);
+
+          setIsSubmitting(false);
         },
         setIsSubmitting,
       });
