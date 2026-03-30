@@ -1,0 +1,247 @@
+/**
+ * Uploads local seed images into Supabase Storage using the same paths as
+ * app/api/submit-art-piece/route.ts, then updates art_piece + art_piece_display_image.
+ *
+ * Prereqs: supabase start, supabase db reset (seed.sql applied).
+ * Env: NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY (Secret `sb_secret_…` or service JWT from `supabase status`).
+ *     Not Storage (S3) keys. Loads .env, .env.local, .env.development.local.
+ *
+ * Run: pnpm seed:local-assets
+ */
+import { config as loadEnv } from "dotenv";
+import { createClient } from "@supabase/supabase-js";
+import fs from "node:fs/promises";
+import path from "node:path";
+import sharp from "sharp";
+
+import type { Database } from "../supabase";
+import { SEED_ART_PIECE_IDS } from "./seed-ids";
+
+const DPI = 300;
+
+const cwd = process.cwd();
+loadEnv({ path: path.join(cwd, ".env") });
+loadEnv({ path: path.join(cwd, ".env.local"), override: true });
+loadEnv({ path: path.join(cwd, ".env.development.local"), override: true });
+
+function isLikelyJwt(key: string): boolean {
+  const parts = key.trim().split(".");
+  return parts.length === 3 && parts.every((p) => p.length > 0);
+}
+
+function isServiceRoleKey(key: string): boolean {
+  const k = key.trim();
+  return k.startsWith("sb_secret_") || isLikelyJwt(k);
+}
+
+function resolveServiceRoleKey(): string {
+  return (
+    process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ??
+    process.env.SERVICE_ROLE_KEY?.trim() ??
+    ""
+  );
+}
+
+function inferAspectRatio(
+  width: number,
+  height: number,
+): Database["public"]["Enums"]["aspect_ratios"] {
+  const ratio = width / height;
+  if (Math.abs(ratio - 1) < 0.01) return "1:1";
+  if (Math.abs(ratio - 2 / 3) < 0.01) return "2:3";
+  if (Math.abs(ratio - 3 / 4) < 0.01) return "3:4";
+  return "3:4";
+}
+
+const DISPLAY_RE = /^display-(\d+)\.(jpe?g|png|webp)$/i;
+const ORIGINAL_RE = /^original\.(jpe?g|png|webp|tiff?)$/i;
+
+async function main() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const serviceKey = resolveServiceRoleKey();
+
+  if (!url || !serviceKey) {
+    console.error(
+      "Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY (or SERVICE_ROLE_KEY).",
+    );
+    process.exit(1);
+  }
+
+  if (!isServiceRoleKey(serviceKey)) {
+    console.error(
+      "SUPABASE_SERVICE_ROLE_KEY must be the Secret key (sb_secret_…) or a service-role JWT — not the anon/publishable key or S3 keys.",
+    );
+    process.exit(1);
+  }
+
+  const supabase = createClient<Database>(url, serviceKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  const assetsRoot = path.join(process.cwd(), "scripts", "seed-assets");
+  let ok = 0;
+  let skipped = 0;
+
+  for (const { id: artPieceId, artistId } of SEED_ART_PIECE_IDS) {
+    const pieceDir = path.join(assetsRoot, artistId, artPieceId);
+    let entries: string[];
+    try {
+      entries = await fs.readdir(pieceDir);
+    } catch {
+      console.warn(
+        `[skip] No folder for ${artistId}/${artPieceId} — add images under scripts/seed-assets/<artistId>/<artPieceId>/`,
+      );
+      skipped++;
+      continue;
+    }
+
+    const displayFiles = entries
+      .filter((name) => DISPLAY_RE.test(name))
+      .sort((a, b) => {
+        const ia = parseInt(a.match(DISPLAY_RE)?.[1] ?? "0", 10);
+        const ib = parseInt(b.match(DISPLAY_RE)?.[1] ?? "0", 10);
+        return ia - ib;
+      });
+
+    if (displayFiles.length === 0) {
+      console.warn(
+        `[skip] No display-0.jpg … display-N.jpg in ${pieceDir}`,
+      );
+      skipped++;
+      continue;
+    }
+
+    const displayBuffers: Buffer[] = [];
+    for (const name of displayFiles) {
+      const buf = await fs.readFile(path.join(pieceDir, name));
+      displayBuffers.push(buf);
+    }
+
+    const firstMeta = await sharp(displayBuffers[0]).metadata();
+    const width = firstMeta.width ?? 0;
+    const height = firstMeta.height ?? 0;
+    if (!width || !height) {
+      console.warn(`[skip] Could not read dimensions for ${artPieceId}`);
+      skipped++;
+      continue;
+    }
+
+    const aspectRatio = inferAspectRatio(width, height);
+    const finalDisplayPaths: string[] = [];
+    const uploadedPublic: string[] = [];
+    let displayUploadFailed = false;
+
+    for (let idx = 0; idx < displayBuffers.length; idx++) {
+      const displayPath = `display/${artistId}/${artPieceId}/${idx}.webp`;
+      const displayBuffer = await sharp(displayBuffers[idx])
+        .resize({ width: 1600 })
+        .webp({ quality: 90 })
+        .toBuffer();
+
+      const up = await supabase.storage
+        .from("art-pieces")
+        .upload(displayPath, displayBuffer, {
+          contentType: "image/webp",
+          upsert: true,
+        });
+      if (up.error) {
+        console.error(`[error] upload ${displayPath}:`, up.error.message);
+        await supabase.storage.from("art-pieces").remove(uploadedPublic);
+        skipped++;
+        displayUploadFailed = true;
+        break;
+      }
+      uploadedPublic.push(displayPath);
+      finalDisplayPaths.push(displayPath);
+    }
+
+    if (displayUploadFailed) continue;
+
+    const thumbnailPath = `thumbnails/${artistId}/${artPieceId}.webp`;
+    const thumbnailBuffer = await sharp(displayBuffers[0])
+      .resize({ width: 800 })
+      .webp({ quality: 80 })
+      .toBuffer();
+
+    const thumbUp = await supabase.storage
+      .from("art-pieces")
+      .upload(thumbnailPath, thumbnailBuffer, {
+        contentType: "image/webp",
+        upsert: true,
+      });
+    if (thumbUp.error) {
+      console.error(`[error] thumbnail ${thumbnailPath}:`, thumbUp.error.message);
+      await supabase.storage.from("art-pieces").remove(uploadedPublic);
+      skipped++;
+      continue;
+    }
+    uploadedPublic.push(thumbnailPath);
+
+    let originalPath: string | null = null;
+    const originalEntry = entries.find((n) => ORIGINAL_RE.test(n));
+    if (originalEntry) {
+      const raw = await fs.readFile(path.join(pieceDir, originalEntry));
+      originalPath = `${artistId}/${artPieceId}`;
+      const origUp = await supabase.storage
+        .from("originals")
+        .upload(originalPath, raw, {
+          contentType: "application/octet-stream",
+          upsert: true,
+        });
+      if (origUp.error) {
+        console.warn(`[warn] originals upload:`, origUp.error.message);
+        originalPath = null;
+      }
+    }
+
+    const { error: updErr } = await supabase
+      .from("art_piece")
+      .update({
+        display_path: finalDisplayPaths[0] ?? null,
+        thumbnail_path: thumbnailPath,
+        original_path: originalPath,
+        px_width: width,
+        px_height: height,
+        dpi: DPI,
+        aspect_ratio: aspectRatio,
+      })
+      .eq("id", artPieceId);
+
+    if (updErr) {
+      console.error(`[error] art_piece update ${artPieceId}:`, updErr.message);
+      skipped++;
+      continue;
+    }
+
+    await supabase
+      .from("art_piece_display_image")
+      .delete()
+      .eq("art_piece_id", artPieceId);
+
+    const rows = finalDisplayPaths.map((p, idx) => ({
+      art_piece_id: artPieceId,
+      idx,
+      path: p,
+    }));
+
+    const { error: imgErr } = await supabase
+      .from("art_piece_display_image")
+      .insert(rows);
+
+    if (imgErr) {
+      console.error(`[error] art_piece_display_image ${artPieceId}:`, imgErr.message);
+      skipped++;
+      continue;
+    }
+
+    console.log(`[ok] ${artPieceId}`);
+    ok++;
+  }
+
+  console.log(`\nDone. Uploaded: ${ok}, skipped: ${skipped}`);
+}
+
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

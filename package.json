@@ -19,7 +19,9 @@
     "test:update-snapshot": "jest --updateSnapshot",
     "db:link:dev": "supabase link --project-ref gtjbbfpmizasecylryxn",
     "db:link:prod": "supabase link --project-ref gqqdhvhyzvtymhrkhrsu",
-    "db:deploy:prod": "supabase link --project-ref gqqdhvhyzvtymhrkhrsu && supabase db deploy"
+    "db:deploy:prod": "supabase link --project-ref gqqdhvhyzvtymhrkhrsu && supabase db deploy",
+    "seed:local-assets": "tsx scripts/seed-local-storage.ts",
+    "local:create-auth-user": "tsx scripts/create-local-auth-user.ts"
   },
   "dependencies": {
     "@react-email/components": "^1.0.10",
@@ -40,6 +42,7 @@
     "resend": "^6.9.4",
     "sharp": "^0.34.5",
     "sonner": "^2.0.7",
+    "supabase": "^2.84.5",
     "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
@@ -61,6 +64,7 @@
     "@types/react-dom": "^19",
     "@vitest/browser-playwright": "^4.0.18",
     "@vitest/coverage-v8": "^4.0.18",
+    "dotenv": "^17.3.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "eslint-plugin-jest-dom": "^5.5.0",
@@ -74,6 +78,7 @@
     "tailwindcss": "^4",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "tw-animate-css": "^1.4.0",
     "typescript": "^5",
     "vite": "^7.3.1",

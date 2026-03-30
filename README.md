@@ -29,6 +29,18 @@ Supabase CLI provides tools for working with local databases, and accessing and 
 ## Local Database (for development purposes and migration testing)
 To work with a local database, run `supabase start`. This creates a local database and applies any existing migrations in your project.
 
+### Seeding Local Database
+
+`supabase db reset` reapplies migrations and runs `supabase/seed.sql`. That inserts **3 approved artists** and **30 approved art pieces** (fixed UUIDs). Image paths in the database stay **NULL** until you run the local asset script below.
+
+**Typical local order**
+
+1. Run **`supabase start`** if the stack is not up, then **`supabase db reset`**.
+2. Drop images into **`scripts/seed-assets/<artistId>/<artPieceId>/`** if not already present — naming and layout are documented in [`scripts/seed-assets/README.md`](scripts/seed-assets/README.md). Missing folders or missing `display-0.*` files are skipped with a warning.
+3. Set **`NEXT_PUBLIC_SUPABASE_URL`** and **`SUPABASE_SERVICE_ROLE_KEY`** (Secret from **`supabase status`**) in `.env.development.local`. Run **`pnpm seed:local-assets`** to upload images and patch `art_piece` / `art_piece_display_image`.
+
+**Optional — owned test artist:** There will be no users after a database reset. To recreate a user, run **`pnpm local:create-auth-user`** then **`supabase/seed_link_test_artist.sql`** in the local SQL Editor. This way, you will have a user that is linked to the first test artist, enabling you to test artist features. 
+
 ## Remote Database
 To connect to a remote database, run `pnpm run db:link:dev` or `pnpm run db:link:prod`. 
 *Linking to prod is for DEPLOYING ONLY. Only connect to prod if you have already tested your migrations on dev or local!* 
