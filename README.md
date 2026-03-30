@@ -49,6 +49,8 @@ After you are connected to a remote database, you can run any of the `supabase d
 
 `supabase db pull` : Creates migration files from the data and tables in the remote database. It will compare the created migrations against the Supabase Migration history from the project dashboard. It will not recreate a migration file if it already exists in the history.
 
+`supabase db push`: Pushes all local migrations to a remote database. This requires your project to be **linked** to a remote database. Ensure you run `pnpm run db:link:<env>` to link your project to the correct database. *Recommended: Run the command first with the --dry-run flag to verify that the right migrations are being applied. --dry-run will print the migrations that will be applied, without actually applying them.*
+
 `supabase db reset` : Resets your local database. 
 *Make sure you never use the --linked or --db-url flag, otherwise it will affect whatever remote database you are currently linked to.*
 
