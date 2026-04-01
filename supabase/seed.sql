@@ -139,6 +139,11 @@ INSERT INTO public.artist (
     'approved'
   );
 
+-- Admin RLS uses public.user_roles (see migration user_roles_rls_and_auth_subqueries)
+INSERT INTO public.user_roles (user_id, role)
+VALUES ('77d74062-1aa9-4ff8-ad85-d23c3bf520e7', 'admin')
+ON CONFLICT (user_id) DO NOTHING;
+
 INSERT INTO public.art_piece (
   id,
   title,
@@ -164,10 +169,10 @@ INSERT INTO public.art_piece (
   ('10100000-0000-4000-8000-000000000004', 'Knit Slippers', 'knit', '3:4', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 3200, 300, 'Cosy knitted slippers.', true, true, 'original', NULL, NULL, NULL),
   ('10100000-0000-4000-8000-000000000005', 'Crochet Hats', 'knit', '2:3', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 3600, 300, 'Cosy winter hats.', true, true, 'original', NULL, NULL, NULL),
   -- Artist 2 (Marcus)
-  ('10200000-0000-4000-8000-000000000001', 'Market Square Rhythm', 'digital', '3:4', '20000000-0000-4000-8000-000000000002', 'approved', 2400, 3200, 300, 'Collage of urban movement.', true, true, 'print-and-original', NULL, NULL, NULL),
-  ('10200000-0000-4000-8000-000000000002', 'Patina Doorways', 'mixed-media', '2:3', '20000000-0000-4000-8000-000000000002', 'approved', 2400, 3600, 300, 'Texture and aged metal.', true, true, 'print-and-original', NULL, NULL, NULL),
-  ('10200000-0000-4000-8000-000000000003', 'Echo Chamber', 'acrylic', '1:1', '20000000-0000-4000-8000-000000000002', 'approved', 2400, 2400, 300, 'Geometric abstraction.', true, true, 'print-and-original', NULL, NULL, NULL),
-  ('10200000-0000-4000-8000-000000000004', 'Clay Meditation', 'oil', '3:4', '20000000-0000-4000-8000-000000000002', 'approved', 2400, 3200, 300, 'Earthy palette study.', true, true, 'print-and-original', NULL, NULL, NULL),
+  ('10200000-0000-4000-8000-000000000001', 'Market Square Rhythm', 'digital', '3:4', '20000000-0000-4000-8000-000000000002', 'approved', 2400, 3200, 300, 'Collage of urban movement.', true, true, 'original', NULL, NULL, NULL),
+  ('10200000-0000-4000-8000-000000000002', 'Patina Doorways', 'mixed-media', '2:3', '20000000-0000-4000-8000-000000000002', 'approved', 2400, 3600, 300, 'Texture and aged metal.', true, true, 'original', NULL, NULL, NULL),
+  ('10200000-0000-4000-8000-000000000003', 'Echo Chamber', 'acrylic', '1:1', '20000000-0000-4000-8000-000000000002', 'approved', 2400, 2400, 300, 'Geometric abstraction.', true, true, 'original', NULL, NULL, NULL),
+  ('10200000-0000-4000-8000-000000000004', 'Clay Meditation', 'oil', '3:4', '20000000-0000-4000-8000-000000000002', 'approved', 2400, 3200, 300, 'Earthy palette study.', true, true, 'original', NULL, NULL, NULL),
   -- Artist 3 (Yuki)
   ('10300000-0000-4000-8000-000000000001', 'Snow Line', 'digital', '2:3', '30000000-0000-4000-8000-000000000003', 'approved', 2400, 3600, 300, 'Minimal winter landscape.', true, true, 'print', NULL, NULL, NULL),
   ('10300000-0000-4000-8000-000000000002', 'Tea House Interior', 'watercolor', '3:4', '30000000-0000-4000-8000-000000000003', 'approved', 2400, 3200, 300, 'Quiet interior light.', true, true, 'print', NULL, NULL, NULL),

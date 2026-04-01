@@ -12,8 +12,7 @@ export default function UploadImageStep({
   setFormData,
 }: StepPropsType) {
   const requiresPrintQualityImage =
-    formData.product_type === "print" ||
-    formData.product_type === "print-and-original";
+    formData.product_type === "print";
 
   const requiresDisplayImages =
     (requiresPrintQualityImage &&

@@ -11,12 +11,12 @@ export default function OriginalProductDetailsStep({
   return (
     <Step
       title="Original Product Details"
-      description="Original products are physical items that are sold individually or made to order. This includes paintings, knitted items, and anything else that is not digital. If you know the dimensions and the price, enter them here. You can always edit this later."
+      description="Original products are physical items that are sold individually or made to order. If you know the dimensions or size of your item, enter them here. You can always edit this later."
       stepNumber={2}
     >
       <div className="flex flex-col gap-6">
         <div className="flex flex-col">
-          <label className="font-semibold">Dimensions of the original product (inches)</label>
+          <label>Dimensions of the original product (inches)</label>
 
           <div className="grid grid-cols-1 mt-2 gap-2">
             <Input
@@ -66,7 +66,7 @@ export default function OriginalProductDetailsStep({
 
         {/* Price */}
         <div className="flex flex-col gap-2">
-          <label className="font-semibold">Price</label>
+          <label>Size</label>
           <Input
             value={formData.price?.toString() || ""}
             onChange={(value) =>
@@ -75,22 +75,9 @@ export default function OriginalProductDetailsStep({
                 price: value as number,
               })
             }
-            placeholder="Price (CAD)"
+            placeholder="Size"
             type="number"
           />
-        </div>
-        {/* Price includes shipping */}
-        <div className="flex gap-2 items-center">
-          <Checkbox
-            checked={formData.price_includes_shipping}
-            onCheckedChange={(value) =>
-              setFormData({
-                ...formData,
-                price_includes_shipping: value as boolean,
-              })
-            }
-          />
-          <label >Price includes shipping</label>
         </div>
       </div>
     </Step>

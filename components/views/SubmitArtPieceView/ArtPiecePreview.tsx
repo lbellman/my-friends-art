@@ -15,9 +15,7 @@ export default function ArtPiecePreview({
   /** Resolved public URL for the artist profile image (optional) */
   artistProfileImgUrl?: string | null;
 }) {
-  const isPhysicalProduct = ["original", "print-and-original"].includes(
-    formData.product_type ?? "",
-  );
+  const isPhysicalProduct = ["original"].includes(formData.product_type ?? "");
   const dimensions = formData.dimensions;
 
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
@@ -45,9 +43,7 @@ export default function ArtPiecePreview({
               />
               {formData.product_type && (
                 <div className="uppercase-overline absolute shadow-md right-2 top-2 z-20 bg-card rounded-full px-3 py-1">
-                  {formData.product_type === "print-and-original"
-                    ? "Print / Original"
-                    : formData.product_type}
+                  {formData.product_type}
                 </div>
               )}
             </div>
@@ -155,16 +151,11 @@ export default function ArtPiecePreview({
 
                 {/* Buttons (just for preview, no functionality) */}
                 <div className="flex flex-col gap-2 flex-nowrap">
-                  {isPhysicalProduct && (
-                    <Button variant="outline" size="default">
-                      Request to Purchase
-                    </Button>
+                  {formData.product_type === "original" && (
+                    <Button size="default">Request to Purchase</Button>
                   )}
-                  {(formData.product_type === "print" ||
-                    formData.product_type === "print-and-original") && (
-                    <Button variant="outline" size="default">
-                      Request a Print
-                    </Button>
+                  {formData.product_type === "print" && (
+                    <Button size="default">Request a Print</Button>
                   )}
                 </div>
               </div>

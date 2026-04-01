@@ -21,7 +21,7 @@ export default function BasicInformationStep({
 }: StepPropsType) {
   const handleNext = () => {
     if (
-      ["original", "print-and-original"].includes(formData.product_type || "")
+      formData.product_type === "original"
     ) {
       setStep("original-product-details");
     } else {

@@ -22,7 +22,8 @@ export type MenuItem = {
 interface DropdownMenuProps {
   items: MenuItem[];
   trigger: React.ReactNode;
-  header?: string;
+  /** User label area at top of menu (string or custom node, e.g. name + badge) */
+  header?: React.ReactNode;
 }
 
 export default function DropdownMenu({

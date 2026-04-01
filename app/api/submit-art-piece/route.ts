@@ -40,7 +40,7 @@ function isValidStagingPath(stagingPath: string, artistId: string): boolean {
 }
 
 function requiresPrintQualityFile(productType: ProductType | null): boolean {
-  return productType === "print" || productType === "print-and-original";
+  return productType === "print";
 }
 
 export async function POST(req: Request) {

@@ -1,5 +1,6 @@
 "use client";
 import { ArtPiece } from "@/@types";
+import useAdmin from "@/app/hooks/useAdmin";
 import useAuth from "@/app/hooks/useAuth";
 import ArtPieceSubmissionsView from "@/components/organisms/ArtPieceSubmissionsView";
 import InternalLayout from "@/components/organisms/InternalLayout";
@@ -11,25 +12,19 @@ import { notFound } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-function isAdminUser(user: {
-  user_metadata?: Record<string, unknown> | null;
-}): boolean {
-  const metadata = user.user_metadata ?? {};
-  const role =
-    typeof metadata.role === "string" ? metadata.role.toLowerCase() : "";
-  return role === "admin";
-}
-
 export default function AdminArtPieceSubmissionsPage() {
   const { user, loading } = useAuth();
-  const isAdmin = isAdminUser({ user_metadata: user?.user_metadata });
+  const { isAdmin, loading: adminLoading } = useAdmin(user);
 
-  if (!loading && (!user || !isAdmin)) {
+  if (!loading && !user) {
+    return notFound();
+  }
+  if (!loading && user && !adminLoading && !isAdmin) {
     return notFound();
   }
 
   type StatusFilter = "all" | "pending-approval" | "approved";
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("pending-approval");
   const [searchTerm, setSearchTerm] = useState("");
 
   const { data: artPieces, error } = useQuery({
@@ -44,7 +39,7 @@ export default function AdminArtPieceSubmissionsPage() {
       if (error) throw error;
       return data as ArtPiece[];
     },
-    enabled: !!user && isAdmin,
+    enabled: !!user && !adminLoading && isAdmin,
   });
 
   const filteredArtPieces = useMemo(() => {
@@ -62,7 +57,7 @@ export default function AdminArtPieceSubmissionsPage() {
     );
   }, [artPieces, statusFilter, searchTerm]);
 
-  if (loading) {
+  if (loading || (user && adminLoading)) {
     return (
       <div className="p-6">
         <Skeleton className="h-7 max-w-3xl mx-auto mb-4 rounded-lg" />

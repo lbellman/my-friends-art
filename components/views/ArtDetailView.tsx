@@ -58,14 +58,12 @@ export default function ArtDetailView({
 
   const isSellingPrint = useMemo(() => {
     return (
-      artPiece?.product_type === "print-and-original" ||
       artPiece?.product_type === "print"
     );
   }, [artPiece?.product_type]);
 
   const isSellingOriginal = useMemo(() => {
     return (
-      artPiece?.product_type === "print-and-original" ||
       artPiece?.product_type === "original"
     );
   }, [artPiece?.product_type]);
@@ -251,7 +249,6 @@ export default function ArtDetailView({
                     <Button
                       className="flex-1"
                       size="lg"
-                      variant="outline"
                       onClick={() => setRequestToPurchaseDialogOpen(true)}
                       disabled={isLoadingArtPiece}
                     >

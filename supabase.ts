@@ -489,6 +489,24 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -592,7 +610,7 @@ export type Database = {
         | "cancelled"
         | "email-failed"
       product_request_types: "print" | "original"
-      product_types: "print" | "original" | "print-and-original"
+      product_types: "print" | "original"
       quality_ratings: "fair" | "good" | "best"
     }
     CompositeTypes: {
@@ -775,7 +793,7 @@ export const Constants = {
         "email-failed",
       ],
       product_request_types: ["print", "original"],
-      product_types: ["print", "original", "print-and-original"],
+      product_types: ["print", "original"],
       quality_ratings: ["fair", "good", "best"],
     },
   },

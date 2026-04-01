@@ -51,7 +51,7 @@ type StepType =
 function getRequiresPrintQualityImage(
   productType: ProductType | null,
 ): boolean {
-  return productType === "print" || productType === "print-and-original";
+  return productType === "print";
 }
 
 function getRequiresDisplayImages(formData: ArtPieceFormDataType): boolean {

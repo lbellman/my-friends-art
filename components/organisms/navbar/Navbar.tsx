@@ -1,4 +1,5 @@
 "use client";
+import useAdmin from "@/app/hooks/useAdmin";
 import useAuth from "@/app/hooks/useAuth";
 import DropdownMenu from "@/components/atoms/dropdown-menu/DropdownMenu";
 import SearchBar from "@/components/molecules/search-bar/SearchBar";
@@ -6,12 +7,14 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenu as DropdownMenuPrimitive,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import {
   LayoutGrid,
+  List,
   LogOut,
   Menu,
   Plus,
@@ -30,6 +33,17 @@ function getUserDisplayName(user: SupabaseUser | null): string {
   return user.email ?? "";
 }
 
+function AdminChip() {
+  return (
+    <span
+      className="text-[10px] font-semibold uppercase tracking-wider rounded-full bg-primary/15 text-primary px-2 py-0.5 shrink-0 border border-primary/25"
+      aria-label="Administrator"
+    >
+      Admin
+    </span>
+  );
+}
+
 const navLinks = [
   { label: "About", href: "/about" },
   { label: "Our Artists", href: "/artists" },
@@ -38,6 +52,7 @@ const navLinks = [
 export default function Navbar() {
   const router = useRouter();
   const { user, loading, signOut } = useAuth();
+  const { isAdmin, loading: adminLoading } = useAdmin(user);
   return (
     <nav className="sticky top-0 z-10 left-0 bg-background/80 backdrop-blur-md border-b border-border px-4 md:px-8 h-navbar-height">
       <div className="flex items-center justify-between w-full flex-nowrap">
@@ -73,8 +88,19 @@ export default function Navbar() {
             ))}
             {loading ? null : user ? (
               <DropdownMenu
-                header={getUserDisplayName(user)}
+                header={
+                  <span className="flex items-center gap-2 flex-wrap min-w-0">
+                    <span className="truncate">{getUserDisplayName(user)}</span>
+                    {!adminLoading && isAdmin ? <AdminChip /> : null}
+                  </span>
+                }
                 items={[
+                  ...(isAdmin) ? [{
+                    key: "submissions",
+                    label: "Art Piece Submissions",
+                    icon: <List className="size-4 text-foreground" />,
+                    href: "/admin/art-piece-submissions",
+                  }] : [],
                   {
                     key: "dashboard",
                     label: "Artist Dashboard",
@@ -137,7 +163,15 @@ export default function Navbar() {
               ))}
               {loading ? null : user ? (
                 <>
-                  <DropdownMenuItem asChild className="border-t pt-2 mt-2">
+                  <DropdownMenuLabel className="border-t pt-2 mt-2 pb-2 font-normal">
+                    <span className="flex items-center gap-2 flex-wrap min-w-0">
+                      <span className="truncate text-foreground">
+                        {getUserDisplayName(user)}
+                      </span>
+                      {!adminLoading && isAdmin ? <AdminChip /> : null}
+                    </span>
+                  </DropdownMenuLabel>
+                  <DropdownMenuItem asChild className="pt-0">
                     <div className="flex items-center gap-2">
                       <LayoutGrid className="size-4 text-foreground" />
                       <Link
