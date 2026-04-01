@@ -95,8 +95,8 @@ export const ART_PIECE_STATUS_ICONS: Record<
 export type ProductType = Database["public"]["Enums"]["product_types"];
 
 export const PRODUCT_TYPE_OPTIONS: Record<ProductType, string> = {
-  print: "Print (digital item, can be sold multiple times)",
-  original: "Original (physical item, can only sell once)",
+  print: "Print (digital item, can be printed multiple times)",
+  original: "Original (single item or made to order)",
   "print-and-original":
     "Print and Original (prints are available, original is also available)",
 };

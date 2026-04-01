@@ -11,7 +11,7 @@ export default function OriginalProductDetailsStep({
   return (
     <Step
       title="Original Product Details"
-      description="Original products are physical items that can only be sold once. This includes paintings, knitted items, and anything else that is not digital. If you know the dimensions and the price, enter them here. You can always edit this later."
+      description="Original products are physical items that are sold individually or made to order. This includes paintings, knitted items, and anything else that is not digital. If you know the dimensions and the price, enter them here. You can always edit this later."
       stepNumber={2}
     >
       <div className="flex flex-col gap-6">

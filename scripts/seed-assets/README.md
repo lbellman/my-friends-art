@@ -13,7 +13,7 @@ scripts/seed-assets/
 
 - **Naming:** `display-0`, `display-1`, … (sorted by number).  
 - **Optional `original.*`:** uploaded to bucket `originals` at object key `{artistId}/{artPieceId}` (same as production).  
-- **Buckets:** `art-pieces` (public) and `originals` (private) are created in [`supabase/seed.sql`](../../supabase/seed.sql) so uploads succeed after `supabase db reset`.  
+- **Buckets:** `art-pieces` (public), `originals` (private), and `art-piece-staging` (private, for submit flow) are created in [`supabase/seed.sql`](../../supabase/seed.sql) so uploads succeed after `supabase db reset`.  
 - If a piece folder is missing or has no `display-0.*`, that piece is skipped with a warning.
 
 After `supabase db reset` (see [Seeding Local Database](../../README.md#seeding-local-database)), run:

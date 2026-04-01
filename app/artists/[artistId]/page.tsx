@@ -109,7 +109,7 @@ function ArtistDetailContent() {
 
         <section className="flex flex-col gap-4 mt-8 w-full">
           <h4 className="font-display tracking-wide mb-4 text-foreground">
-            Art by {artist?.name ?? "this artist"}
+            Made by {artist?.name ?? "this artist"}
           </h4>
 
           <PaginatedArtPieces
@@ -120,7 +120,7 @@ function ArtistDetailContent() {
             isLoading={isLoadingArtPieces}
             emptyContent={
               <p className="text-muted-foreground">
-                This artist doesn&apos;t have any pieces published yet.
+                This artist doesn&apos;t have anything published yet.
               </p>
             }
             onPageChange={(next) => {

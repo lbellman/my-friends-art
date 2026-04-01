@@ -35,7 +35,7 @@ exports[`renders homepage unchanged 1`] = `
           class=" opacity-0 animate-fade-up font-display text-center text-white tracking-wide"
           style="animation-delay: 400ms;"
         >
-          Meaningful art made by someone's friend.
+          made by someone's friend.
         </h6>
       </div>
     </div>

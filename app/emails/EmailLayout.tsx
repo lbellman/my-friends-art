@@ -150,7 +150,7 @@ export function EmailLayout({ preview, heading, children }: EmailLayoutProps) {
                   margin: 0,
                 }}
               >
-                Meaningful art made by someone&apos;s friend.{" "}
+                Made by someone&apos;s friend.{" "}
                 <Link
                   href={siteUrl}
                   style={{

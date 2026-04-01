@@ -75,7 +75,10 @@ export async function POST(req: Request) {
     if (uploadUrlResult.error || !uploadUrlResult.data) {
       console.error(uploadUrlResult.error);
       return NextResponse.json(
-        { error: "Unable to initialize image upload." },
+        {
+          error: "Unable to initialize image upload.",
+          details: uploadUrlResult.error?.message,
+        },
         { status: 500 },
       );
     }

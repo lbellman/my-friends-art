@@ -19,7 +19,7 @@ const lacquer = Lacquer({
 
 export const metadata: Metadata = {
   title: "My Friend's Art",
-  description: "Meaningful art made by someone's friend.",
+  description: "Made by someone's friend.",
   icons: {
     icon: "/logo-small.webp",
   },

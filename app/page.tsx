@@ -93,7 +93,7 @@ function HomeContent() {
             className=" opacity-0 animate-fade-up font-display text-center text-white tracking-wide"
             style={{ animationDelay: "400ms" }}
           >
-            Meaningful art made by someone&apos;s friend.
+            made by someone&apos;s friend.
           </h6>
         </div>
       </div>

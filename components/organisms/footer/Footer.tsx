@@ -58,7 +58,7 @@ export default function Footer() {
               my friend&apos;s art
             </p>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Meaningful art made by someone&apos;s friend.
+              Made by someone&apos;s friend.
             </p>
           </div>
 
