@@ -1,6 +1,6 @@
 "use client";
 
-import { ArtPiece, getPublicUrl, type ArtPieceStatusType } from "@/@types";
+import { ART_PIECE_CATEGORY_LABELS, ART_PIECE_SIZE_LABELS, ArtPiece, getPublicUrl, type ArtPieceStatusType } from "@/@types";
 import Button from "@/components/atoms/button/Button";
 import MultiImageDisplay from "@/components/molecules/multi-image-display/MultiImageDisplay";
 import { Button as ShadButton } from "@/components/ui/button";
@@ -176,13 +176,19 @@ export default function AdminArtPieceCard({
 
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-xs">
           <div>
-            <dt className="text-muted-foreground">Medium</dt>
-            <dd className="font-medium text-foreground">{artPiece.medium}</dd>
+            <dt className="text-muted-foreground">Category</dt>
+            <dd className="font-medium text-foreground">{artPiece.category ? ART_PIECE_CATEGORY_LABELS[artPiece.category] : "—"}</dd>
           </div>
           <div>
             <dt className="text-muted-foreground">Product type</dt>
             <dd className="font-medium text-foreground">
               {artPiece.product_type ?? "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground">Size</dt>
+            <dd className="font-medium text-foreground">
+              {artPiece.size ? ART_PIECE_SIZE_LABELS[artPiece.size] : "—"}
             </dd>
           </div>
           <div>
@@ -197,19 +203,7 @@ export default function AdminArtPieceCard({
               {artPiece.px_width ?? "—"}
             </dd>
           </div>
-          <div>
-            <dt className="text-muted-foreground">DPI</dt>
-            <dd className="font-medium text-foreground">
-              {artPiece.dpi ?? "—"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">Aspect ratio</dt>
-            <dd className="font-medium text-foreground">
-              {artPiece.aspect_ratio ?? "—"}
-            </dd>
-          </div>
-          <div className="sm:col-span-2">
+          <div className="">
             <dt className="text-muted-foreground">Created at</dt>
             <dd className="font-medium text-foreground">
               {formattedCreatedAt}
@@ -217,7 +211,7 @@ export default function AdminArtPieceCard({
           </div>
         </dl>
 
-        <div className="flex flex-wrap gap-2 mt-auto justify-end">
+        <div className="flex flex-wrap gap-2 mt-6 justify-end">
           <ShadButton variant="outline" size="default" asChild>
             <NextLink href={`/admin/art-piece-submissions/${artPiece.id}`}>
               View details

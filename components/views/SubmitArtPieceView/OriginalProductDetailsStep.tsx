@@ -3,6 +3,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { StepPropsType } from "@/components/views/SubmitArtPieceView/SubmitArtPieceView";
 import { Button } from "@/components/ui/button";
 import Step from "@/components/views/SubmitArtPieceView/Step";
+import SingleSelect from "@/components/atoms/single-select/SingleSelect";
+import { ART_PIECE_SIZE_LABELS, ArtPieceSizeType } from "@/@types";
 
 export default function OriginalProductDetailsStep({
   formData,
@@ -10,13 +12,13 @@ export default function OriginalProductDetailsStep({
 }: StepPropsType) {
   return (
     <Step
-      title="Original Product Details"
-      description="Original products are physical items that are sold individually or made to order. If you know the dimensions or size of your item, enter them here. You can always edit this later."
+      title="Product Details"
+      description="If you know the dimensions or size of your item, enter them here. If your product is made to order, you can skip this step. You can always edit this later."
       stepNumber={2}
     >
       <div className="flex flex-col gap-6">
         <div className="flex flex-col">
-          <label>Dimensions of the original product (inches)</label>
+          <label className="body2">Dimensions of the original product (inches)</label>
 
           <div className="grid grid-cols-1 mt-2 gap-2">
             <Input
@@ -66,17 +68,23 @@ export default function OriginalProductDetailsStep({
 
         {/* Price */}
         <div className="flex flex-col gap-2">
-          <label>Size</label>
-          <Input
-            value={formData.price?.toString() || ""}
+          <SingleSelect
+            value={formData.size || ""}
             onChange={(value) =>
               setFormData({
                 ...formData,
-                price: value as number,
+                size: value as ArtPieceSizeType,
               })
             }
-            placeholder="Size"
-            type="number"
+            options={Object.entries(ART_PIECE_SIZE_LABELS).map(
+              ([key, value]) => ({
+                key,
+                label: value,
+              }),
+            )}
+            label="Size"
+            id="size"
+            placeholder="Select a size"
           />
         </div>
       </div>

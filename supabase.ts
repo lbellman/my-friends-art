@@ -7,11 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.1"
-  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -87,14 +82,12 @@ export type Database = {
       art_piece: {
         Row: {
           artist_id: string | null
-          aspect_ratio: Database["public"]["Enums"]["aspect_ratios"]
           authorized_to_sell: boolean
+          category: Database["public"]["Enums"]["art_piece_categories"] | null
           created_at: string | null
           description: string | null
           display_path: string | null
-          dpi: number | null
           id: string
-          medium: Database["public"]["Enums"]["art_mediums"]
           not_ai_generated: boolean
           original_path: string | null
           price: number | null
@@ -103,20 +96,19 @@ export type Database = {
           product_type: Database["public"]["Enums"]["product_types"] | null
           px_height: number | null
           px_width: number | null
+          size: Database["public"]["Enums"]["art_piece_sizes"] | null
           status: Database["public"]["Enums"]["art_piece_statuses"] | null
           thumbnail_path: string | null
           title: string
         }
         Insert: {
           artist_id?: string | null
-          aspect_ratio: Database["public"]["Enums"]["aspect_ratios"]
           authorized_to_sell?: boolean
+          category?: Database["public"]["Enums"]["art_piece_categories"] | null
           created_at?: string | null
           description?: string | null
           display_path?: string | null
-          dpi?: number | null
           id?: string
-          medium: Database["public"]["Enums"]["art_mediums"]
           not_ai_generated?: boolean
           original_path?: string | null
           price?: number | null
@@ -125,20 +117,19 @@ export type Database = {
           product_type?: Database["public"]["Enums"]["product_types"] | null
           px_height?: number | null
           px_width?: number | null
+          size?: Database["public"]["Enums"]["art_piece_sizes"] | null
           status?: Database["public"]["Enums"]["art_piece_statuses"] | null
           thumbnail_path?: string | null
           title: string
         }
         Update: {
           artist_id?: string | null
-          aspect_ratio?: Database["public"]["Enums"]["aspect_ratios"]
           authorized_to_sell?: boolean
+          category?: Database["public"]["Enums"]["art_piece_categories"] | null
           created_at?: string | null
           description?: string | null
           display_path?: string | null
-          dpi?: number | null
           id?: string
-          medium?: Database["public"]["Enums"]["art_mediums"]
           not_ai_generated?: boolean
           original_path?: string | null
           price?: number | null
@@ -147,6 +138,7 @@ export type Database = {
           product_type?: Database["public"]["Enums"]["product_types"] | null
           px_height?: number | null
           px_width?: number | null
+          size?: Database["public"]["Enums"]["art_piece_sizes"] | null
           status?: Database["public"]["Enums"]["art_piece_statuses"] | null
           thumbnail_path?: string | null
           title?: string
@@ -275,47 +267,37 @@ export type Database = {
         }
         Relationships: []
       }
-      print_dimensions: {
-        Row: {
-          aspect_ratio: Database["public"]["Enums"]["aspect_ratios"]
-          height: number
-          id: string
-          width: number
-        }
-        Insert: {
-          aspect_ratio: Database["public"]["Enums"]["aspect_ratios"]
-          height: number
-          id?: string
-          width: number
-        }
-        Update: {
-          aspect_ratio?: Database["public"]["Enums"]["aspect_ratios"]
-          height?: number
-          id?: string
-          width?: number
-        }
-        Relationships: []
-      }
       product_dimensions: {
         Row: {
+          art_piece_id: string | null
           depth_in: number | null
           height_in: number | null
           id: string
           width_in: number | null
         }
         Insert: {
+          art_piece_id?: string | null
           depth_in?: number | null
           height_in?: number | null
           id?: string
           width_in?: number | null
         }
         Update: {
+          art_piece_id?: string | null
           depth_in?: number | null
           height_in?: number | null
           id?: string
           width_in?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "product_dimensions_art_piece_id_fkey"
+            columns: ["art_piece_id"]
+            isOneToOne: false
+            referencedRelation: "art_piece"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       product_request: {
         Row: {
@@ -526,12 +508,11 @@ export type Database = {
           art_piece_id: string
           artist_id: string
           artist_name: string
-          aspect_ratio: Database["public"]["Enums"]["aspect_ratios"]
+          category: Database["public"]["Enums"]["art_piece_categories"]
           display_path: string
-          dpi: number
-          medium: string
           px_height: number
           px_width: number
+          size: Database["public"]["Enums"]["art_piece_sizes"]
           thumbnail_path: string
           title: string
         }[]
@@ -579,9 +560,46 @@ export type Database = {
         | "paper-machet"
         | "pottery"
         | "other"
-      art_piece_statuses: "pending-approval" | "approved" | "not-approved"
+      art_piece_categories:
+        | "wall-art"
+        | "sculpture-and-ceramics"
+        | "textiles-and-fiber"
+        | "clothing-and-wearables"
+        | "jewelry"
+        | "home-and-decor"
+        | "furniture"
+        | "paper-goods"
+        | "other"
+      art_piece_sizes:
+        | "made-to-measure"
+        | "one-size"
+        | "xs"
+        | "sm"
+        | "md"
+        | "lg"
+        | "xl"
+        | "childs-xs"
+        | "childs-sm"
+        | "childs-md"
+        | "childs-lg"
+        | "childs-xl"
+        | "womans-xs"
+        | "womans-sm"
+        | "womans-md"
+        | "womans-lg"
+        | "womans-xl"
+        | "mens-xs"
+        | "mens-sm"
+        | "mens-md"
+        | "mens-lg"
+        | "mens-xl"
+        | "other"
+      art_piece_statuses:
+        | "pending-approval"
+        | "approved"
+        | "not-approved"
+        | "sold"
       artist_statuses: "pending-approval" | "approved"
-      aspect_ratios: "1:1" | "2:3" | "3:4"
       order_status: "pending" | "succeeded"
       payment_intent_status:
         | "Blocked"
@@ -610,7 +628,11 @@ export type Database = {
         | "cancelled"
         | "email-failed"
       product_request_types: "print" | "original"
-      product_types: "print" | "original"
+      product_types:
+        | "print"
+        | "original"
+        | "print-and-original"
+        | "made-to-order"
       quality_ratings: "fair" | "good" | "best"
     }
     CompositeTypes: {
@@ -760,9 +782,49 @@ export const Constants = {
         "pottery",
         "other",
       ],
-      art_piece_statuses: ["pending-approval", "approved", "not-approved"],
+      art_piece_categories: [
+        "wall-art",
+        "sculpture-and-ceramics",
+        "textiles-and-fiber",
+        "clothing-and-wearables",
+        "jewelry",
+        "home-and-decor",
+        "furniture",
+        "paper-goods",
+        "other",
+      ],
+      art_piece_sizes: [
+        "made-to-measure",
+        "one-size",
+        "xs",
+        "sm",
+        "md",
+        "lg",
+        "xl",
+        "childs-xs",
+        "childs-sm",
+        "childs-md",
+        "childs-lg",
+        "childs-xl",
+        "womans-xs",
+        "womans-sm",
+        "womans-md",
+        "womans-lg",
+        "womans-xl",
+        "mens-xs",
+        "mens-sm",
+        "mens-md",
+        "mens-lg",
+        "mens-xl",
+        "other",
+      ],
+      art_piece_statuses: [
+        "pending-approval",
+        "approved",
+        "not-approved",
+        "sold",
+      ],
       artist_statuses: ["pending-approval", "approved"],
-      aspect_ratios: ["1:1", "2:3", "3:4"],
       order_status: ["pending", "succeeded"],
       payment_intent_status: [
         "Blocked",
@@ -793,8 +855,14 @@ export const Constants = {
         "email-failed",
       ],
       product_request_types: ["print", "original"],
-      product_types: ["print", "original"],
+      product_types: [
+        "print",
+        "original",
+        "print-and-original",
+        "made-to-order",
+      ],
       quality_ratings: ["fair", "good", "best"],
     },
   },
 } as const
+

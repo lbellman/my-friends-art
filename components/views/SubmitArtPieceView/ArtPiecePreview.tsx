@@ -1,6 +1,6 @@
-import Link from "@/components/atoms/link/Link";
-import { Button } from "@/components/ui/button";
+import { ART_PIECE_CATEGORY_LABELS, ART_PIECE_SIZE_LABELS } from "@/@types";
 import MultiImageDisplay from "@/components/molecules/multi-image-display/MultiImageDisplay";
+import { Button } from "@/components/ui/button";
 import { ArtPieceFormDataType } from "@/components/views/SubmitArtPieceView/SubmitArtPieceView";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -15,7 +15,6 @@ export default function ArtPiecePreview({
   /** Resolved public URL for the artist profile image (optional) */
   artistProfileImgUrl?: string | null;
 }) {
-  const isPhysicalProduct = ["original"].includes(formData.product_type ?? "");
   const dimensions = formData.dimensions;
 
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
@@ -27,6 +26,48 @@ export default function ArtPiecePreview({
       urls.forEach((u) => URL.revokeObjectURL(u));
     };
   }, [formData.display_images]);
+
+  const shouldRenderDimensions =
+    dimensions?.width_in || dimensions?.height_in || dimensions?.depth_in;
+  const renderDimensions = () => {
+    return (
+      <div className="flex flex-col flex-nowrap">
+        {/* Dimensions */}
+        {[
+          dimensions?.width_in
+            ? {
+                label: "Width ",
+                value: dimensions?.width_in ? `${dimensions.width_in}"` : "-",
+              }
+            : null,
+          dimensions?.height_in
+            ? {
+                label: "Height ",
+                value: dimensions?.height_in ? `${dimensions.height_in}"` : "-",
+              }
+            : null,
+          dimensions?.depth_in
+            ? {
+                label: "Depth ",
+                value: dimensions?.depth_in ? `${dimensions.depth_in}"` : "-",
+              }
+            : null,
+        ]
+          .filter(Boolean)
+          .map(
+            (dimension) =>
+              dimension && (
+                <div key={dimension?.label} className="flex items-center gap-2">
+                  <p className="body2 text-muted-foreground">
+                    {dimension?.label}
+                  </p>
+                  <p className="body2 text-foreground">{dimension?.value}</p>
+                </div>
+              ),
+          )}
+      </div>
+    );
+  };
 
   return (
     <div className="h-full p-8 w-full flex justify-center item-center">
@@ -43,17 +84,17 @@ export default function ArtPiecePreview({
               />
               {formData.product_type && (
                 <div className="uppercase-overline absolute shadow-md right-2 top-2 z-20 bg-card rounded-full px-3 py-1">
-                  {formData.product_type}
+                  {formData.product_type.replaceAll("-", " ")}
                 </div>
               )}
             </div>
             {/* Details */}
             <div className=" h-full w-1/2 ml-6">
               <div className="flex h-full flex-col gap-4 flex-nowrap justify-center">
-                {/* Medium */}
-                {formData.medium ? (
+                {/* Category */}
+                {formData.category ? (
                   <p className="uppercase-overline text-muted-foreground">
-                    {formData.medium}
+                    {ART_PIECE_CATEGORY_LABELS[formData.category]}
                   </p>
                 ) : (
                   <div className="bg-muted h-5 w-1/2 rounded-sm" />
@@ -88,7 +129,10 @@ export default function ArtPiecePreview({
                     Made by {artistName}
                   </p>
                 ) : (
-                  <div className="bg-muted h-5 w-full rounded-sm" />
+                  <div className="flex items-center gap-2" >
+                    <div className="bg-muted min-h-8 min-w-8 ring-1 ring-border rounded-full" />
+                    <div className="bg-muted h-5 w-40 rounded-sm" />
+                  </div>
                 )}
 
                 {/* Description */}
@@ -100,52 +144,17 @@ export default function ArtPiecePreview({
                   <div className="bg-muted h-24 w-full rounded-sm" />
                 )}
 
-                {/* Dimensions */}
                 {formData.product_type && formData.product_type !== "print" ? (
-                  <div className="flex flex-col flex-nowrap">
-                    {[
-                      dimensions?.width_in
-                        ? {
-                            label: "Width",
-                            value: dimensions?.width_in
-                              ? `${dimensions.width_in}"`
-                              : "-",
-                          }
-                        : null,
-                      dimensions?.height_in
-                        ? {
-                            label: "Height",
-                            value: dimensions?.height_in
-                              ? `${dimensions.height_in}"`
-                              : "-",
-                          }
-                        : null,
-                      dimensions?.depth_in
-                        ? {
-                            label: "Depth",
-                            value: dimensions?.depth_in
-                              ? `${dimensions.depth_in}"`
-                              : "-",
-                          }
-                        : null,
-                    ]
-                      .filter(Boolean)
-                      .map(
-                        (dimension) =>
-                          dimension && (
-                            <div
-                              key={dimension?.label}
-                              className="flex items-center gap-2"
-                            >
-                              <p className="body2 text-muted-foreground">
-                                {dimension?.label}
-                              </p>
-                              <p className="body2 text-foreground">
-                                {dimension?.value}
-                              </p>
-                            </div>
-                          ),
-                      )}
+                  <div className="flex flex-col flex-nowrap gap-1">
+                    {/* Size */}
+                    {formData.size && (
+                      <p className="body2 text-foreground">
+                        <span className="text-muted-foreground mr-1">Size </span>
+                        {ART_PIECE_SIZE_LABELS[formData.size]}
+                      </p>
+                    )}
+                    {/* Dimensions */}
+                    {shouldRenderDimensions && renderDimensions()}
                   </div>
                 ) : null}
 
@@ -156,6 +165,9 @@ export default function ArtPiecePreview({
                   )}
                   {formData.product_type === "print" && (
                     <Button size="default">Request a Print</Button>
+                  )}
+                  {formData.product_type === "made-to-order" && (
+                    <Button size="default">Request a Custom Order</Button>
                   )}
                 </div>
               </div>

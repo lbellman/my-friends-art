@@ -1,7 +1,8 @@
 import {
+  ArtPieceCategoryType,
+  ArtPieceSizeType,
   getPublicUrl,
   MAX_DISPLAY_IMAGES,
-  MediumType,
   ProductType,
 } from "@/@types";
 import useAuth from "@/app/hooks/useAuth";
@@ -19,13 +20,14 @@ import { useEffect, useState } from "react";
 export type ArtPieceFormDataType = {
   title: string;
   description: string;
-  medium: MediumType | null;
+  category: ArtPieceCategoryType | null;
   product_type: ProductType | null;
   not_ai_generated: boolean;
   authorized_to_sell: boolean;
   print_quality_image?: File | null;
   use_print_quality_image_as_display?: boolean;
   display_images?: File[];
+  size: ArtPieceSizeType | null;
 
   // For physical art pieces
   price?: number | null;
@@ -97,8 +99,9 @@ export default function SubmitArtPieceView() {
   const [formData, setFormData] = useState<ArtPieceFormDataType>({
     title: "",
     description: "",
-    medium: null,
     product_type: null,
+    category: null,
+    size: null,
     not_ai_generated: false,
     authorized_to_sell: false,
     print_quality_image: null,
@@ -122,13 +125,14 @@ export default function SubmitArtPieceView() {
       setSubmitError("Title is required.");
       return;
     }
-    if (!formData.medium) {
-      setSubmitError("Medium is required.");
+
+    if (!formData.category) {
+      setSubmitError("Category is required.");
       return;
     }
-    const needsProductType = formData.medium !== "digital";
-    if (needsProductType && !formData.product_type) {
-      setSubmitError("Product type is required for this medium.");
+
+    if (!formData.product_type) {
+      setSubmitError("Product type is required.");
       return;
     }
 
@@ -248,7 +252,8 @@ export default function SubmitArtPieceView() {
         body: JSON.stringify({
           title: formData.title.trim(),
           description: formData.description.trim(),
-          medium: formData.medium,
+          category: formData.category,
+          size: formData.size,
           product_type: formData.product_type,
           not_ai_generated: formData.not_ai_generated,
           authorized_to_sell: formData.authorized_to_sell,
@@ -311,9 +316,9 @@ export default function SubmitArtPieceView() {
     if (step === "basic-information") {
       return (
         !formData.title ||
-        !formData.medium ||
         !formData.description ||
-        (formData.medium !== "digital" && !formData.product_type)
+        !formData.product_type ||
+        !formData.category
       );
     }
     if (step === "original-product-details") {

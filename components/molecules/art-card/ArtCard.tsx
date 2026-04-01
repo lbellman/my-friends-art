@@ -54,7 +54,7 @@ export function ArtCard({ artPiece, href, listRestore }: ArtCardProps) {
         </div>
 
         <div className="space-y-1">
-          <p className="uppercase-overline">{artPiece.medium}</p>
+          <p className="uppercase-overline">{artPiece.category?.replaceAll("-", " ")}</p>
           <div className="flex items-center justify-between">
             <p className="text-foreground body1 font-medium group-hover:text-primary-foreground transition-colors duration-300">
               {artPiece.title}

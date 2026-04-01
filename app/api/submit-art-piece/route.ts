@@ -19,18 +19,8 @@ const supabase = createClient<Database>(
 );
 
 type ProductTypeEnum = Database["public"]["Enums"]["product_types"];
-
-function inferAspectRatio(
-  width: number,
-  height: number,
-): Database["public"]["Enums"]["aspect_ratios"] | null {
-  const ratio = width / height;
-  if (Math.abs(ratio - 1) < 0.01) return "1:1";
-  if (Math.abs(ratio - 2 / 3) < 0.01) return "2:3";
-  if (Math.abs(ratio - 3 / 4) < 0.01) return "3:4";
-
-  return "3:4";
-}
+type ArtPieceCategory = Database["public"]["Enums"]["art_piece_categories"];
+type ArtPieceSize = Database["public"]["Enums"]["art_piece_sizes"];
 
 function isValidStagingPath(stagingPath: string, artistId: string): boolean {
   if (!stagingPath.startsWith(`staging/${artistId}/`)) return false;
@@ -52,7 +42,11 @@ export async function POST(req: Request) {
     const requestBody = await req.json().catch(() => null);
     const title = String(requestBody?.title ?? "").trim();
     const description = String(requestBody?.description ?? "").trim();
-    const medium = requestBody?.medium as Database["public"]["Enums"]["art_mediums"];
+    const category = requestBody?.category as ArtPieceCategory | undefined;
+    const size =
+      requestBody?.size === null || requestBody?.size === undefined
+        ? null
+        : (requestBody.size as ArtPieceSize);
     const productType = (requestBody?.product_type ??
       null) as ProductTypeEnum | null;
     const notAiGenerated = Boolean(requestBody?.not_ai_generated);
@@ -83,7 +77,7 @@ export async function POST(req: Request) {
         }
       | undefined;
 
-    if (!title || !medium) {
+    if (!title || !category) {
       return NextResponse.json(
         { error: "Missing required fields." },
         { status: 400 },
@@ -208,8 +202,6 @@ export async function POST(req: Request) {
       );
     }
 
-    const dpi = 300;
-    const aspectRatio = inferAspectRatio(width, height);
     const artPieceId = crypto.randomUUID();
 
     const finalDisplayPaths: string[] = [];
@@ -329,13 +321,12 @@ export async function POST(req: Request) {
         artist_id: artistId,
         title,
         description,
-        medium,
+        category,
+        size,
         product_type: productType,
         status: "pending-approval",
         px_width: width,
         px_height: height,
-        dpi,
-        aspect_ratio: aspectRatio as Database["public"]["Enums"]["aspect_ratios"],
         display_path: finalDisplayPaths[0] ?? null,
         thumbnail_path: thumbnailPath,
         original_path: originalPath,
@@ -395,11 +386,11 @@ export async function POST(req: Request) {
       `Artist: ${artist.name} (${artist.email_address})`,
       `Title: ${title}`,
       `Description: ${description}`,
-      `Medium: ${medium}`,
+      `Category: ${category}`,
+      `Size: ${size ?? "—"}`,
       `Product Type: ${productType ?? "null"}`,
-      `Width: ${width}`,
-      `Height: ${height}`,
-      `Aspect Ratio: ${aspectRatio}`,
+      `Pixel width: ${width}`,
+      `Pixel height: ${height}`,
     ].join("\n");
 
     try {

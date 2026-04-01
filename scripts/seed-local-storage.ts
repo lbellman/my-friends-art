@@ -1,6 +1,8 @@
 /**
  * Uploads local seed images into Supabase Storage using the same paths as
- * app/api/submit-art-piece/route.ts, then updates art_piece + art_piece_display_image.
+ * app/api/submit-art-piece/route.ts, then updates art_piece (paths + px_width/px_height)
+ * and art_piece_display_image. DPI and aspect_ratio are no longer stored on art_piece
+ * (see migration art_piece_cleanup_and_additions).
  *
  * Prereqs: supabase start, supabase db reset (seed.sql applied).
  * Env: NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY (Secret `sb_secret_…` or service JWT from `supabase status`).
@@ -16,8 +18,6 @@ import sharp from "sharp";
 
 import type { Database } from "../supabase";
 import { SEED_ART_PIECE_IDS } from "./seed-ids";
-
-const DPI = 300;
 
 const cwd = process.cwd();
 loadEnv({ path: path.join(cwd, ".env") });
@@ -40,17 +40,6 @@ function resolveServiceRoleKey(): string {
     process.env.SERVICE_ROLE_KEY?.trim() ??
     ""
   );
-}
-
-function inferAspectRatio(
-  width: number,
-  height: number,
-): Database["public"]["Enums"]["aspect_ratios"] {
-  const ratio = width / height;
-  if (Math.abs(ratio - 1) < 0.01) return "1:1";
-  if (Math.abs(ratio - 2 / 3) < 0.01) return "2:3";
-  if (Math.abs(ratio - 3 / 4) < 0.01) return "3:4";
-  return "3:4";
 }
 
 const DISPLAY_RE = /^display-(\d+)\.(jpe?g|png|webp)$/i;
@@ -126,7 +115,6 @@ async function main() {
       continue;
     }
 
-    const aspectRatio = inferAspectRatio(width, height);
     const finalDisplayPaths: string[] = [];
     const uploadedPublic: string[] = [];
     let displayUploadFailed = false;
@@ -202,8 +190,6 @@ async function main() {
         original_path: originalPath,
         px_width: width,
         px_height: height,
-        dpi: DPI,
-        aspect_ratio: aspectRatio,
       })
       .eq("id", artPieceId);
 

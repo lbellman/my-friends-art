@@ -17,6 +17,7 @@ interface RequestToPurchaseDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   artPiece: ArtPiece;
+  isCustomOrder?: boolean;
 }
 
 type FormDataType = {
@@ -28,6 +29,7 @@ export default function RequestToPurchaseDialog({
   open,
   onOpenChange,
   artPiece,
+  isCustomOrder = false,
 }: RequestToPurchaseDialogProps) {
   const { sendEmail } = useSendEmail();
   const [formData, setFormData] = useState<FormDataType>({
@@ -37,7 +39,7 @@ export default function RequestToPurchaseDialog({
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const requestMessage = [
-    `${formData.name} has requested to purchase "${artPiece?.title}".`,
+    `${formData.name} has requested ${isCustomOrder ? "a custom order of" : "to purchase"} "${artPiece?.title}".`,
     `Message: ${formData.message}`,
     "Please respond at your earliest convenience. Thank you!",
   ].join("\n");
@@ -71,11 +73,11 @@ export default function RequestToPurchaseDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>request to purchase</DialogTitle>
+          <DialogTitle>{isCustomOrder ? "request a custom order" : "request to purchase"}</DialogTitle>
           <DialogDescription>
-            Fill out the form below to request to purchase &quot;
+            Fill out the form below to request {isCustomOrder ? "a custom order of" : "to purchase"} &quot;
             {artPiece?.title}&quot;. The artist will get back to you with
-            pricing and shipping details.
+            details about your order.
           </DialogDescription>
           <form onSubmit={handleSubmit}>
             <div className="flex flex-col gap-4 mt-2">

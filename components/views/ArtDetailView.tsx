@@ -57,16 +57,9 @@ export default function ArtDetailView({
   });
 
   const isSellingPrint = useMemo(() => {
-    return (
-      artPiece?.product_type === "print"
-    );
+    return artPiece?.product_type === "print";
   }, [artPiece?.product_type]);
 
-  const isSellingOriginal = useMemo(() => {
-    return (
-      artPiece?.product_type === "original"
-    );
-  }, [artPiece?.product_type]);
 
   const galleryUrls = useMemo(() => {
     const rows = [...(artPiece?.art_piece_display_image ?? [])].sort(
@@ -87,6 +80,8 @@ export default function ArtDetailView({
 
   const [requestPrintDialogOpen, setRequestPrintDialogOpen] = useState(false);
   const [requestToPurchaseDialogOpen, setRequestToPurchaseDialogOpen] =
+    useState(false);
+  const [requestCustomOrderDialogOpen, setRequestCustomOrderDialogOpen] =
     useState(false);
   const [contactArtistDialogOpen, setContactArtistDialogOpen] = useState(false);
   const [printDimensions, setPrintDimensions] = useState("");
@@ -132,7 +127,7 @@ export default function ArtDetailView({
             ) : (
               <div className="flex flex-col flex-nowrap gap-2">
                 <p className="uppercase-overline text-muted-foreground">
-                  {artPiece?.medium}
+                  {artPiece?.category?.replaceAll("-", " ")}
                 </p>
                 <h5 className="font-medium">{artPiece?.title}</h5>
                 {artPiece?.artist && (
@@ -234,7 +229,7 @@ export default function ArtDetailView({
               {/* Request a Print Button */}
               <div className="flex flex-col flex-nowrap gap-2 mt-2 w-full">
                 <div className="flex w-full items-center gap-2">
-                  {isSellingPrint && (
+                  {artPiece?.product_type === "print" && (
                     <Button
                       className="flex-1"
                       size="lg"
@@ -245,7 +240,7 @@ export default function ArtDetailView({
                       Request a Print
                     </Button>
                   )}
-                  {isSellingOriginal && (
+                  {artPiece?.product_type === "original" && (
                     <Button
                       className="flex-1"
                       size="lg"
@@ -253,6 +248,16 @@ export default function ArtDetailView({
                       disabled={isLoadingArtPiece}
                     >
                       Request to Purchase
+                    </Button>
+                  )}
+                  {artPiece?.product_type === "made-to-order" && (
+                    <Button
+                      className="flex-1"
+                      size="lg"
+                      onClick={() => setRequestCustomOrderDialogOpen(true)}
+                      disabled={isLoadingArtPiece}
+                    >
+                      Request a Custom Order
                     </Button>
                   )}
                 </div>
@@ -274,6 +279,14 @@ export default function ArtDetailView({
             open={requestToPurchaseDialogOpen}
             onOpenChange={setRequestToPurchaseDialogOpen}
             artPiece={artPiece as ArtPiece}
+          />
+        )}
+        {requestCustomOrderDialogOpen && (
+          <RequestToPurchaseDialog
+            open={requestCustomOrderDialogOpen}
+            onOpenChange={setRequestCustomOrderDialogOpen}
+            artPiece={artPiece as ArtPiece}
+            isCustomOrder={true}
           />
         )}
         {contactArtistDialogOpen && (

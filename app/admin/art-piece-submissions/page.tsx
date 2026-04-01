@@ -65,6 +65,9 @@ export default function AdminArtPieceSubmissionsPage() {
     );
   }
 
+  const numPendingApproval = artPieces?.filter((p) => p.status === "pending-approval").length;
+  const numApproved = artPieces?.filter((p) => p.status === "approved").length;
+
   if (error) {
     return (
       <div className="p-6">
@@ -83,7 +86,7 @@ export default function AdminArtPieceSubmissionsPage() {
           type="button"
           size="sm"
           variant={statusFilter === "all" ? "primary" : "secondary"}
-          label="All"
+          label={`All (${artPieces?.length})`}
           onClick={() => setStatusFilter("all")}
         />
         <Button
@@ -92,14 +95,14 @@ export default function AdminArtPieceSubmissionsPage() {
           variant={
             statusFilter === "pending-approval" ? "primary" : "secondary"
           }
-          label="Pending"
+          label={`Pending (${numPendingApproval})`}
           onClick={() => setStatusFilter("pending-approval")}
         />
         <Button
           type="button"
           size="sm"
           variant={statusFilter === "approved" ? "primary" : "secondary"}
-          label="Approved"
+          label={`Approved (${numApproved})`}
           onClick={() => setStatusFilter("approved")}
         />
 

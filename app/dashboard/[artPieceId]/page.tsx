@@ -41,7 +41,7 @@ export default function DashboardArtPieceDetailPage() {
       const { data, error } = await supabase
         .from("art_piece")
         .select(
-          "id, title, description, display_path, original_path, thumbnail_path, px_width, px_height, dpi, aspect_ratio, created_at, status, product_type, art_piece_display_image(path, idx), artist:artist_id(id, name, email_address)",
+          "id, title, description, display_path, original_path, thumbnail_path, px_width, px_height, created_at, status, product_type, size, category, art_piece_display_image(path, idx), artist:artist_id(id, name, email_address)",
         )
         .eq("id", artPieceId)
         .single();
@@ -328,18 +328,6 @@ export default function DashboardArtPieceDetailPage() {
                   <dt className="text-muted-foreground">Pixel width</dt>
                   <dd className="font-medium text-foreground">
                     {artPiece.px_width ?? "—"}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-muted-foreground">DPI</dt>
-                  <dd className="font-medium text-foreground">
-                    {artPiece.dpi ?? "—"}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-muted-foreground">Aspect ratio</dt>
-                  <dd className="font-medium text-foreground">
-                    {artPiece.aspect_ratio ?? "—"}
                   </dd>
                 </div>
                 <div>

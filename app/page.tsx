@@ -33,7 +33,7 @@ function HomeContent() {
       } = await supabase
         .from("art_piece")
         .select(
-          "id, title, thumbnail_path, status, display_path, medium, created_at, artist:artist_id(id, name)",
+          "id, title, thumbnail_path, status, display_path, category, created_at, artist:artist_id(id, name)",
           { count: "exact" },
         )
         .eq("status", "approved")

@@ -5,11 +5,10 @@ import SingleSelect, {
   type SingleSelectOptionType,
 } from "@/components/atoms/single-select/SingleSelect";
 import {
-  classifyPixelAspectToStandardOrCustom,
   dimensionValueFromRow,
   getPrintDimensionRows,
   hasValidImagePixelDimensions,
-  type PrintDimensionRow,
+  type PrintDimensionRow
 } from "@/lib/print-dimensions";
 import { useMemo } from "react";
 
@@ -72,11 +71,6 @@ export default function DimensionsSingleSelect({
 
   const validPixels = useMemo(
     () => hasValidImagePixelDimensions(pxWidth, pxHeight),
-    [pxWidth, pxHeight],
-  );
-
-  const aspectClassification = useMemo(
-    () => classifyPixelAspectToStandardOrCustom(pxWidth, pxHeight),
     [pxWidth, pxHeight],
   );
 

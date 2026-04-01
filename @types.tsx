@@ -81,6 +81,7 @@ export const ART_PIECE_STATUS_OPTIONS: Record<ArtPieceStatusType, string> = {
   "pending-approval": "Pending Approval",
   approved: "Approved",
   "not-approved": "Not Approved",
+  sold: "Sold",
 };
 
 export const ART_PIECE_STATUS_ICONS: Record<
@@ -90,13 +91,58 @@ export const ART_PIECE_STATUS_ICONS: Record<
   "pending-approval": <Loader2 className="size-4 text-muted-foreground" />,
   approved: <CheckCircle className="size-4 text-success-foreground" />,
   "not-approved": <XCircle className="size-4 text-destructive-foreground" />,
+  sold: <CheckCircle className="size-4 text-success-foreground" />,
 };
 
 export type ProductType = Database["public"]["Enums"]["product_types"];
 
 export const PRODUCT_TYPE_OPTIONS: Record<ProductType, string> = {
   print: "Print (digital item, can be printed multiple times)",
-  original: "Original (single item or made to order)",
+  original: "Original (single item, can only be sold once)",
+  "print-and-original":
+    "Print and Original (prints are available, original is also available)",
+  "made-to-order": "Made to Order (custom order, fulfilled on request)",
+};
+
+export type ArtPieceCategoryType =
+  Database["public"]["Enums"]["art_piece_categories"];
+export const ART_PIECE_CATEGORY_LABELS: Record<ArtPieceCategoryType, string> = {
+  "wall-art": "Wall Art",
+  "sculpture-and-ceramics": "Sculpture & Ceramics",
+  "textiles-and-fiber": "Textiles & Fiber",
+  "clothing-and-wearables": "Clothing & Wearables",
+  jewelry: "Jewelry",
+  "home-and-decor": "Home & Decor",
+  furniture: "Furniture",
+  "paper-goods": "Paper Goods",
+  other: "Other",
+};
+
+export type ArtPieceSizeType = Database["public"]["Enums"]["art_piece_sizes"];
+export const ART_PIECE_SIZE_LABELS: Record<ArtPieceSizeType, string> = {
+  "made-to-measure": "Made to Measure",
+  "one-size": "One Size",
+  xs: "XS",
+  sm: "S",
+  md: "M",
+  lg: "L",
+  xl: "XL",
+  "childs-xs": "Child - XS",
+  "childs-sm": "Child - S",
+  "childs-md": "Child - M",
+  "childs-lg": "Child - L",
+  "childs-xl": "Child - XL",
+  "womans-xs": "Woman - XS",
+  "womans-sm": "Woman - S",
+  "womans-md": "Woman - M",
+  "womans-lg": "Woman - L",
+  "womans-xl": "Woman - XL",
+  "mens-xs": "Man - XS",
+  "mens-sm": "Man - S",
+  "mens-md": "Man - M",
+  "mens-lg": "Man - L",
+  "mens-xl": "Man - XL",
+  other: "Other",
 };
 
 // @types.tsx

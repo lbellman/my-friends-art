@@ -83,7 +83,7 @@ INSERT INTO "auth"."refresh_tokens" ("instance_id", "id", "token", "user_id", "r
 	('00000000-0000-0000-0000-000000000000', 193, 'odvd5af6bota', '77d74062-1aa9-4ff8-ad85-d23c3bf520e7', true, '2026-03-25 22:03:14.470827+00', '2026-03-26 17:40:26.496318+00', 'r7sjrwhgasb6', 'e11f37e9-f15b-4ded-9e6a-59012dd55f8d'),
 	('00000000-0000-0000-0000-000000000000', 199, 'cyjee6d4yjcy', '77d74062-1aa9-4ff8-ad85-d23c3bf520e7', false, '2026-03-26 17:40:26.514714+00', '2026-03-26 17:40:26.514714+00', 'odvd5af6bota', 'e11f37e9-f15b-4ded-9e6a-59012dd55f8d');
 
--- Local seed: 3 artists, 30 art pieces (10 each). Paths left NULL; run `pnpm seed:local-assets` after reset.
+-- Local seed: 3 artists, 13 art pieces (5 + 4 + 4). Paths left NULL; run `pnpm seed:local-assets` after reset.
 -- IDs must match scripts/seed-ids.ts
 
 -- Storage buckets (same names as production; required for `pnpm seed:local-assets` uploads)
@@ -147,34 +147,33 @@ ON CONFLICT (user_id) DO NOTHING;
 INSERT INTO public.art_piece (
   id,
   title,
-  medium,
-  aspect_ratio,
   artist_id,
   status,
   px_width,
   px_height,
-  dpi,
   description,
   not_ai_generated,
   authorized_to_sell,
   product_type,
+  category,
+  size,
   display_path,
   thumbnail_path,
   original_path
 ) VALUES
-  -- Artist 1 (Elena)
-  ('10100000-0000-4000-8000-000000000001', 'Crochet Tote Bags', 'crochet', '3:4', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 3200, 300, 'Stylish and useful tote bags.', true, true, 'original', NULL, NULL, NULL),
-  ('10100000-0000-4000-8000-000000000002', 'Needle Felt Designs', 'crochet', '2:3', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 3600, 300, 'Adorable and fluffly needle felted designs.', true, true, 'original', NULL, NULL, NULL),
-  ('10100000-0000-4000-8000-000000000003', 'Knitted Washcloths', 'needle-felt', '1:1', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 2400, 300, 'Multi-purpose knitted washcloths.', true, true, 'original', NULL, NULL, NULL),
-  ('10100000-0000-4000-8000-000000000004', 'Knit Slippers', 'knit', '3:4', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 3200, 300, 'Cosy knitted slippers.', true, true, 'original', NULL, NULL, NULL),
-  ('10100000-0000-4000-8000-000000000005', 'Crochet Hats', 'knit', '2:3', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 3600, 300, 'Cosy winter hats.', true, true, 'original', NULL, NULL, NULL),
+  -- Artist 1 (Elena) — fiber / wearables
+  ('10100000-0000-4000-8000-000000000001', 'Crochet Tote Bags', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 3200, 'Stylish and useful tote bags.', true, true, 'original', 'textiles-and-fiber', 'one-size', NULL, NULL, NULL),
+  ('10100000-0000-4000-8000-000000000002', 'Needle Felt Designs', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 3600, 'Adorable and fluffly needle felted designs.', true, true, 'original', 'textiles-and-fiber', 'one-size', NULL, NULL, NULL),
+  ('10100000-0000-4000-8000-000000000003', 'Knitted Washcloths', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 2400, 'Multi-purpose knitted washcloths.', true, true, 'original', 'textiles-and-fiber', 'one-size', NULL, NULL, NULL),
+  ('10100000-0000-4000-8000-000000000004', 'Knit Slippers', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 3200, 'Cosy knitted slippers.', true, true, 'original', 'textiles-and-fiber', 'one-size', NULL, NULL, NULL),
+  ('10100000-0000-4000-8000-000000000005', 'Crochet Hats', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 3600, 'Cosy winter hats.', true, true, 'original', 'textiles-and-fiber', 'one-size', NULL, NULL, NULL),
   -- Artist 2 (Marcus)
-  ('10200000-0000-4000-8000-000000000001', 'Market Square Rhythm', 'digital', '3:4', '20000000-0000-4000-8000-000000000002', 'approved', 2400, 3200, 300, 'Collage of urban movement.', true, true, 'original', NULL, NULL, NULL),
-  ('10200000-0000-4000-8000-000000000002', 'Patina Doorways', 'mixed-media', '2:3', '20000000-0000-4000-8000-000000000002', 'approved', 2400, 3600, 300, 'Texture and aged metal.', true, true, 'original', NULL, NULL, NULL),
-  ('10200000-0000-4000-8000-000000000003', 'Echo Chamber', 'acrylic', '1:1', '20000000-0000-4000-8000-000000000002', 'approved', 2400, 2400, 300, 'Geometric abstraction.', true, true, 'original', NULL, NULL, NULL),
-  ('10200000-0000-4000-8000-000000000004', 'Clay Meditation', 'oil', '3:4', '20000000-0000-4000-8000-000000000002', 'approved', 2400, 3200, 300, 'Earthy palette study.', true, true, 'original', NULL, NULL, NULL),
+  ('10200000-0000-4000-8000-000000000001', 'Market Square Rhythm', '20000000-0000-4000-8000-000000000002', 'approved', 2400, 3200, 'Collage of urban movement.', true, true, 'original', 'wall-art', 'one-size', NULL, NULL, NULL),
+  ('10200000-0000-4000-8000-000000000002', 'Patina Doorways', '20000000-0000-4000-8000-000000000002', 'approved', 2400, 3600, 'Texture and aged metal.', true, true, 'original', 'wall-art', 'one-size', NULL, NULL, NULL),
+  ('10200000-0000-4000-8000-000000000003', 'Echo Chamber', '20000000-0000-4000-8000-000000000002', 'approved', 2400, 2400, 'Geometric abstraction.', true, true, 'original', 'wall-art', 'one-size', NULL, NULL, NULL),
+  ('10200000-0000-4000-8000-000000000004', 'Clay Meditation', '20000000-0000-4000-8000-000000000002', 'approved', 2400, 3200, 'Earthy palette study.', true, true, 'original', 'wall-art', 'one-size', NULL, NULL, NULL),
   -- Artist 3 (Yuki)
-  ('10300000-0000-4000-8000-000000000001', 'Snow Line', 'digital', '2:3', '30000000-0000-4000-8000-000000000003', 'approved', 2400, 3600, 300, 'Minimal winter landscape.', true, true, 'print', NULL, NULL, NULL),
-  ('10300000-0000-4000-8000-000000000002', 'Tea House Interior', 'watercolor', '3:4', '30000000-0000-4000-8000-000000000003', 'approved', 2400, 3200, 300, 'Quiet interior light.', true, true, 'print', NULL, NULL, NULL),
-  ('10300000-0000-4000-8000-000000000003', 'Bamboo Shadow', 'pen', '1:1', '30000000-0000-4000-8000-000000000003', 'approved', 2400, 2400, 300, 'Ink wash on paper.', true, true, 'print', NULL, NULL, NULL),
-  ('10300000-0000-4000-8000-000000000004', 'Ink River', 'digital', '3:4', '30000000-0000-4000-8000-000000000003', 'approved', 2400, 3200, 300, 'Flowing dark lines.', true, true, 'print', NULL, NULL, NULL);
+  ('10300000-0000-4000-8000-000000000001', 'Snow Line', '30000000-0000-4000-8000-000000000003', 'approved', 2400, 3600, 'Minimal winter landscape.', true, true, 'print', 'wall-art', 'one-size', NULL, NULL, NULL),
+  ('10300000-0000-4000-8000-000000000002', 'Tea House Interior', '30000000-0000-4000-8000-000000000003', 'approved', 2400, 3200, 'Quiet interior light.', true, true, 'print', 'wall-art', 'one-size', NULL, NULL, NULL),
+  ('10300000-0000-4000-8000-000000000003', 'Bamboo Shadow', '30000000-0000-4000-8000-000000000003', 'approved', 2400, 2400, 'Ink wash on paper.', true, true, 'print', 'wall-art', 'one-size', NULL, NULL, NULL),
+  ('10300000-0000-4000-8000-000000000004', 'Ink River', '30000000-0000-4000-8000-000000000003', 'approved', 2400, 3200, 'Flowing dark lines.', true, true, 'print', 'wall-art', 'one-size', NULL, NULL, NULL);
