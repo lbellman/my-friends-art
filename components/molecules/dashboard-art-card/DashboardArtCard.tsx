@@ -2,9 +2,10 @@ import { getPublicUrl } from "@/@types";
 import ArtPieceStatusChip from "@/components/atoms/art-piece-status-chip/ArtPieceStatusChip";
 import Link from "next/link";
 import Image from "next/image";
-import { DashboardArtPieceRow } from "@/app/dashboard/page";
+
 import { useQuery } from "@tanstack/react-query";
 import supabase from "@/lib/supabase/server";
+import { DashboardArtPieceRow } from "@/components/views/ArtistDashboardView/ArtistDashboardView";
 
 interface DashboardArtCardProps {
   artPiece: DashboardArtPieceRow;

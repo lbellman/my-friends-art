@@ -162,11 +162,11 @@ INSERT INTO public.art_piece (
   original_path
 ) VALUES
   -- Artist 1 (Elena) — fiber / wearables
-  ('10100000-0000-4000-8000-000000000001', 'Crochet Tote Bags', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 3200, 'Stylish and useful tote bags.', true, true, 'original', 'textiles-and-fiber', 'one-size', NULL, NULL, NULL),
-  ('10100000-0000-4000-8000-000000000002', 'Needle Felt Designs', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 3600, 'Adorable and fluffly needle felted designs.', true, true, 'original', 'textiles-and-fiber', 'one-size', NULL, NULL, NULL),
-  ('10100000-0000-4000-8000-000000000003', 'Knitted Washcloths', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 2400, 'Multi-purpose knitted washcloths.', true, true, 'original', 'textiles-and-fiber', 'one-size', NULL, NULL, NULL),
-  ('10100000-0000-4000-8000-000000000004', 'Knit Slippers', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 3200, 'Cosy knitted slippers.', true, true, 'original', 'textiles-and-fiber', 'one-size', NULL, NULL, NULL),
-  ('10100000-0000-4000-8000-000000000005', 'Crochet Hats', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 3600, 'Cosy winter hats.', true, true, 'original', 'textiles-and-fiber', 'one-size', NULL, NULL, NULL),
+  ('10100000-0000-4000-8000-000000000001', 'Crochet Tote Bags', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 3200, 'Stylish and useful tote bags.', true, true, 'made-to-order', 'textiles-and-fiber', 'one-size', NULL, NULL, NULL),
+  ('10100000-0000-4000-8000-000000000002', 'Needle Felt Designs', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 3600, 'Adorable and fluffly needle felted designs.', true, true, 'made-to-order', 'textiles-and-fiber', 'one-size', NULL, NULL, NULL),
+  ('10100000-0000-4000-8000-000000000003', 'Knitted Washcloths', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 2400, 'Multi-purpose knitted washcloths.', true, true, 'made-to-order', 'textiles-and-fiber', 'one-size', NULL, NULL, NULL),
+  ('10100000-0000-4000-8000-000000000004', 'Knit Slippers', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 3200, 'Cosy knitted slippers.', true, true, 'made-to-order', 'textiles-and-fiber', 'one-size', NULL, NULL, NULL),
+  ('10100000-0000-4000-8000-000000000005', 'Crochet Hats', '10000000-0000-4000-8000-000000000001', 'approved', 2400, 3600, 'Cosy winter hats.', true, true, 'made-to-order', 'textiles-and-fiber', 'one-size', NULL, NULL, NULL),
   -- Artist 2 (Marcus)
   ('10200000-0000-4000-8000-000000000001', 'Market Square Rhythm', '20000000-0000-4000-8000-000000000002', 'approved', 2400, 3200, 'Collage of urban movement.', true, true, 'original', 'wall-art', 'one-size', NULL, NULL, NULL),
   ('10200000-0000-4000-8000-000000000002', 'Patina Doorways', '20000000-0000-4000-8000-000000000002', 'approved', 2400, 3600, 'Texture and aged metal.', true, true, 'original', 'wall-art', 'one-size', NULL, NULL, NULL),

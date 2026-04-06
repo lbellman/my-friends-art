@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import {
+  LayoutDashboard,
   LayoutGrid,
   List,
   LogOut,
@@ -104,7 +105,7 @@ export default function Navbar() {
                   {
                     key: "dashboard",
                     label: "Artist Dashboard",
-                    icon: <LayoutGrid className="size-4 text-foreground" />,
+                    icon: <LayoutDashboard className="size-4 text-foreground" />,
                     href: "/dashboard",
                   },
                   {

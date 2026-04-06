@@ -34,7 +34,7 @@ export default function ProductRequestCard({
   onChangeStatus,
   artPiece,
   showImage = false,
-  artist
+  artist,
 }: ProductRequestCardProps) {
   const { sendEmail } = useSendEmail();
   const [status, setStatus] = useState<ProductRequestStatusType>(
@@ -102,7 +102,7 @@ export default function ProductRequestCard({
 
   const content = (
     <>
-      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+      <p className="uppercase-overline">
         {artPiece.title}
       </p>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -117,32 +117,28 @@ export default function ProductRequestCard({
             Requested on: {createdAt}
           </p>
         </div>
-        <div className="flex flex-col items-start sm:items-end gap-1">
-          <span className="text-xs text-muted-foreground">Current status</span>
-          <span className="text-xs font-medium text-foreground capitalize">
-            {status.replace("-", " ")}
-          </span>
-        </div>
       </div>
 
-      <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
-        <div>
-          <dt className=" uppercase-overline">Dimensions</dt>
-          <dd className="font-medium">
-            {request.dimensions ? `${request.dimensions}"` : "—"}
-          </dd>
-        </div>
-        <div>
-          <dt className="uppercase-overline">Print option</dt>
-          <dd className="font-medium">{printLabel ?? "—"}</dd>
-        </div>
-      </dl>
+      {request.type === "print" && (
+        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+          <div>
+            <dt className=" uppercase-overline">Dimensions</dt>
+            <dd className="font-medium">
+              {request.dimensions ? `${request.dimensions}"` : "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="uppercase-overline">Print option</dt>
+            <dd className="font-medium">{printLabel ?? "—"}</dd>
+          </div>
+        </dl>
+      )}
 
       {request.message && (
         <div className="">
-          <p className="uppercase-overline">Message</p>
+          
           <p className={cn("text-sm text-foreground whitespace-pre-line")}>
-            {request.message ?? "—"}
+            Message: {request.message ?? "-"}
           </p>
         </div>
       )}

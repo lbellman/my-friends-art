@@ -45,7 +45,7 @@ export default function ContactArtistDialog({
       subject: `Contact from ${formData.name}`,
       message: formData.message,
       onSuccess: () => {
-        toast.success("Email sent successfully", {
+        toast.success("Email sent successfully.", {
           description: "The artist will get back to you soon!",
         });
         onOpenChange(false);
