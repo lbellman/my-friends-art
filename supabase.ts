@@ -611,7 +611,7 @@ export type Database = {
         | "fulfilled"
         | "cancelled"
         | "email-failed"
-      product_request_types: "print" | "original"
+      product_request_types: "print" | "original" | "custom-order"
       product_types:
         | "print"
         | "original"
@@ -821,7 +821,7 @@ export const Constants = {
         "cancelled",
         "email-failed",
       ],
-      product_request_types: ["print", "original"],
+      product_request_types: ["print", "original", "custom-order"],
       product_types: [
         "print",
         "original",

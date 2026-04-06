@@ -1,23 +1,23 @@
 import { ArtPiece, CHAR_LIMITS } from "@/@types";
-import { Button } from "@/components/ui/button";
+import useCreateProductRequest from "@/app/hooks/useCreateProductRequest";
 import Input from "@/components/atoms/input/Input";
 import TextArea from "@/components/atoms/text-area/TextArea";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { DialogHeader } from "@/components/ui/dialog";
-import { DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
-import useSendEmail from "@/app/hooks/useSendEmail";
-import { toast } from "sonner";
 
 interface RequestToPurchaseDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   artPiece: ArtPiece;
   isCustomOrder?: boolean;
+  emailAddress: string;
 }
 
 type FormDataType = {
@@ -30,52 +30,55 @@ export default function RequestToPurchaseDialog({
   onOpenChange,
   artPiece,
   isCustomOrder = false,
+  emailAddress,
 }: RequestToPurchaseDialogProps) {
-  const { sendEmail } = useSendEmail();
+  const { createProductRequest } = useCreateProductRequest();
   const [formData, setFormData] = useState<FormDataType>({
     name: "",
     email: "",
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const requestMessage = [
-    `${formData.name} has requested ${isCustomOrder ? "a custom order of" : "to purchase"} "${artPiece?.title}".`,
-    `Message: ${formData.message}`,
-    "Please respond at your earliest convenience. Thank you!",
-  ].join("\n");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await sendEmail({
-      name: formData.name,
-      fromEmail: formData.email,
-      toEmail: artPiece?.artist?.email_address || "",
-      subject: `Request to Purchase - ${artPiece?.title}`,
-      message: requestMessage,
-      onSuccess: () => {
-        toast.success("Email sent successfully", {
-          description: "The artist will get back to you soon!",
-        });
+    setIsSubmitting(true);
+    try {
+      const result = await createProductRequest({
+        artPiece,
+        artistEmailAddress: emailAddress,
+        type: isCustomOrder ? "custom-order" : "original",
+        params: {
+          name: formData.name,
+          message: formData.message,
+          from_email: formData.email,
+          art_piece_id: artPiece.id,
+          artist_id: artPiece?.artist?.id,
+        },
+      });
+
+      if (result.ok) {
         setFormData({
           name: "",
           email: "",
           message: "",
         });
         onOpenChange(false);
-      },
-      onError: () => {
-        toast.error("Failed to send email");
-      },
-      setIsSubmitting,
-    });
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isCustomOrder ? "request a custom order" : "request to purchase"}</DialogTitle>
+          <DialogTitle>
+            {isCustomOrder ? "request a custom order" : "request to purchase"}
+          </DialogTitle>
           <DialogDescription>
-            Fill out the form below to request {isCustomOrder ? "a custom order of" : "to purchase"} &quot;
+            Fill out the form below to request{" "}
+            {isCustomOrder ? "a custom order of" : "to purchase"} &quot;
             {artPiece?.title}&quot;. The artist will get back to you with
             details about your order.
           </DialogDescription>

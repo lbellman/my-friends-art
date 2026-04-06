@@ -291,6 +291,7 @@ export default function ArtDetailView({
             open={requestToPurchaseDialogOpen}
             onOpenChange={setRequestToPurchaseDialogOpen}
             artPiece={artPiece as ArtPiece}
+            emailAddress={artPiece?.artist?.email_address ?? ""}
           />
         )}
         {requestCustomOrderDialogOpen && (
@@ -298,6 +299,7 @@ export default function ArtDetailView({
             open={requestCustomOrderDialogOpen}
             onOpenChange={setRequestCustomOrderDialogOpen}
             artPiece={artPiece as ArtPiece}
+            emailAddress={artPiece?.artist?.email_address ?? ""}
             isCustomOrder={true}
           />
         )}

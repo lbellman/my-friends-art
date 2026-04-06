@@ -20,11 +20,9 @@ import {
 import DimensionsSingleSelect, {
   resolveDimensionSelectValue,
 } from "@/components/molecules/dimensions-single-select/DimensionsSingleSelect";
-import supabase from "@/lib/supabase/server";
-import useSendEmail from "@/app/hooks/useSendEmail";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
 import Input from "@/components/atoms/input/Input";
+import useCreateProductRequest from "@/app/hooks/useCreateProductRequest";
 
 export default function RequestPrintDialog({
   open,
@@ -48,9 +46,11 @@ export default function RequestPrintDialog({
   dimensions?: string;
   onDimensionsChange?: (key: string) => void;
 }) {
-  const { sendEmail } = useSendEmail();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isDimensionsControlled =
     dimensionsProp !== undefined && onDimensionsChange !== undefined;
+
+  const { createProductRequest } = useCreateProductRequest();
 
   const [internalDimensions, setInternalDimensions] = useState("");
   const [formData, setFormData] = useState({
@@ -59,7 +59,6 @@ export default function RequestPrintDialog({
     message: "",
     printOption: printOption || "",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const dimensionsValue = isDimensionsControlled
     ? dimensionsProp!
@@ -69,17 +68,14 @@ export default function RequestPrintDialog({
     : setInternalDimensions;
 
   const dimensionSelectValue = useMemo(
-    () =>
-      resolveDimensionSelectValue(dimensionsValue, pxWidth, pxHeight),
+    () => resolveDimensionSelectValue(dimensionsValue, pxWidth, pxHeight),
     [dimensionsValue, pxWidth, pxHeight],
   );
 
   const prevOpen = useRef(false);
   useEffect(() => {
     if (open && !prevOpen.current && !isDimensionsControlled) {
-      setInternalDimensions(
-        resolveDimensionSelectValue("", pxWidth, pxHeight),
-      );
+      setInternalDimensions(resolveDimensionSelectValue("", pxWidth, pxHeight));
       setFormData((prev) => ({
         ...prev,
         printOption: printOption || "canvas",
@@ -92,13 +88,7 @@ export default function RequestPrintDialog({
       }));
     }
     prevOpen.current = open;
-  }, [
-    open,
-    isDimensionsControlled,
-    printOption,
-    pxWidth,
-    pxHeight,
-  ]);
+  }, [open, isDimensionsControlled, printOption, pxWidth, pxHeight]);
 
   const handleChange = (name: string, value: string | number) => {
     setFormData({
@@ -110,86 +100,36 @@ export default function RequestPrintDialog({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    const dimsForMessage = dimensionSelectValue;
-    const printOptForMessage = formData.printOption || printOption || "";
-
-    const printRequestMessage = `${formData.name} has requested a print of ${artPiece?.title || "Art Piece"} with the following details: \n\n Dimensions: ${dimsForMessage} \n\nPrint Option: ${printOptForMessage}\n\n${formData.message ? "Message: " + formData.message : ""} \n\n Please contact them at ${formData.email} to discuss pricing and shipping details. Thanks! `;
-
-    // Anonymous users have INSERT on product_request but no SELECT policy.
-    // Generate id client-side so we can update by id later without a returning select.
-    const productRequestId = crypto.randomUUID();
-    const { error } = await supabase.from("product_request").insert({
-      id: productRequestId,
-      art_piece_id: artPiece.id,
-      artist_id: artPiece.artist.id,
-      type: "print",
-      dimensions: dimsForMessage,
-      from_email: formData.email,
-      message: formData.message || null,
-      name: formData.name,
-      print_option: formData.printOption as PrintOptionType,
-      status: "pending",
-    })
-
-    if (error) {
-      toast.error("Failed to create print request", {
-        description:
-          "Please try again or contact bellmanlindsey@gmail.com for support.",
-      });
-      setIsSubmitting(false);
-    } else {
-      const artistOk = await sendEmail({
-        name: formData.name,
-        fromEmail: formData.email,
-        toEmail: emailAddress,
-        subject: `Print Request for ${artPiece?.title}`,
-        message: printRequestMessage,
-        onSuccess: () => {},
-        onError: async () => {
-          toast.error("Failed to send request", {
-            description: "Please try again or contact me directly via email.",
-          });
-
-          await supabase
-            .from("product_request")
-            .update({
-              status: "email-failed",
-            })
-            .eq("id", productRequestId);
-
-          setIsSubmitting(false);
+    try {
+      const result = await createProductRequest({
+        artPiece,
+        artistEmailAddress: emailAddress,
+        type: "print",
+        params: {
+          name: formData.name,
+          message: formData.message,
+          from_email: formData.email,
+          art_piece_id: artPiece.id,
+          artist_id: artPiece?.artist?.id,
+          print_option: formData.printOption as PrintOptionType,
+          dimensions: dimensionsValue,
         },
-        setIsSubmitting,
       });
 
-      if (!artistOk) return;
-
-      await sendEmail({
-        name: formData.name,
-        fromEmail: formData.email,
-        toEmail: formData.email,
-        subject: `Print Request Confirmation`,
-        message: `Thank you for your print request for ${artPiece?.title}. The artist will contact you directly with pricing and shipping details. Thank you!`,
-        onSuccess: () => {},
-        onError: () => {},
-        setIsSubmitting: () => {},
-      });
-
-      toast.success("Print request created!", {
-        description:
-          "The artist will get back to you soon about pricing and shipping. Thank you!",
-      });
-      setFormData({
-        name: "",
-        email: "",
-        message: "",
-        printOption: printOption || "",
-      });
-      if (!isDimensionsControlled) {
-        setInternalDimensions("");
+      if (result.ok) {
+        setFormData({
+          name: "",
+          email: "",
+          message: "",
+          printOption: printOption || "",
+        });
+        if (!isDimensionsControlled) {
+          setInternalDimensions("");
+        }
+        onOpenChange(false);
       }
-      onOpenChange(false);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

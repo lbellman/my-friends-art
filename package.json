@@ -26,7 +26,8 @@
     "db:backup:prod:data": "supabase link --project-ref gqqdhvhyzvtymhrkhrsu && supabase db dump --file backup-data-prod.sql",
     "seed:local-assets": "tsx scripts/seed-local-storage.ts",
     "local:create-auth-user": "tsx scripts/create-local-auth-user.ts",
-    "supabase-types": "supabase gen types typescript --local > supabase.ts"
+    "supabase-types": "supabase gen types typescript --local > supabase.ts",
+    "local-db:reset": "supabase db reset && tsx scripts/seed-local-storage.ts"
   },
   "dependencies": {
     "@react-email/components": "^1.0.10",

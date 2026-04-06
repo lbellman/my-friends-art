@@ -16,3 +16,18 @@ create policy "Artists can insert product dimensions for their art pieces"
 
   -- Add archived state to art_piece_statuses enum
   alter type public.art_piece_statuses add value 'archived';
+
+
+  -- Add custom-order type to product_request_types enum
+  alter type public.product_request_types add value 'custom-order';
+
+
+-- Add RLS policy public can update product_dimensions 
+-- This is so that if the email fails, the public can update the status of the request to "email-failed"
+create policy "Public can update product request status"
+  on public.product_request
+  for update
+  to public
+  using (
+    true
+  );

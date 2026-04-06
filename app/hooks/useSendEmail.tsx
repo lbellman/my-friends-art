@@ -1,12 +1,13 @@
 export type SendEmailArgs = {
-  name: string;
-  fromEmail: string;
+  name?: string;
+  fromEmail?: string;
   toEmail: string;
   subject: string;
   message: string;
-  onSuccess: () => void;
-  onError: () => void;
-  setIsSubmitting: (isSubmitting: boolean) => void;
+  onSuccess?: () => void;
+  onError?: () => void;
+  /** When omitted, submitting state is not toggled (e.g. batch flows in `useProductRequest`). */
+  setIsSubmitting?: (isSubmitting: boolean) => void;
 };
 
 /**
@@ -25,7 +26,7 @@ export default function useSendEmail() {
     onError,
     setIsSubmitting,
   }: SendEmailArgs): Promise<boolean> => {
-    setIsSubmitting(true);
+    setIsSubmitting?.(true);
     try {
       const response = await fetch("/api/send-email", {
         method: "POST",
@@ -45,18 +46,18 @@ export default function useSendEmail() {
 
       if (!response.ok) {
         console.error("send-email API:", data.error ?? response.statusText);
-        onError();
+        onError?.();
         return false;
       }
 
-      onSuccess();
+      onSuccess?.();
       return true;
     } catch (error) {
       console.error("send-email fetch:", error);
-      onError();
+      onError?.();
       return false;
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting?.(false);
     }
   };
 
