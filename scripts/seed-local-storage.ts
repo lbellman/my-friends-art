@@ -45,6 +45,25 @@ function resolveServiceRoleKey(): string {
 const DISPLAY_RE = /^display-(\d+)\.(jpe?g|png|webp)$/i;
 const ORIGINAL_RE = /^original\.(jpe?g|png|webp|tiff?)$/i;
 
+function mimeForOriginalFilename(name: string): string {
+  const m = name.match(ORIGINAL_RE);
+  const ext = (m?.[1] ?? "").toLowerCase();
+  switch (ext) {
+    case "jpg":
+    case "jpeg":
+      return "image/jpeg";
+    case "png":
+      return "image/png";
+    case "webp":
+      return "image/webp";
+    case "tif":
+    case "tiff":
+      return "image/tiff";
+    default:
+      return "application/octet-stream";
+  }
+}
+
 async function main() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const serviceKey = resolveServiceRoleKey();
@@ -173,7 +192,7 @@ async function main() {
       const origUp = await supabase.storage
         .from("originals")
         .upload(originalPath, raw, {
-          contentType: "application/octet-stream",
+          contentType: mimeForOriginalFilename(originalEntry),
           upsert: true,
         });
       if (origUp.error) {

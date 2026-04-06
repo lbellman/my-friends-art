@@ -1,7 +1,7 @@
-import { ART_PIECE_STATUS_OPTIONS, getPublicUrl } from "@/@types";
+import { getPublicUrl } from "@/@types";
+import ArtPieceStatusChip from "@/components/atoms/art-piece-status-chip/ArtPieceStatusChip";
 import Link from "next/link";
 import Image from "next/image";
-import { Check, Circle, X } from "lucide-react";
 import { DashboardArtPieceRow } from "@/app/dashboard/page";
 import { useQuery } from "@tanstack/react-query";
 import supabase from "@/lib/supabase/server";
@@ -10,21 +10,10 @@ interface DashboardArtCardProps {
   artPiece: DashboardArtPieceRow;
 }
 
-const approvedClass = "bg-success/30 text-success-foreground";
-const pendingClass = "bg-muted/80 text-muted-foreground";
-const notApprovedClass = "bg-destructive/30 text-destructive-foreground";
-
 export default function DashboardArtCard({ artPiece }: DashboardArtCardProps) {
   const thumbPath = artPiece.thumbnail_path ?? artPiece.display_path;
   const publicUrl = getPublicUrl(thumbPath ?? "");
   const href = `/dashboard/${artPiece.id}`;
-
-  const statusClass =
-    artPiece.status === "approved"
-      ? approvedClass
-      : artPiece.status === "pending-approval"
-        ? pendingClass
-        : notApprovedClass;
 
   const { data: productRequests } = useQuery({
     queryKey: ["product-requests", artPiece.id],
@@ -65,20 +54,10 @@ export default function DashboardArtCard({ artPiece }: DashboardArtCardProps) {
           {artPiece.title}
         </p>
         <div className="flex flex-col gap-1 items-start w-full">
-          <div
-            className={`text-xs mt-0.5 inline-flex items-center gap-2 rounded-full px-3 py-1 ${statusClass}`}
-          >
-            {artPiece.status === "approved" ? (
-              <Check className="size-3" />
-            ) : artPiece.status === "not-approved" ? (
-              <X className="size-3" />
-            ) : (
-              <Circle className="size-3" />
-            )}
-            {artPiece.status
-              ? (ART_PIECE_STATUS_OPTIONS[artPiece.status] ?? artPiece.status)
-              : "—"}
-          </div>
+          <ArtPieceStatusChip
+            status={artPiece.status}
+            className="mt-0.5"
+          />
           {artPiece.status === "approved" && (
             <p className="text-xs text-muted-foreground">
               {!productRequests || productRequests?.length === 0

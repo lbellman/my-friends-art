@@ -39,8 +39,8 @@ export default function ArtistLoginForm() {
         return;
       }
 
-      // On successful login, send artists to the homepage.
-      router.push("/");
+      // On successful login, send artists to their dashboard.
+      router.push("/dashboard");
     } catch (err) {
       setError("Something went wrong while logging in. Please try again.");
       // eslint-disable-next-line no-console

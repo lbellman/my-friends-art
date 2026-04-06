@@ -543,23 +543,6 @@ export type Database = {
       }
     }
     Enums: {
-      art_mediums:
-        | "oil"
-        | "acrylic"
-        | "watercolor"
-        | "pastel"
-        | "pencil"
-        | "digital"
-        | "mixed-media"
-        | "needle-felt"
-        | "crochet"
-        | "knit"
-        | "pen"
-        | "wood"
-        | "clay"
-        | "paper-machet"
-        | "pottery"
-        | "other"
       art_piece_categories:
         | "wall-art"
         | "sculpture-and-ceramics"
@@ -599,6 +582,7 @@ export type Database = {
         | "approved"
         | "not-approved"
         | "sold"
+        | "archived"
       artist_statuses: "pending-approval" | "approved"
       order_status: "pending" | "succeeded"
       payment_intent_status:
@@ -764,24 +748,6 @@ export const Constants = {
   },
   public: {
     Enums: {
-      art_mediums: [
-        "oil",
-        "acrylic",
-        "watercolor",
-        "pastel",
-        "pencil",
-        "digital",
-        "mixed-media",
-        "needle-felt",
-        "crochet",
-        "knit",
-        "pen",
-        "wood",
-        "clay",
-        "paper-machet",
-        "pottery",
-        "other",
-      ],
       art_piece_categories: [
         "wall-art",
         "sculpture-and-ceramics",
@@ -823,6 +789,7 @@ export const Constants = {
         "approved",
         "not-approved",
         "sold",
+        "archived",
       ],
       artist_statuses: ["pending-approval", "approved"],
       order_status: ["pending", "succeeded"],

@@ -16,7 +16,7 @@ import {
   PRINT_QUALITY_LABELS,
 } from "@/lib/print-dimensions";
 
-type AspectRatio = Database["public"]["Enums"]["aspect_ratios"];
+type AspectRatio = any;
 
 const ASPECT_RATIO_OPTIONS: { value: AspectRatio; label: string }[] = [
   { value: "1:1", label: "1:1" },

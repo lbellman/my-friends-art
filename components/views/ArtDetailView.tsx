@@ -1,6 +1,8 @@
 "use client";
 
 import {
+  ART_PIECE_CATEGORY_LABELS,
+  ART_PIECE_SIZE_LABELS,
   ArtistType,
   ArtPiece,
   getPublicUrl,
@@ -60,7 +62,6 @@ export default function ArtDetailView({
     return artPiece?.product_type === "print";
   }, [artPiece?.product_type]);
 
-
   const galleryUrls = useMemo(() => {
     const rows = [...(artPiece?.art_piece_display_image ?? [])].sort(
       (a, b) => a.idx - b.idx,
@@ -88,6 +89,40 @@ export default function ArtDetailView({
   const dimensions = useMemo(() => {
     return artPiece?.product_dimensions;
   }, [artPiece?.product_dimensions]);
+
+  const shouldRenderPhysicalDimensions =
+    !!dimensions?.width_in || !!dimensions?.height_in || !!dimensions?.depth_in;
+
+  const dimensionsSection = useMemo(() => {
+    if (!dimensions) return null;
+    const rows = [
+      dimensions.width_in
+        ? {
+            label: "Width ",
+            value: `${dimensions.width_in}"`,
+          }
+        : null,
+      dimensions.height_in
+        ? {
+            label: "Height ",
+            value: `${dimensions.height_in}"`,
+          }
+        : null,
+      dimensions.depth_in
+        ? {
+            label: "Depth ",
+            value: `${dimensions.depth_in}"`,
+          }
+        : null,
+    ].filter(Boolean) as { label: string; value: string }[];
+
+    return rows.map((dimension) => (
+      <div key={dimension.label} className="flex items-center gap-2">
+        <p className="body2 text-muted-foreground">{dimension.label}</p>
+        <p className="body2 text-foreground">{dimension.value}</p>
+      </div>
+    ));
+  }, [dimensions]);
 
   useEffect(() => {
     if (!artPiece || !isSellingPrint) return;
@@ -118,6 +153,11 @@ export default function ArtDetailView({
                 isLoading={isLoadingArtPiece}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 40vw"
               />
+              {artPiece?.product_type && (
+                <div className="uppercase-overline absolute shadow-md right-2 top-2 z-20 bg-card rounded-full px-3 py-1">
+                  {artPiece.product_type.replaceAll("-", " ")}
+                </div>
+              )}
             </div>
           </div>
           {/* Details */}
@@ -126,9 +166,11 @@ export default function ArtDetailView({
               <Skeleton className="w-full h-10 rounded-md" />
             ) : (
               <div className="flex flex-col flex-nowrap gap-2">
-                <p className="uppercase-overline text-muted-foreground">
-                  {artPiece?.category?.replaceAll("-", " ")}
-                </p>
+                {artPiece?.category ? (
+                  <p className="uppercase-overline text-muted-foreground">
+                    {ART_PIECE_CATEGORY_LABELS[artPiece.category]}
+                  </p>
+                ) : null}
                 <h5 className="font-medium">{artPiece?.title}</h5>
                 {artPiece?.artist && (
                   <Link
@@ -158,58 +200,28 @@ export default function ArtDetailView({
                     {artPiece?.description}
                   </p>
                 )}
+
+                {artPiece?.product_type &&
+                artPiece.product_type !== "print" &&
+                (artPiece.size || shouldRenderPhysicalDimensions) ? (
+                  <div className="flex flex-col flex-nowrap gap-1">
+                    {artPiece.size ? (
+                      <p className="body2 text-foreground">
+                        <span className="text-muted-foreground mr-1">
+                          Size{" "}
+                        </span>
+                        {ART_PIECE_SIZE_LABELS[artPiece.size]}
+                      </p>
+                    ) : null}
+                    {shouldRenderPhysicalDimensions
+                      ? dimensionsSection
+                      : null}
+                  </div>
+                ) : null}
               </div>
             )}
 
-            {/* Product Dimensions */}
             <div className="items-start flex flex-col">
-              {/* Product Dimensions */}
-              <div className="flex flex-col flex-nowrap">
-                {[
-                  dimensions?.width_in
-                    ? {
-                        label: "Width",
-                        value: dimensions?.width_in
-                          ? `${dimensions.width_in}"`
-                          : "-",
-                      }
-                    : null,
-                  dimensions?.height_in
-                    ? {
-                        label: "Height",
-                        value: dimensions?.height_in
-                          ? `${dimensions.height_in}"`
-                          : "-",
-                      }
-                    : null,
-                  dimensions?.depth_in
-                    ? {
-                        label: "Depth",
-                        value: dimensions?.depth_in
-                          ? `${dimensions.depth_in}"`
-                          : "-",
-                      }
-                    : null,
-                ]
-                  .filter(Boolean)
-                  .map(
-                    (dimension) =>
-                      dimension && (
-                        <div
-                          key={dimension?.label}
-                          className="flex items-center gap-2"
-                        >
-                          <p className="body2 text-muted-foreground">
-                            {dimension?.label}
-                          </p>
-                          <p className="body2 text-foreground">
-                            {dimension?.value}
-                          </p>
-                        </div>
-                      ),
-                  )}
-              </div>
-
               {isSellingPrint && artPiece && !isLoadingArtPiece ? (
                 <>
                   <DimensionsSingleSelect

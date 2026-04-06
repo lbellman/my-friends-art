@@ -65,7 +65,6 @@ function SearchResultsContent() {
     id: row.art_piece_id,
     title: row.title,
     thumbnail_path: row.thumbnail_path,
-    medium: row.medium,
     artist: {
       id: row.artist_id,
       name: row.artist_name,

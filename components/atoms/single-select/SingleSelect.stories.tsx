@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import SingleSelect from "@/components/atoms/single-select/SingleSelect";
-import { MEDIUM_OPTIONS } from "@/@types";
+import { PRINT_OPTION_LABELS } from "@/@types";
 
 const meta: Meta<typeof SingleSelect> = {
   title: "Components/atoms/SingleSelect",
@@ -64,9 +64,9 @@ const meta: Meta<typeof SingleSelect> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const mediumOptions = Object.entries(MEDIUM_OPTIONS).map(([key, value]) => ({
+const printOptions = Object.entries(PRINT_OPTION_LABELS).map(([key, label]) => ({
   key,
-  label: value,
+  label,
 }));
 
 export const Default: Story = {
@@ -75,10 +75,10 @@ export const Default: Story = {
     onChange: () => console.log("SingleSelect changed"),
     disabled: false,
     placeholder: "Select an option...",
-    label: "Medium",
+    label: "Print Type",
     id: "select-option",
     required: false,
-    options: mediumOptions,
+    options: printOptions,
   },
 };
 export const Required: Story = {
@@ -87,10 +87,10 @@ export const Required: Story = {
     onChange: () => console.log("SingleSelect changed"),
     disabled: false,
     placeholder: "Select an option...",
-        label: "Medium",
+    label: "Print Type",
     id: "select-option",
     required: true,
-    options: mediumOptions,
+    options: printOptions,
   },
 };
 export const Disabled: Story = {
@@ -99,9 +99,9 @@ export const Disabled: Story = {
     onChange: () => console.log("SingleSelect changed"),
     disabled: true,
     placeholder: "Select an option...",
-    label: "Medium",
+    label: "Print Type",
     id: "select-option",
     required: false,
-    options: mediumOptions,
+    options: printOptions,
   },
 };

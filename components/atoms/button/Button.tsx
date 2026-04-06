@@ -1,7 +1,7 @@
 import { Button as ShadButton } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
-type ButtonVariantType = "primary" | "secondary" | "destructive";
+type ButtonVariantType = "primary" | "secondary" | "destructive" | "success";
 
 interface ButtonProps {
   variant?: ButtonVariantType;
@@ -37,6 +37,8 @@ export default function Button({
             ? "outline"
             : variant === "destructive"
               ? "destructive"
+              : variant === "success"
+                ? "success"
               : "default"
       }
       size={isIconVariant ? "icon" : size}

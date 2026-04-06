@@ -1,6 +1,6 @@
 import { Database, Tables } from "@/supabase";
 import supabase from "@/lib/supabase/server";
-import { CheckCircle, Loader2, XCircle } from "lucide-react";
+import { Archive, CheckCircle, Loader2, XCircle } from "lucide-react";
 
 export const MAX_DISPLAY_IMAGES = 5;
 export const CHAR_LIMITS = {
@@ -39,30 +39,9 @@ export type ArtPiece = Tables<"art_piece"> & {
   };
 };
 
-export type MediumType = Database["public"]["Enums"]["art_mediums"];
-
-// TODO: Add back the physical mediums when original products are supported
-export const MEDIUM_OPTIONS: Record<MediumType, string> = {
-  digital: "Digital",
-  oil: "Oil",
-  acrylic: "Acrylic",
-  watercolor: "Watercolor",
-  pastel: "Pastel",
-  pencil: "Pencil",
-  "mixed-media": "Mixed Media",
-  "needle-felt": "Needle Felt",
-  crochet: "Crochet",
-  knit: "Knit",
-  pen: "Pen",
-  wood: "Wood",
-  clay: "Clay",
-  "paper-machet": "Paper Machet",
-  pottery: "Pottery",
-  other: "Other",
-};
-
 export type ProductRequestRow =
   Database["public"]["Tables"]["product_request"]["Row"];
+  
 export type ProductRequestStatusType =
   Database["public"]["Enums"]["product_request_statuses"];
 export const PRODUCT_REQUEST_STATUS_OPTIONS: Record<
@@ -82,6 +61,7 @@ export const ART_PIECE_STATUS_OPTIONS: Record<ArtPieceStatusType, string> = {
   approved: "Approved",
   "not-approved": "Not Approved",
   sold: "Sold",
+  archived: "Archived",
 };
 
 export const ART_PIECE_STATUS_ICONS: Record<
@@ -92,6 +72,7 @@ export const ART_PIECE_STATUS_ICONS: Record<
   approved: <CheckCircle className="size-4 text-success-foreground" />,
   "not-approved": <XCircle className="size-4 text-destructive-foreground" />,
   sold: <CheckCircle className="size-4 text-success-foreground" />,
+  archived: <Archive className="size-4 text-muted-foreground" />,
 };
 
 export type ProductType = Database["public"]["Enums"]["product_types"];
