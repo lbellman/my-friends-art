@@ -18,7 +18,7 @@ export default function ArtPiecesTab({
   artPieces,
   isLoading,
 }: {
-  artPieces: ArtPiece[];
+  artPieces: DashboardArtPieceRow[];
   isLoading: boolean;
 }) {
   const searchParams = useSearchParams();
@@ -34,7 +34,7 @@ export default function ArtPiecesTab({
     setArtFilter(f);
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", "1");
-    router.replace(`${pathname}?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
   const filteredArtPieces = useMemo(
     () =>
@@ -72,7 +72,7 @@ export default function ArtPiecesTab({
     if (page > filteredTotalPages) {
       const params = new URLSearchParams(searchParams.toString());
       params.set("page", String(filteredTotalPages));
-      router.replace(`${pathname}?${params.toString()}`);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     }
   }, [
     filteredTotalCount,
@@ -167,10 +167,17 @@ export default function ArtPiecesTab({
           onPageChange={(next) => {
             const params = new URLSearchParams(searchParams.toString());
             params.set("page", String(next));
-            router.push(`${pathname}?${params.toString()}`);
+            router.push(`${pathname}?${params.toString()}`, { scroll: false });
           }}
           renderArtPiece={(piece) => (
-            <DashboardArtCard artPiece={piece as DashboardArtPieceRow} />
+            <DashboardArtCard
+              artPiece={piece as DashboardArtPieceRow}
+              listRestore={{
+                namespace: "dashboard",
+                page,
+                tab: "art-pieces",
+              }}
+            />
           )}
           gridClassName="grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 w-full"
         />

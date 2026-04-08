@@ -70,7 +70,7 @@ export default function SearchBar({ onSearch, placeholder }: SearchBarProps) {
       <Dialog open={searchDialogOpen} onOpenChange={setSearchDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Search</DialogTitle>
+            <DialogTitle>search</DialogTitle>
           </DialogHeader>
           <div className="flex gap-2 pt-2">
             <Input

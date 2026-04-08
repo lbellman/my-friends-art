@@ -2,11 +2,11 @@
 
 import {
   ArtistType,
-  type ArtPiece,
   ArtPieceStatusType,
   type ProductRequestRow
 } from "@/@types";
 import useAuth from "@/app/hooks/useAuth";
+import useRestoreDashboard from "@/app/hooks/useRestoreDashboard";
 import Button from "@/components/atoms/button/Button";
 import InternalLayout from "@/components/organisms/InternalLayout";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,7 +20,10 @@ import { useQuery } from "@tanstack/react-query";
 import { LayoutDashboard, Plus } from "lucide-react";
 import Link from "next/link";
 import {
-  redirect
+  redirect,
+  usePathname,
+  useRouter,
+  useSearchParams,
 } from "next/navigation";
 import { useEffect, useMemo } from "react";
 
@@ -33,8 +36,25 @@ export type DashboardArtPieceRow = {
   created_at: string | null;
 };
 
+function parseDashboardTab(
+  raw: string | null,
+): "profile" | "art-pieces" | "product-requests" {
+  if (
+    raw === "profile" ||
+    raw === "art-pieces" ||
+    raw === "product-requests"
+  ) {
+    return raw;
+  }
+  return "profile";
+}
+
 export default function ArtistDashboardView() {
   const { user, loading } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const activeTab = parseDashboardTab(searchParams.get("tab"));
 
   const {
     data: artist,
@@ -93,7 +113,23 @@ export default function ArtistDashboardView() {
     }
   }, [user, loading]);
 
+  useEffect(() => {
+    const raw = searchParams.get("tab");
+    if (
+      raw != null &&
+      raw !== "profile" &&
+      raw !== "art-pieces" &&
+      raw !== "product-requests"
+    ) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("tab");
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    }
+  }, [pathname, router, searchParams]);
+
   const isLoading = isLoadingArtist || isLoadingPieces || loading;
+
+  useRestoreDashboard({ isLoading });
 
   const pendingRequestCount = useMemo(
     () => allProductRequests.filter((r) => r.status === "pending").length,
@@ -218,7 +254,21 @@ export default function ArtistDashboardView() {
         </section>
 
         <div className="flex">
-          <Tabs defaultValue="profile" className="gap-6 w-full">
+          <Tabs
+            value={activeTab}
+            onValueChange={(next) => {
+              const params = new URLSearchParams(searchParams.toString());
+              if (next === "profile") {
+                params.delete("tab");
+              } else {
+                params.set("tab", next);
+              }
+              router.replace(`${pathname}?${params.toString()}`, {
+                scroll: false,
+              });
+            }}
+            className="gap-6 w-full"
+          >
             <TabsList className="max-w-md sm:max-w-none flex-wrap h-auto min-h-9 justify-start">
               <TabsTrigger value="profile" className="flex-none">
                 Artist Profile
@@ -258,7 +308,7 @@ export default function ArtistDashboardView() {
             <TabsContent value="product-requests" className="mt-6">
               <ProductRequestsTab
                 artist={artist as ArtistType}
-                artPieces={artPieces as ArtPiece[]}
+                artPieces={artPieces as DashboardArtPieceRow[]}
                 allProductRequests={allProductRequests as ProductRequestRow[]}
                 refetchProductRequests={refetchProductRequests}
                 isLoadingProductRequests={isLoadingProductRequests}
@@ -267,7 +317,7 @@ export default function ArtistDashboardView() {
 
             <TabsContent value="art-pieces" className="mt-6">
               <ArtPiecesTab
-                artPieces={artPieces as ArtPiece[]}
+                artPieces={artPieces as DashboardArtPieceRow[]}
                 isLoading={isLoadingPieces}
               />
             </TabsContent>

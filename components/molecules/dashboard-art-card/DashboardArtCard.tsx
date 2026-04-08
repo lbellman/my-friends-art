@@ -5,13 +5,23 @@ import Image from "next/image";
 
 import { useQuery } from "@tanstack/react-query";
 import supabase from "@/lib/supabase/server";
+import { artListReturnStorageKey } from "@/lib/art-list-restore";
 import { DashboardArtPieceRow } from "@/components/views/ArtistDashboardView/ArtistDashboardView";
 
 interface DashboardArtCardProps {
   artPiece: DashboardArtPieceRow;
+  /** Persists tab + page + scroll for returning from `/dashboard/[id]` (see `useRestoreDashboard`). */
+  listRestore?: {
+    namespace: string;
+    page: number;
+    tab: "art-pieces";
+  };
 }
 
-export default function DashboardArtCard({ artPiece }: DashboardArtCardProps) {
+export default function DashboardArtCard({
+  artPiece,
+  listRestore,
+}: DashboardArtCardProps) {
   const thumbPath = artPiece.thumbnail_path ?? artPiece.display_path;
   const publicUrl = getPublicUrl(thumbPath ?? "");
   const href = `/dashboard/${artPiece.id}`;
@@ -32,6 +42,17 @@ export default function DashboardArtCard({ artPiece }: DashboardArtCardProps) {
     <Link
       href={href}
       className="block group hover:-translate-y-1 rounded-xl border border-border bg-card overflow-hidden transition-all"
+      onClick={() => {
+        if (typeof window === "undefined" || !listRestore) return;
+        sessionStorage.setItem(
+          artListReturnStorageKey(listRestore.namespace),
+          JSON.stringify({
+            page: listRestore.page,
+            scrollY: window.scrollY,
+            tab: listRestore.tab,
+          }),
+        );
+      }}
     >
       <div className="relative aspect-3/4 bg-muted">
         {publicUrl ? (

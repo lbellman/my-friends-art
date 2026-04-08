@@ -49,8 +49,8 @@ export default function Input({
 
   if (label && id) {
     return (
-      <div className="flex flex-col gap-2">
-        <label htmlFor={id} className="body2">
+      <div className="flex flex-col w-full gap-2">
+        <label htmlFor={id} className="body2 text-left">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>

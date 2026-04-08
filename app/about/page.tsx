@@ -111,7 +111,7 @@ export default function AboutPage() {
                   </NextLink>
                 </>
               }
-              current={true}
+              current={false}
             />
             <Stage
               stageNumber={2}
@@ -123,25 +123,22 @@ export default function AboutPage() {
                   sign in and manage their profiles, artist bio, and art pieces.
                   Simple analytics will be available to allow artists to track
                   how many print requests they have received on their work.
-                  Visitors will be able to comment on art pieces.
                 </>
               }
-              current={false}
+              current={true}
             />
             <Stage
               stageNumber={3}
-              title="in-app payments & shipping"
+              title="payments"
               animationDelay="1200ms"
               description={
                 <>
-                  A payment integration will be added to the platform including
-                  cart, checkout flow, payment processing, and order tracking.
-                  Artists will be able to set their own base pricing for prints,
-                  and the platform will handle the rest. Several details need to
-                  be ironed out for this stage including shipping rates, artist
-                  commissions, and platform fees. At this point, it&apos;s
-                  likely that more developers will be needed for maintenance and
-                  support.
+                  A payment integration will be added so that customers can
+                  purchase prints directly from the platform. Artists will be
+                  responsible for printing, shipping, and setting their own
+                  pricing. Sliding scale pricing will be available if the artist
+                  chooses. There will also be a custom amount option for
+                  customers to make their own offers (to a minumum).
                 </>
               }
               current={false}

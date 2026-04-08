@@ -149,7 +149,7 @@ export default function ArtPieceActionsCard({
     }
 
     const canArchive =
-      artPiece.status !== "archived" && artPiece.status !== "sold";
+      artPiece.status !== "archived" && artPiece.status !== "sold" && artPiece.status !== "pending-approval";
 
     if (canArchive) {
       rows.push({

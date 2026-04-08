@@ -11,22 +11,29 @@ import ArtPieceStatusChip from "@/components/atoms/art-piece-status-chip/ArtPiec
 import Button from "@/components/atoms/button/Button";
 import MultiImageDisplay from "@/components/molecules/multi-image-display/MultiImageDisplay";
 import ProductRequestCard from "@/components/molecules/product-request-card/ProductRequestCard";
+import {
+  PaginatedProductRequests,
+  PRODUCT_REQUESTS_PAGE_SIZE,
+} from "@/components/organisms/paginated-product-requests/PaginatedProductRequests";
 import InternalLayout from "@/components/organisms/InternalLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import ArtPieceActionsCard from "@/components/views/DashboardArtPieceView/ArtPieceActionsCard";
+import ArtPieceStatusBanner from "@/components/views/DashboardArtPieceView/ArtPieceStatusBanner";
 import DetailsCard from "@/components/views/DashboardArtPieceView/DetailsCard";
+import EditDisplayImagesDialog from "@/components/views/DashboardArtPieceView/EditDisplayImagesDialog";
 import { resolveDownloadImageType } from "@/lib/sniff-image-type";
 import supabase from "@/lib/supabase/server";
-import { useQuery } from "@tanstack/react-query";
-import { Download } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Download, Edit } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 type ProductRequestFilter = "all" | "pending" | "fulfilled" | "cancelled";
 
 export default function DashboardArtPieceView() {
   const { artPieceId } = useParams<{ artPieceId: string }>();
+  const queryClient = useQueryClient();
   const {
     data: artPiece,
     isLoading: isLoadingArtPiece,
@@ -76,41 +83,74 @@ export default function DashboardArtPieceView() {
   const [requestFilter, setRequestFilter] =
     useState<ProductRequestFilter>("pending");
 
+  const [productRequestPage, setProductRequestPage] = useState(1);
+
   const [isDownloadingOriginal, setIsDownloadingOriginal] = useState(false);
+  const [editDisplayImagesOpen, setEditDisplayImagesOpen] = useState(false);
+  /** Bumps after display images change so public URLs (same storage path) bypass browser/CDN cache. */
+  const [galleryCacheNonce, setGalleryCacheNonce] = useState(0);
 
   const galleryUrls = useMemo(() => {
     if (!artPiece) return [];
+    const withCacheBust = (path: string) => {
+      const url = getPublicUrl(path);
+      if (!url) return "";
+      const sep = url.includes("?") ? "&" : "?";
+      return `${url}${sep}v=${galleryCacheNonce}`;
+    };
     const rows = [...(artPiece.art_piece_display_image ?? [])].sort(
       (a, b) => a.idx - b.idx,
     );
     if (rows.length > 0) {
-      return rows.map((r) => getPublicUrl(r.path)).filter(Boolean);
+      return rows.map((r) => withCacheBust(r.path)).filter(Boolean);
     }
-    const fallback = getPublicUrl(
+    const fallback = withCacheBust(
       artPiece.display_path ?? artPiece.thumbnail_path ?? "",
     );
     return fallback ? [fallback] : [];
-  }, [artPiece]);
+  }, [artPiece, galleryCacheNonce]);
 
   const formattedCreatedAt = artPiece?.created_at
     ? new Date(artPiece.created_at).toLocaleString()
     : "—";
-
-  const handleUpdateProductRequestStatus = async (
-    id: string,
-    status: ProductRequestStatusType,
-  ) => {
-    await supabase.from("product_request").update({ status }).eq("id", id);
-    void refetchProductRequests();
-  };
 
   const filteredProductRequests = productRequests.filter((request) => {
     if (requestFilter === "all") return true;
     return request.status === requestFilter;
   });
 
+  const filteredProductRequestPages =
+    filteredProductRequests.length > 0
+      ? Math.max(
+          1,
+          Math.ceil(
+            filteredProductRequests.length / PRODUCT_REQUESTS_PAGE_SIZE,
+          ),
+        )
+      : 0;
+
+  const pagedProductRequests = useMemo(() => {
+    const from = (productRequestPage - 1) * PRODUCT_REQUESTS_PAGE_SIZE;
+    return filteredProductRequests.slice(
+      from,
+      from + PRODUCT_REQUESTS_PAGE_SIZE,
+    );
+  }, [filteredProductRequests, productRequestPage]);
+
+  useEffect(() => {
+    setProductRequestPage(1);
+  }, [requestFilter]);
+
+  useEffect(() => {
+    if (filteredProductRequestPages === 0) return;
+    if (productRequestPage > filteredProductRequestPages) {
+      setProductRequestPage(filteredProductRequestPages);
+    }
+  }, [filteredProductRequestPages, productRequestPage]);
+
   const handleDownloadPrintQualityImage = async () => {
     if (!artPiece?.original_path) return;
+    if (artPiece.status === "pending-approval") return;
     setIsDownloadingOriginal(true);
     try {
       const { data: blob, error } = await supabase.storage
@@ -145,10 +185,7 @@ export default function DashboardArtPieceView() {
   };
 
   return (
-    <InternalLayout
-      title={"art piece details"}
-      back={{ href: "/dashboard", label: "Back to dashboard" }}
-    >
+    <InternalLayout back={{ href: "/dashboard", label: "Back to dashboard" }}>
       <div className="max-w-5xl mx-auto flex flex-col gap-8">
         {isLoadingArtPiece ? (
           <div className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] items-start">
@@ -168,6 +205,8 @@ export default function DashboardArtPieceView() {
           <p className="text-muted-foreground">Art piece not found.</p>
         ) : (
           <>
+            <ArtPieceStatusBanner status={artPiece.status} />
+
             {/* Header: image + details */}
             <div className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] items-start">
               <div className="relative w-full aspect-3/4 rounded-xl overflow-hidden bg-muted border border-border">
@@ -177,6 +216,17 @@ export default function DashboardArtPieceView() {
                   fallbackTitle={artPiece.title ?? ""}
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 40vw"
                 />
+                {artPiece.status === "approved" && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    label="Edit images"
+                    icon={<Edit className="size-4" />}
+                    className="absolute top-2 right-2 z-10"
+                    onClick={() => setEditDisplayImagesOpen(true)}
+                  />
+                )}
               </div>
               <DetailsCard artPiece={artPiece as ArtPiece} />
             </div>
@@ -188,29 +238,31 @@ export default function DashboardArtPieceView() {
                   <h3 className="text-base text-foreground">metadata</h3>
 
                   {/* Download print quality image */}
-                  <div className="">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="secondary"
-                      label={
-                        isDownloadingOriginal
-                          ? "Preparing download…"
-                          : "Download Print Quality Image"
-                      }
-                      icon={<Download className="size-4" />}
-                      disabled={
-                        !artPiece.original_path || isDownloadingOriginal
-                      }
-                      loading={isDownloadingOriginal}
-                      onClick={() => void handleDownloadPrintQualityImage()}
-                    />
-                    {!artPiece.original_path && (
-                      <p className="text-xs text-muted-foreground mt-2">
-                        No print-quality original is stored for this piece.
-                      </p>
-                    )}
-                  </div>
+                  {artPiece.status !== "pending-approval" && (
+                    <div className="">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="secondary"
+                        label={
+                          isDownloadingOriginal
+                            ? "Preparing download…"
+                            : "Download Print Quality Image"
+                        }
+                        icon={<Download className="size-4" />}
+                        disabled={
+                          !artPiece.original_path || isDownloadingOriginal
+                        }
+                        loading={isDownloadingOriginal}
+                        onClick={() => void handleDownloadPrintQualityImage()}
+                      />
+                      {!artPiece.original_path && (
+                        <p className="text-xs text-muted-foreground mt-2">
+                          No print-quality original is stored for this piece.
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <dl className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-4 text-sm">
                   <div>
@@ -229,12 +281,6 @@ export default function DashboardArtPieceView() {
                     <dt className="text-muted-foreground">Created at</dt>
                     <dd className="font-medium text-foreground">
                       {formattedCreatedAt}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Status</dt>
-                    <dd className="mt-1">
-                      <ArtPieceStatusChip status={artPiece.status} />
                     </dd>
                   </div>
                 </dl>
@@ -290,32 +336,46 @@ export default function DashboardArtPieceView() {
                 )}
               </div>
 
-              {isLoadingRequests ? (
-                <div className="space-y-3">
-                  <Skeleton className="h-24 w-full rounded-lg" />
-                  <Skeleton className="h-24 w-full rounded-lg" />
-                </div>
-              ) : filteredProductRequests.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  {requestFilter === "all"
-                    ? "There are no product requests for this piece yet."
-                    : `There are no ${requestFilter} requests for this piece.`}
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {filteredProductRequests.map((request) => (
-                    <ProductRequestCard
-                      key={request.id}
-                      request={request}
-                      artPiece={artPiece as ArtPiece}
-                      onChangeStatus={handleUpdateProductRequestStatus}
-                      artist={artPiece.artist as ArtistType}
-                    />
-                  ))}
-                </div>
-              )}
+              <PaginatedProductRequests
+                items={pagedProductRequests}
+                totalCount={filteredProductRequests.length}
+                page={productRequestPage}
+                pageSize={PRODUCT_REQUESTS_PAGE_SIZE}
+                isLoading={isLoadingRequests}
+                emptyContent={
+                  <p className="text-sm text-muted-foreground">
+                    {artPiece.status === "pending-approval"
+                      ? "When this piece is approved, product requests will appear here."
+                      : requestFilter === "all"
+                        ? "There are no product requests for this piece yet."
+                        : `There are no ${requestFilter} requests for this piece.`}
+                  </p>
+                }
+                onPageChange={setProductRequestPage}
+                renderRequest={(request) => (
+                  <ProductRequestCard
+                    request={request}
+                    artPiece={artPiece as ArtPiece}
+                    onStatusChangeSuccess={() => void refetchProductRequests()}
+                    artist={artPiece.artist as ArtistType}
+                  />
+                )}
+              />
             </section>
             <ArtPieceActionsCard artPiece={artPiece as ArtPiece} />
+
+            <EditDisplayImagesDialog
+              open={editDisplayImagesOpen}
+              onOpenChange={setEditDisplayImagesOpen}
+              artPieceId={artPiece.id}
+              existingDisplayUrls={galleryUrls}
+              onSuccess={() => {
+                setGalleryCacheNonce((n) => n + 1);
+                void queryClient.invalidateQueries({
+                  queryKey: ["dashboard-art-piece", artPieceId],
+                });
+              }}
+            />
           </>
         )}
       </div>

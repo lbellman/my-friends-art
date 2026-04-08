@@ -14,7 +14,6 @@ import {
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import {
   LayoutDashboard,
-  LayoutGrid,
   List,
   LogOut,
   Menu,
@@ -96,16 +95,22 @@ export default function Navbar() {
                   </span>
                 }
                 items={[
-                  ...(isAdmin) ? [{
-                    key: "submissions",
-                    label: "Art Piece Submissions",
-                    icon: <List className="size-4 text-foreground" />,
-                    href: "/admin/art-piece-submissions",
-                  }] : [],
+                  ...(isAdmin
+                    ? [
+                        {
+                          key: "submissions",
+                          label: "Art Piece Submissions",
+                          icon: <List className="size-4 text-foreground" />,
+                          href: "/admin/art-piece-submissions",
+                        },
+                      ]
+                    : []),
                   {
                     key: "dashboard",
                     label: "Artist Dashboard",
-                    icon: <LayoutDashboard className="size-4 text-foreground" />,
+                    icon: (
+                      <LayoutDashboard className="size-4 text-foreground" />
+                    ),
                     href: "/dashboard",
                   },
                   {
@@ -166,19 +171,16 @@ export default function Navbar() {
                 <>
                   <DropdownMenuLabel className="border-t pt-2 mt-2 pb-2 font-normal">
                     <span className="flex items-center gap-2 flex-wrap min-w-0">
-                      <span className="truncate text-foreground">
+                      <span className="truncate text-foreground font-medium">
                         {getUserDisplayName(user)}
                       </span>
                       {!adminLoading && isAdmin ? <AdminChip /> : null}
                     </span>
                   </DropdownMenuLabel>
-                  <DropdownMenuItem asChild className="pt-0">
+                  <DropdownMenuItem asChild className="pt-2 ">
                     <div className="flex items-center gap-2">
-                      <LayoutGrid className="size-4 text-foreground" />
-                      <Link
-                        href="/dashboard"
-                        className=" cursor-pointer"
-                      >
+                      <LayoutDashboard className="size-4 text-foreground" />
+                      <Link href="/dashboard" className=" cursor-pointer">
                         Artist Dashboard
                       </Link>
                     </div>
@@ -197,10 +199,7 @@ export default function Navbar() {
                   <DropdownMenuItem asChild>
                     <div className="flex items-center gap-2">
                       <User className="size-4 text-foreground" />
-                      <Link
-                        href="/account"
-                        className=" cursor-pointer"
-                      >
+                      <Link href="/account" className=" cursor-pointer">
                         Account
                       </Link>
                     </div>

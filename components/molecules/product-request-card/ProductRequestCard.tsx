@@ -17,21 +17,19 @@ import Image from "next/image";
 import ConfirmDialog from "@/components/organisms/confirm-dialog/ConfirmDialog";
 import useSendEmail from "@/app/hooks/useSendEmail";
 import { toast } from "sonner";
+import supabase from "@/lib/supabase/server";
 
 interface ProductRequestCardProps {
   request: ProductRequestRow;
   artPiece: ArtPiece;
-  onChangeStatus: (
-    id: string,
-    status: ProductRequestStatusType,
-  ) => Promise<void>;
+  onStatusChangeSuccess: () => void;
   showImage?: boolean;
   artist: ArtistType;
 }
 
 export default function ProductRequestCard({
   request,
-  onChangeStatus,
+  onStatusChangeSuccess,
   artPiece,
   showImage = false,
   artist,
@@ -59,7 +57,6 @@ export default function ProductRequestCard({
       nextStatus === "cancelled"
         ? "If you think there has been an error, please contact the artist directly, or bellmanlindsey@gmail.com for support."
         : null,
-      ,
       "Thank you!",
     ]
       .filter(Boolean)
@@ -68,13 +65,35 @@ export default function ProductRequestCard({
     return message;
   };
 
+  const handleUpdateProductRequestStatus = async (
+    id: string,
+    status: ProductRequestStatusType,
+  ) => {
+    if (status === "cancelled") {
+      const { error } = await supabase
+        .from("product_request")
+        .delete()
+        .eq("id", id);
+      if (error) throw error;
+    } else {
+      const { error } = await supabase
+        .from("product_request")
+        .update({ status })
+        .eq("id", id);
+      if (error) throw error;
+    }
+    void onStatusChangeSuccess();
+  };
+
   const handleStatusChange = async (nextStatus: ProductRequestStatusType) => {
     if (nextStatus === status) return;
 
-    setStatus(nextStatus);
+    if (nextStatus !== "cancelled") {
+      setStatus(nextStatus);
+    }
     setIsSaving(true);
     try {
-      await onChangeStatus(request.id, nextStatus);
+      await handleUpdateProductRequestStatus(request.id, nextStatus);
       await sendEmail({
         name: artist?.name,
         fromEmail: artist?.email_address ?? "",
@@ -82,10 +101,17 @@ export default function ProductRequestCard({
         subject: `Purchase Request Status Update for ${artPiece.title}`,
         message: statusUpdateMessage(nextStatus),
         onSuccess: () => {
-          toast.success("Status has been updated.", {
-            description:
-              "An email has been sent to your customer to notify them of the status change.",
-          });
+          toast.success(
+            nextStatus === "cancelled"
+              ? "Request cancelled."
+              : "Status has been updated.",
+            {
+              description:
+                nextStatus === "cancelled"
+                  ? "The request was removed and your customer was notified by email."
+                  : "An email has been sent to your customer to notify them of the status change.",
+            },
+          );
         },
         onError: () => {},
         setIsSubmitting: () => {},
@@ -94,6 +120,12 @@ export default function ProductRequestCard({
       setStatus(request.status);
     } finally {
       setIsSaving(false);
+      if (confirmCancelDialogOpen) {
+        setConfirmCancelDialogOpen(false);
+      }
+      if (confirmFulfillDialogOpen) {
+        setConfirmFulfillDialogOpen(false);
+      }
     }
   };
 
@@ -102,9 +134,7 @@ export default function ProductRequestCard({
 
   const content = (
     <>
-      <p className="uppercase-overline">
-        {artPiece.title}
-      </p>
+      <p className="uppercase-overline">{artPiece.title}</p>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
           <p className="font-medium text-foreground">
@@ -136,7 +166,6 @@ export default function ProductRequestCard({
 
       {request.message && (
         <div className="">
-          
           <p className={cn("text-sm text-foreground whitespace-pre-line")}>
             Message: {request.message ?? "-"}
           </p>

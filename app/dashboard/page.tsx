@@ -5,9 +5,9 @@ import ArtistDashboardView from "@/components/views/ArtistDashboardView/ArtistDa
 
 function DashboardPageFallback() {
   return (
-    <InternalLayout title="artist dashboard">
+    <InternalLayout>
       <div className="w-full max-w-6xl mx-auto flex flex-col gap-12">
-        <Skeleton className="h-8 w-64" />
+        
         <div className="grid grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="rounded-xl overflow-hidden">

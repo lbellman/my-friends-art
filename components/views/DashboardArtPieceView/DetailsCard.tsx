@@ -225,16 +225,19 @@ export default function DetailsCard({ artPiece }: { artPiece: ArtPiece }) {
 
   const hasSize = !!artPiece.size;
 
+  const canEdit =
+    !isEditing &&
+    artPiece.status !== "pending-approval" &&
+    artPiece.status !== "sold" &&
+    artPiece.status !== "archived";
+
   return (
     <section className="bg-card border border-border rounded-xl p-6 space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <h3 className="text-base text-foreground">details</h3>
         <div className="flex items-center gap-2">
-          <ArtPieceStatusChip status={artPiece.status} />
-          {isEditing ||
-          artPiece?.status === "sold" ||
-          artPiece?.status === "archived" ? null : (
+          {canEdit ? (
             <Button
               label="Edit"
               variant="secondary"
@@ -242,7 +245,7 @@ export default function DetailsCard({ artPiece }: { artPiece: ArtPiece }) {
               onClick={() => setIsEditing(true)}
               icon={<Pencil className="size-4" />}
             />
-          )}
+          ) : null}
         </div>
       </div>
       {/* Details */}

@@ -35,7 +35,6 @@ export default function AdminArtPieceSubmissionDetailPage() {
         href: "/admin/art-piece-submissions",
         label: "Back to submissions",
       }}
-      previewMode={true}
     />
   );
 }

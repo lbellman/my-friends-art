@@ -14,6 +14,10 @@ const pages = [
     label: "Our Artists",
     href: "/artists",
   },
+  {
+    label: "Found a Bug",
+    href: "/found-a-bug",
+  },
 ];
 
 const forArtists = [
@@ -40,6 +44,10 @@ const footerLinks = [
   {
     label: "Our Artists",
     href: "/artists",
+  },
+  {
+    label: "Found a bug",
+    href: "/found-a-bug",
   },
   {
     label: "Become an Artist",

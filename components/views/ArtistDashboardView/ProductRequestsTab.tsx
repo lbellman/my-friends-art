@@ -7,9 +7,14 @@ import {
 } from "@/@types";
 import Button from "@/components/atoms/button/Button";
 import ProductRequestCard from "@/components/molecules/product-request-card/ProductRequestCard";
-import { Skeleton } from "@/components/ui/skeleton";
+import {
+  PaginatedProductRequests,
+  PRODUCT_REQUESTS_PAGE_SIZE,
+} from "@/components/organisms/paginated-product-requests/PaginatedProductRequests";
+import { DashboardArtPieceRow } from "@/components/views/ArtistDashboardView/ArtistDashboardView";
 import supabase from "@/lib/supabase/server";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 
 type RequestFilter = "all" | ProductRequestStatusType;
 
@@ -21,17 +26,24 @@ export default function ProductRequestsTab({
   refetchProductRequests,
 }: {
   artist: ArtistType;
-  artPieces: ArtPiece[];
+  artPieces: DashboardArtPieceRow[];
   allProductRequests: ProductRequestRow[];
   refetchProductRequests: () => void;
   isLoadingProductRequests: boolean;
 }) {
-  const [requestFilter, setRequestFilter] = useState<RequestFilter>("all");
-  const [showAllRequests, setShowAllRequests] = useState(false);
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+  const rawPreqPage = searchParams.get("preqPage");
+  const preqPage = Math.max(1, parseInt(rawPreqPage ?? "1", 10) || 1);
+
+  const [requestFilter, setRequestFilter] = useState<RequestFilter>("pending");
 
   const pickRequestFilter = (f: RequestFilter) => {
     setRequestFilter(f);
-    setShowAllRequests(false);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("preqPage", "1");
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   const filteredProductRequests = useMemo(() => {
@@ -47,26 +59,38 @@ export default function ProductRequestsTab({
     () => allProductRequests.filter((r) => r.status === "fulfilled").length,
     [allProductRequests],
   );
-  const cancelledCount = useMemo(
-    () => allProductRequests.filter((r) => r.status === "cancelled").length,
-    [allProductRequests],
-  );
 
   const totalCount = allProductRequests.length;
   const filteredTotalCount = filteredProductRequests.length;
 
-  const displayProductRequests = showAllRequests
-    ? filteredProductRequests
-    : filteredProductRequests.slice(0, 6);
-  const hasMoreRequests = filteredProductRequests.length > 6;
+  const filteredTotalPages =
+    filteredTotalCount > 0
+      ? Math.max(1, Math.ceil(filteredTotalCount / PRODUCT_REQUESTS_PAGE_SIZE))
+      : 0;
 
-  const handleUpdateProductRequestStatus = async (
-    id: string,
-    status: ProductRequestStatusType,
-  ) => {
-    await supabase.from("product_request").update({ status }).eq("id", id);
-    void refetchProductRequests();
-  };
+  const pagedProductRequests = useMemo(() => {
+    const from = (preqPage - 1) * PRODUCT_REQUESTS_PAGE_SIZE;
+    return filteredProductRequests.slice(
+      from,
+      from + PRODUCT_REQUESTS_PAGE_SIZE,
+    );
+  }, [filteredProductRequests, preqPage]);
+
+  useEffect(() => {
+    if (filteredTotalCount === 0 || filteredTotalPages === 0) return;
+    if (preqPage > filteredTotalPages) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("preqPage", String(filteredTotalPages));
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    }
+  }, [
+    filteredTotalCount,
+    filteredTotalPages,
+    preqPage,
+    router,
+    pathname,
+    searchParams,
+  ]);
 
   return (
     <section className="space-y-4">
@@ -97,32 +121,24 @@ export default function ProductRequestsTab({
               label={`${PRODUCT_REQUEST_STATUS_OPTIONS.fulfilled} (${fulfilledCount})`}
               onClick={() => pickRequestFilter("fulfilled")}
             />
-            <Button
-              type="button"
-              size="sm"
-              variant={requestFilter === "cancelled" ? "primary" : "secondary"}
-              label={`${PRODUCT_REQUEST_STATUS_OPTIONS.cancelled} (${cancelledCount})`}
-              onClick={() => pickRequestFilter("cancelled")}
-            />
           </div>
         )}
       </div>
 
-      {isLoadingProductRequests ? (
-        <div className="space-y-3">
-          <Skeleton className="h-32 w-full rounded-lg" />
-          <Skeleton className="h-32 w-full rounded-lg" />
-        </div>
-      ) : allProductRequests.length === 0 ? (
+      {allProductRequests.length === 0 && !isLoadingProductRequests ? (
         <div className="bg-card border border-border rounded-lg p-6 text-center">
           <p className="text-muted-foreground text-sm">
             No product requests yet. Requests will appear here when someone
             requests to purchase your art.
           </p>
         </div>
-      ) : filteredTotalCount === 0 ? (
+      ) : filteredTotalCount === 0 &&
+        !isLoadingProductRequests &&
+        allProductRequests.length > 0 ? (
         <div className="bg-card border border-border rounded-lg p-8 text-center">
           <p className="text-base text-muted-foreground">
+            {requestFilter === "all" &&
+              "No product requests match your current filters."}
             {requestFilter === "pending" &&
               "You don’t have any pending requests."}
             {requestFilter === "fulfilled" &&
@@ -137,53 +153,43 @@ export default function ProductRequestsTab({
           </p>
         </div>
       ) : (
-        <>
-          <ul className="space-y-4">
-            {displayProductRequests.map((request) => {
-              const piece = artPieces.find(
-                (p) => p.id === request.art_piece_id,
-              );
-              const artPieceForCard: ArtPiece | null =
-                piece && artist
-                  ? ({
-                      ...piece,
-                      artist: {
-                        id: artist.id,
-                        name: artist.name ?? "",
-                        email_address: "",
-                      },
-                    } as ArtPiece)
-                  : null;
-              if (!artPieceForCard) return null;
-              return (
-                <li key={request.id}>
-                  <ProductRequestCard
-                    request={request}
-                    artPiece={artPieceForCard}
-                    onChangeStatus={handleUpdateProductRequestStatus}
-                    showImage
-                    artist={artist as ArtistType}
-                  />
-                </li>
-              );
-            })}
-          </ul>
-          {hasMoreRequests && (
-            <div className="flex justify-center pt-2">
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                label={
-                  showAllRequests
-                    ? "Show less"
-                    : `See all (${filteredProductRequests.length})`
-                }
-                onClick={() => setShowAllRequests((prev) => !prev)}
+        <PaginatedProductRequests
+          items={pagedProductRequests}
+          totalCount={filteredTotalCount}
+          page={preqPage}
+          pageSize={PRODUCT_REQUESTS_PAGE_SIZE}
+          isLoading={isLoadingProductRequests}
+          emptyContent={null}
+          onPageChange={(next) => {
+            const params = new URLSearchParams(searchParams.toString());
+            params.set("preqPage", String(next));
+            router.push(`${pathname}?${params.toString()}`, { scroll: false });
+          }}
+          renderRequest={(request) => {
+            const piece = artPieces.find((p) => p.id === request.art_piece_id);
+            const artPieceForCard: ArtPiece | null =
+              piece && artist
+                ? ({
+                    ...piece,
+                    artist: {
+                      id: artist.id,
+                      name: artist.name ?? "",
+                      email_address: "",
+                    },
+                  } as ArtPiece)
+                : null;
+            if (!artPieceForCard) return null;
+            return (
+              <ProductRequestCard
+                request={request}
+                artPiece={artPieceForCard}
+                onStatusChangeSuccess={() => void refetchProductRequests()}
+                showImage
+                artist={artist as ArtistType}
               />
-            </div>
-          )}
-        </>
+            );
+          }}
+        />
       )}
     </section>
   );

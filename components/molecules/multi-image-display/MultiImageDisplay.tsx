@@ -42,14 +42,15 @@ export default function MultiImageDisplay({
   const showNav = numUrls > 1 && !isLoading;
 
   return (
-    <div className={cn("absolute inset-0 h-full w-full")}>
+    <div className="flex h-full min-h-0 w-full flex-1 flex-col">
       <div
         className={cn(
-          "relative w-full min-h-[240px] overflow-hidden rounded-lg bg-muted md:min-h-[280px] h-full ",
+          "relative min-h-0 w-full flex-1 overflow-hidden rounded-lg bg-muted only:min-h-[240px] md:only:min-h-[280px]",
+          numUrls <= 1 && "h-full",
         )}
       >
         {isLoading ? (
-          <Skeleton className="min-h-[240px] w-full rounded-lg md:min-h-[280px]" />
+          <Skeleton className="min-h-[240px] h-full w-full rounded-lg md:min-h-[280px]" />
         ) : currentSrc ? (
           <>
             <Image
@@ -91,13 +92,45 @@ export default function MultiImageDisplay({
             )}
           </>
         ) : (
-          <div className="flex w-full items-center justify-center h-full">
+          <div className="flex h-full w-full items-center justify-center">
             <p className="text-6xl font-light font-display text-muted-foreground/50">
               {fallbackTitle ? fallbackTitle.charAt(0) : null}
             </p>
           </div>
         )}
       </div>
+
+      {showNav && (
+        <div
+          className="mt-2 flex shrink-0 gap-2 overflow-x-auto pb-0.5 pt-0.5 [-ms-overflow-style:none] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-1.5"
+          role="group"
+          aria-label="Gallery images"
+        >
+          {urls.map((src, i) => (
+            <button
+              key={`${src}-${i}`}
+              type="button"
+              aria-pressed={i === index}
+              aria-label={`Image ${i + 1} of ${numUrls}`}
+              onClick={() => setIndex(i)}
+              className={cn(
+                "relative h-14 w-14 shrink-0 overflow-hidden rounded-md border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                i === index
+                  ? "border-primary ring-2 ring-primary/25"
+                  : "border-border/80 hover:border-muted-foreground/40",
+              )}
+            >
+              <Image
+                src={src}
+                alt=""
+                fill
+                className="object-cover"
+                sizes="56px"
+              />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

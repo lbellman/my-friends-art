@@ -29,14 +29,12 @@ import { useEffect, useMemo, useState } from "react";
 export default function ArtDetailView({
   artPieceIdentifier,
   back,
-  previewMode = false,
 }: {
   artPieceIdentifier: string;
   back: {
     href: string;
     label: string;
   };
-  previewMode?: boolean;
 }) {
   const { data: artPiece, isLoading: isLoadingArtPiece } = useQuery({
     queryKey: ["artPiece", artPieceIdentifier],
@@ -154,14 +152,14 @@ export default function ArtDetailView({
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 40vw"
               />
               {artPiece?.product_type && (
-                <div className="uppercase-overline absolute shadow-md right-2 top-2 z-20 bg-card rounded-full px-3 py-1">
+                <div className="uppercase-overline absolute shadow-md right-2 top-2 z-2 bg-card rounded-full px-3 py-1">
                   {artPiece.product_type.replaceAll("-", " ")}
                 </div>
               )}
             </div>
           </div>
           {/* Details */}
-          <div className="flex-1 flex flex-col rounded-lg flex-nowrap py-6 gap-4">
+          <div className="flex-1 flex flex-col rounded-lg flex-nowrap py-6 gap-8">
             {isLoadingArtPiece ? (
               <Skeleton className="w-full h-10 rounded-md" />
             ) : (
@@ -196,7 +194,7 @@ export default function ArtDetailView({
                   </Link>
                 )}
                 {artPiece?.description && (
-                  <p className="body2 text-muted-foreground">
+                  <p className="body2 text-muted-foreground mt-4">
                     {artPiece?.description}
                   </p>
                 )}
@@ -213,9 +211,7 @@ export default function ArtDetailView({
                         {ART_PIECE_SIZE_LABELS[artPiece.size]}
                       </p>
                     ) : null}
-                    {shouldRenderPhysicalDimensions
-                      ? dimensionsSection
-                      : null}
+                    {shouldRenderPhysicalDimensions ? dimensionsSection : null}
                   </div>
                 ) : null}
               </div>

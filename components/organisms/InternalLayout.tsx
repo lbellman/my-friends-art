@@ -40,7 +40,7 @@ export default function InternalLayout({
         )}
       >
         {back && (
-          <div className="mb-4">
+          <div className={"mb-4 " + (!title ? "flex w-full px-6 " : "")}>
             <Link href={back.href} ariaLabel={back.label}>
               <div className="flex items-center gap-2">
                 <ArrowLeftIcon className="w-4 h-4" />
