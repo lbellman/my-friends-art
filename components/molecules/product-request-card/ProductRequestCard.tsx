@@ -130,7 +130,7 @@ export default function ProductRequestCard({
   };
 
   const imagePath = artPiece.thumbnail_path ?? null;
-  const imageUrl = imagePath ? getPublicUrl(imagePath) : null;
+  const imageUrl = imagePath ? getPublicUrl('art-pieces', imagePath) : null;
 
   const content = (
     <>

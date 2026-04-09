@@ -93,7 +93,7 @@ export default function DashboardArtPieceView() {
   const galleryUrls = useMemo(() => {
     if (!artPiece) return [];
     const withCacheBust = (path: string) => {
-      const url = getPublicUrl(path);
+      const url = getPublicUrl('art-pieces', path);
       if (!url) return "";
       const sep = url.includes("?") ? "&" : "?";
       return `${url}${sep}v=${galleryCacheNonce}`;

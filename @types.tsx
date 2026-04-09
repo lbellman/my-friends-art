@@ -127,7 +127,7 @@ export const ART_PIECE_SIZE_LABELS: Record<ArtPieceSizeType, string> = {
 };
 
 // @types.tsx
-export function getPublicUrl(path: string) {
+export function getPublicUrl(bucket: "art-pieces" | "profile-pictures", path: string) {
   if (!path) return "";
 
   // If Storybook or app passes an absolute or root-relative URL, just use it
@@ -139,6 +139,6 @@ export function getPublicUrl(path: string) {
     return path;
   }
 
-  const { data } = supabase.storage.from("art-pieces").getPublicUrl(path);
+  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
   return data.publicUrl;
 }

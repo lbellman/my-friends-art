@@ -1,3 +1,19 @@
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    prefetch: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
+    refresh: jest.fn(),
+  }),
+  usePathname: () => '/',
+  useSearchParams: () => new URLSearchParams(),
+  useParams: () => ({}),
+  redirect: jest.fn(),
+  notFound: jest.fn(),
+}));
+
 // Fake data matching what your app expects
 const fakeArtists = [
   {
@@ -57,8 +73,15 @@ jest.mock('@/lib/supabase/server', () => ({
             : { data: null, error: null }
       ),
     storage: {
-      from: () => ({
-        getPublicUrl: (path) => ({ data: { publicUrl: path ? `https://mock.storage/${path}` : undefined } }),
+      // Matches Supabase: storage.from(bucket).getPublicUrl(objectPath) — one arg only.
+      from: (bucket) => ({
+        getPublicUrl: (objectPath) => ({
+          data: {
+            publicUrl: objectPath
+              ? `https://mock.storage/${bucket}/${objectPath}`
+              : undefined,
+          },
+        }),
       }),
     },
   },

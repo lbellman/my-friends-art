@@ -14,7 +14,7 @@ interface ArtCardProps {
 }
 
 export function ArtCard({ artPiece, href, listRestore }: ArtCardProps) {
-  const publicUrl = getPublicUrl(artPiece.thumbnail_path ?? "");
+  const publicUrl = getPublicUrl('art-pieces', artPiece.thumbnail_path ?? "");
   return (
     <Link
       href={href}

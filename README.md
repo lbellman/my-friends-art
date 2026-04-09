@@ -5,7 +5,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 - **Next.js app** runs on Node 18+.
 - **Storybook 10** requires **Node 20.19+** or **22.12+** (`pnpm storybook`, `pnpm build-storybook`).
 - This repo includes **`.nvmrc`** (`20.19.0`). With [nvm](https://github.com/nvm-sh/nvm): `nvm install && nvm use`.
-- **Full pipeline** (app build + Jest + Storybook static build): `pnpm verify` — use Node **20.19+** or the Storybook step will exit with the version error.
+- **Full pipeline** (app build + Playwright + Jest + Storybook static build): `pnpm verify` — use Node **20.19+** or the Storybook step will exit with the version error.
 - **Vercel:** set **Node.js Version** to **20.x** (pick **20.19** or newer if available) for any project that runs `build-storybook`.
 
 # Getting Started
@@ -30,16 +30,17 @@ Supabase CLI provides tools for working with local databases, and accessing and 
 To work with a local database, run `supabase start`. This creates a local database and applies any existing migrations in your project.
 
 ### Seeding Local Database
+To create a brand new local database with seeded data, run:
+```bash
+pnpm run local-db:reset
+```
 
-`supabase db reset` reapplies migrations and runs `supabase/seed.sql`. That inserts **3 approved artists** and **30 approved art pieces** (fixed UUIDs). Image paths in the database stay **NULL** until you run the local asset script below.
+This clears all data, tables, and storage files in your local database. It then recreates the database and applies all migrations. Once that is successful, it seeds the storage buckets with assets. See below if this is your first time creating a local database.
 
-**Typical local order**
-
-1. Run **`supabase start`** if the stack is not up, then **`supabase db reset`**.
-2. Drop images into **`scripts/seed-assets/<artistId>/<artPieceId>/`** if not already present — naming and layout are documented in [`scripts/seed-assets/README.md`](scripts/seed-assets/README.md). Missing folders or missing `display-0.*` files are skipped with a warning.
-3. Set **`NEXT_PUBLIC_SUPABASE_URL`** and **`SUPABASE_SERVICE_ROLE_KEY`** (Secret from **`supabase status`**) in `.env.development.local`. Run **`pnpm seed:local-assets`** to upload images and patch `art_piece` / `art_piece_display_image`.
-
-**Optional — owned test artist:** There will be no users after a database reset. To recreate a user, run **`pnpm local:create-auth-user`** then **`supabase/seed_link_test_artist.sql`** in the local SQL Editor. This way, you will have a user that is linked to the first test artist, enabling you to test artist features. 
+**Running Local DB for the first time**
+1. Drop images into **`scripts/seed-assets/<artistId>/<artPieceId>/`** if not already present — naming and layout are documented in [`scripts/seed-assets/README.md`](scripts/seed-assets/README.md). Missing folders or missing `display-0.*` files are skipped with a warning.
+2. Set **`NEXT_PUBLIC_SUPABASE_URL`** and **`SUPABASE_SERVICE_ROLE_KEY`** (Secret from **`supabase status`**) in `.env.development.local`
+2. Run **`supabase start`** if the stack is not up, then **`pnpm run local-db:reset`**. 
 
 ## Remote Database
 To connect to a remote database, run `pnpm run db:link:dev` or `pnpm run db:link:prod`. 
@@ -75,8 +76,8 @@ pnpm run db:backup:prod:tables
 pnpm run db:backup:prod:data
 ```
 
-## Files
-The above scripts only back up the tables and the database records. *They do not back up any of the image files in our Supabase Storage Buckets.* To do this, we need to run a custom script that downloads all the image files into a cloud server. This script is found in `backup-images.ts`.
+## Storage Bucket Backups
+The above scripts only back up the tables and the database records. *They do not back up any of the image files in our Supabase Storage Buckets.* To do this, we need to run a custom script that downloads all the image files into a cloud server. This script is found in `backup-images.ts`. *NOTE: This is not implemented yet. Currently there are no backups for images in Supabase Storage Buckets.*
 
 
 # Component Library
@@ -93,20 +94,60 @@ Components are organized in the atomic structure (atoms, molecules, and organism
 ```
 
 
-# Unit Tests
-To run tests, run `pnpm test`. Jest will search the app for any .test.tsx files and execute them. 
+# Testing
+## Unit Tests
+Unit tests are hosted by Jest. Their purpose is to cover simple components in interaction, accessibility, and behavior. They use a mock Supabase server which returns fake data in the shape of the production database. Execute the following command to run the unit tests:
+```bash
+pnpm run unit-tests
+```
 
-Unit tests cover accessibility, interaction, and behaviour. They use a mock Supabase server that returns data of the same shape as the actual API. In the future, integration tests will be added to confirm that the data gets returned by the actual Supabase API.
 
-## Snapshots
-Snapshots of the UI are kept in the `__tests__/__snapshots__` folder. These will fail if the UI has changed since the last snapshot. If any snapshot tests are failing because of UI changes, run `jest --updateSnapshot` to update the snapshot, and then rerun the tests. For more information on snapshots, visit https://jestjs.io/docs/snapshot-testing.
+### Snapshots
+Snapshots of the UI are kept in the `__tests__/__snapshots__` folder. These will fail if the UI has changed since the last snapshot. If any snapshot tests are failing because of UI changes, run the following command:
+```bash 
+pnpm run test:update-snapshot
+```
+For more information on snapshots, visit https://jestjs.io/docs/snapshot-testing.
+
+## Integration Tests
+Integration tests are hosted by Playwright. Their purpose is to cover end to end UI and database behavior. An integration test will log in as a particular user (artist or admin), query actual data from the database, and perform database operations with assertions on the results. To run the integration tests, execute the following command:
+```bash
+pnpm run integration-tests
+```
+
+The integration tests are split into three folders: 
+1. **Admin**: These are for testing admin behavior such as ability to approve and view art piece submissions, ability to delete and manage product requests, etc. The `auth.admin.setup.ts` file uses `E2E_ADMIN_EMAIL` and `E2E_ADMIN_PASSWORD` variables in `.env.test.local` to log in as the admin. *NOTE: This is an actual admin user in the local database. The user is created by seed.sql when the local database is launched.*
+2. **Artist**: These tests are for artist functions. Artists can login, edit their profile, submit art pieces, but they cannot see other artist's profiles or approve their own art pieces. Certain restricted admin behavior should be tested in this folder to ensure that artists don't have admin permissions. The `auth.artist.setup.ts` file uses `E2E_ARTIST_EMAIL` and `E2E_ARTIST_PASSWORD` from the `.env.test.local` file to log in as an artist. 
+3. **Public**: These are tests for unauthenticated users visiting the page. The public should be able to see art pieces, artists, and submit product requests. There is no setup file for these tests, because they do not require any authentication.
+
+Below is the folder structure for the three types of tests:
+```
+├── tests/
+|   |-- admin/
+|   |     |-- art-piece-submissions.spec.ts 
+              [...]
+|   |-- artist/
+|   |     |-- profile.spec.ts 
+              [...]
+|   |-- public/
+|   |     |-- home.spec.ts 
+              [...]
+```
+
 
 # Storybook
 Storybook is integrated in this repo to document components and test for visual and accessibility inconsistencies. Each component has it's own .stories file that lives in the same folder as the component.
+```bash
+pnpm storybook
+```
+```bash
+pnpm build-storybook
+```
+Output in `storybook-static/`
 
-- **Dev:** `pnpm storybook` (requires Node **20.19+**)
-- **Static build:** `pnpm build-storybook` → output in `storybook-static/`
-- **All checks:** `pnpm verify` (Next build + Jest + Storybook build) *Note: for the Storybook build to work, this command needs to be prefaced with `nvm use 20.19`*
-
-
+# Verification
+This is the ultimate build. Runs Next Build, Integration Tests, Unit Tests, and Storybook Build. Run this command before every major push. Run it when you get out of bed in the morning. This script will find everything.
+```bash
+pnpm verify
+```
 

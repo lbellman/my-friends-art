@@ -1,4 +1,4 @@
-import { ArtistType } from "@/@types";
+import { ArtistType, getPublicUrl } from "@/@types";
 import Link from "@/components/atoms/link/Link";
 import Image from "next/image";
 import { Globe, Mail, MapPin } from "lucide-react";
@@ -10,6 +10,9 @@ interface ArtistCardProps {
 }
 
 export function ArtistCard({ artist, linkHref, linkText }: ArtistCardProps) {
+  const profileSrc = artist.profile_img_url
+    ? getPublicUrl("profile-pictures", artist.profile_img_url)
+    : null;
   const hasSocialLinks =
     artist.website?.trim() ||
     artist.instagram?.trim() ||
@@ -20,9 +23,9 @@ export function ArtistCard({ artist, linkHref, linkText }: ArtistCardProps) {
       className="flex flex-col sm:flex-row gap-0 overflow-hidden rounded-xl bg-card text-card-foreground shadow-sm border border-border"
     >
       <div className="relative w-full sm:w-64 h-64 sm:h-auto sm:min-h-[280px] shrink-0">
-        {artist.profile_img_url ? (
+        {profileSrc ? (
           <Image
-            src={artist.profile_img_url}
+            src={profileSrc}
             alt={artist.name}
             fill
             className="object-cover"

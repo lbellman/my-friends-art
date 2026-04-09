@@ -23,7 +23,7 @@ export default function DashboardArtCard({
   listRestore,
 }: DashboardArtCardProps) {
   const thumbPath = artPiece.thumbnail_path ?? artPiece.display_path;
-  const publicUrl = getPublicUrl(thumbPath ?? "");
+  const publicUrl = getPublicUrl("art-pieces", thumbPath ?? "");
   const href = `/dashboard/${artPiece.id}`;
 
   const { data: productRequests } = useQuery({

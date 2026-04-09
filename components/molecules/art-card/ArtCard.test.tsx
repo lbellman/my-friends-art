@@ -8,18 +8,27 @@ function renderArtCard(overrides: Partial<ArtPiece> = {}) {
   const artPiece: ArtPiece = {
     id: "piece-1",
     title: "Sunset Over Mountains",
-    medium: "digital",
     thumbnail_path: "art-pieces/sunset.png",
     display_path: null,
     original_path: null,
     artist_id: "artist-1",
-    aspect_ratio: "3:4",
+    category: "wall-art",
+    size: null,
     created_at: "2021-01-01",
-    dpi: 100,
     px_height: 100,
     px_width: 100,
     product_type: "print",
     status: "approved",
+    authorized_to_sell: true,
+    not_ai_generated: true,
+    price: 100,
+    price_includes_shipping: true,
+    product_dimensions_id: null,
+    product_dimensions: {
+      width_in: 10,
+      height_in: 12,
+      depth_in: 0,
+    },
     description: "A beautiful sunset over mountains",
     artist: {
       id: "artist-1",
@@ -36,11 +45,10 @@ function renderArtCard(overrides: Partial<ArtPiece> = {}) {
 }
 
 describe("ArtCard", () => {
-  it("renders title, medium, and artist name", () => {
+  it("renders title, and artist name", () => {
     const { artPiece } = renderArtCard();
 
     expect(screen.getByText(artPiece.title)).toBeInTheDocument();
-    expect(screen.getByText(artPiece.medium)).toBeInTheDocument();
     expect(screen.getByText(artPiece.artist.name)).toBeInTheDocument();
   });
 
@@ -56,7 +64,7 @@ describe("ArtCard", () => {
   it("renders an image with correct alt text", () => {
     const { artPiece } = renderArtCard();
 
-    const img = screen.getByRole("img", { name: artPiece.title })
+    const img = screen.getByRole("img", { name: artPiece.title });
     expect(img).toBeInTheDocument();
     expect(img).toHaveAttribute("alt", artPiece.title);
   });

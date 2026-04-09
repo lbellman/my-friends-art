@@ -65,16 +65,16 @@ export default function ArtDetailView({
       (a, b) => a.idx - b.idx,
     );
     if (rows.length > 0) {
-      return rows.map((r) => getPublicUrl(r.path)).filter(Boolean);
+      return rows.map((r) => getPublicUrl('art-pieces', r.path)).filter(Boolean);
     }
-    const fallback = getPublicUrl(artPiece?.display_path ?? "");
+    const fallback = getPublicUrl('art-pieces', artPiece?.display_path ?? "");
     return fallback ? [fallback] : [];
   }, [artPiece?.art_piece_display_image, artPiece?.display_path]);
 
   const artistAvatarUrl = useMemo(() => {
     const raw = artPiece?.artist?.profile_img_url;
     if (!raw) return "";
-    return getPublicUrl(raw);
+    return getPublicUrl('profile-pictures', raw);
   }, [artPiece?.artist?.profile_img_url]);
 
   const [requestPrintDialogOpen, setRequestPrintDialogOpen] = useState(false);

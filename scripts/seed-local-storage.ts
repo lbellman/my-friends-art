@@ -8,16 +8,22 @@
  * Env: NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY (Secret `sb_secret_…` or service JWT from `supabase status`).
  *     Not Storage (S3) keys. Loads .env, .env.local, .env.development.local.
  *
+ * Also uploads each seed artist profile to bucket `profile-pictures` at
+ * `profiles/<artistId>/profile.webp` and updates `artist.profile_img_url`.
+ * Source: optional `scripts/seed-assets/<artistId>/profile.*`, else first
+ * `display-0.*` from that artist’s first art piece folder (see README).
+ *
  * Run: pnpm seed:local-assets
  */
 import { config as loadEnv } from "dotenv";
 import { createClient } from "@supabase/supabase-js";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
 import type { Database } from "../supabase";
-import { SEED_ART_PIECE_IDS } from "./seed-ids";
+import { SEED_ARTIST_IDS, SEED_ART_PIECE_IDS } from "./seed-ids";
 
 const cwd = process.cwd();
 loadEnv({ path: path.join(cwd, ".env") });
@@ -44,6 +50,68 @@ function resolveServiceRoleKey(): string {
 
 const DISPLAY_RE = /^display-(\d+)\.(jpe?g|png|webp)$/i;
 const ORIGINAL_RE = /^original\.(jpe?g|png|webp|tiff?)$/i;
+const PROFILE_RE = /^profile\.(jpe?g|png|webp)$/i;
+
+/** Tried first (deterministic) before readdir + regex, so profile wins over display fallback. */
+const PROFILE_FILENAMES = [
+  "profile.jpg",
+  "profile.jpeg",
+  "profile.png",
+  "profile.webp",
+] as const;
+
+function profileObjectPath(artistId: string): string {
+  return `profiles/${artistId}/profile.webp`;
+}
+
+async function readProfileSourceBuffer(
+  assetsRoot: string,
+  artistId: string,
+): Promise<Buffer | null> {
+  const artistDir = path.join(assetsRoot, artistId);
+
+  for (const name of PROFILE_FILENAMES) {
+    try {
+      return await fs.readFile(path.join(artistDir, name));
+    } catch {
+      /* try next filename or fall through to readdir */
+    }
+  }
+
+  let artistEntries: string[];
+  try {
+    artistEntries = await fs.readdir(artistDir);
+  } catch {
+    return null;
+  }
+
+  const profileName = artistEntries.find((n) => PROFILE_RE.test(n));
+  if (profileName) {
+    return fs.readFile(path.join(artistDir, profileName));
+  }
+
+  const firstPiece = SEED_ART_PIECE_IDS.find((p) => p.artistId === artistId);
+  if (!firstPiece) return null;
+
+  const pieceDir = path.join(assetsRoot, artistId, firstPiece.id);
+  let pieceEntries: string[];
+  try {
+    pieceEntries = await fs.readdir(pieceDir);
+  } catch {
+    return null;
+  }
+
+  const displayFiles = pieceEntries
+    .filter((name) => DISPLAY_RE.test(name))
+    .sort((a, b) => {
+      const ia = parseInt(a.match(DISPLAY_RE)?.[1] ?? "0", 10);
+      const ib = parseInt(b.match(DISPLAY_RE)?.[1] ?? "0", 10);
+      return ia - ib;
+    });
+
+  if (displayFiles.length === 0) return null;
+  return fs.readFile(path.join(pieceDir, displayFiles[0]));
+}
 
 function mimeForOriginalFilename(name: string): string {
   const m = name.match(ORIGINAL_RE);
@@ -86,7 +154,9 @@ async function main() {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const assetsRoot = path.join(process.cwd(), "scripts", "seed-assets");
+  // Resolve next to this script so `pnpm`/tsx runs work even when cwd is not the repo root.
+  const scriptDir = path.dirname(fileURLToPath(import.meta.url));
+  const assetsRoot = path.join(scriptDir, "seed-assets");
   let ok = 0;
   let skipped = 0;
 
@@ -243,7 +313,56 @@ async function main() {
     ok++;
   }
 
-  console.log(`\nDone. Uploaded: ${ok}, skipped: ${skipped}`);
+  let profileOk = 0;
+  let profileSkipped = 0;
+
+  for (const artistId of SEED_ARTIST_IDS) {
+    const sourceBuf = await readProfileSourceBuffer(assetsRoot, artistId);
+    if (!sourceBuf) {
+      console.warn(
+        `[skip] No profile source for ${artistId} — add profile.jpg (or .png/.webp) under scripts/seed-assets/<artistId>/ or ensure the first art piece has display-0.*`,
+      );
+      profileSkipped++;
+      continue;
+    }
+
+    const objectPath = profileObjectPath(artistId);
+    const profileBuffer = await sharp(sourceBuf)
+      .resize(512, 512, { fit: "cover", position: "attention" })
+      .webp({ quality: 85 })
+      .toBuffer();
+
+    const up = await supabase.storage
+      .from("profile-pictures")
+      .upload(objectPath, profileBuffer, {
+        contentType: "image/webp",
+        upsert: true,
+      });
+
+    if (up.error) {
+      console.error(`[error] profile upload ${objectPath}:`, up.error.message);
+      profileSkipped++;
+      continue;
+    }
+
+    const { error: artistErr } = await supabase
+      .from("artist")
+      .update({ profile_img_url: objectPath })
+      .eq("id", artistId);
+
+    if (artistErr) {
+      console.error(`[error] artist update ${artistId}:`, artistErr.message);
+      profileSkipped++;
+      continue;
+    }
+
+    console.log(`[ok] profile ${artistId}`);
+    profileOk++;
+  }
+
+  console.log(
+    `\nDone. Art pieces uploaded: ${ok}, skipped: ${skipped}. Profiles uploaded: ${profileOk}, skipped: ${profileSkipped}`,
+  );
 }
 
 main().catch((e) => {

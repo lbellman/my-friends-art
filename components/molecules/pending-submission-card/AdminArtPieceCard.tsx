@@ -39,9 +39,10 @@ export default function AdminArtPieceCard({
       (a, b) => a.idx - b.idx,
     );
     if (rows.length > 0) {
-      return rows.map((r) => getPublicUrl(r.path)).filter(Boolean);
+      return rows.map((r) => getPublicUrl('art-pieces', r.path)).filter(Boolean);
     }
     const fallback = getPublicUrl(
+      "art-pieces",
       artPiece.display_path ?? artPiece.thumbnail_path ?? "",
     );
     return fallback ? [fallback] : [];

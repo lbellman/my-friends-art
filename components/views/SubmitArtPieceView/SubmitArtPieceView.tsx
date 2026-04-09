@@ -75,7 +75,7 @@ export default function SubmitArtPieceView() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { data: artist, isLoading: isLoadingArtist } = useQuery({
+  const { data: artist } = useQuery({
     queryKey: ["artist", user?.id],
     queryFn: async () => {
       const { data } = await supabase
@@ -417,7 +417,7 @@ export default function SubmitArtPieceView() {
           artistName={artist?.name ?? null}
           artistProfileImgUrl={
             artist?.profile_img_url
-              ? getPublicUrl(artist.profile_img_url)
+              ? getPublicUrl("profile-pictures", artist.profile_img_url)
               : null
           }
         />

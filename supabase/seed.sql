@@ -91,7 +91,8 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES
   ('art-pieces', 'art-pieces', true),
   ('originals', 'originals', false),
-  ('art-piece-staging', 'art-piece-staging', false)
+  ('art-piece-staging', 'art-piece-staging', false),
+  ('profile-pictures', 'profile-pictures', true)
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.artist (
@@ -103,7 +104,8 @@ INSERT INTO public.artist (
   website,
   instagram,
   email_address,
-  status
+  status,
+  profile_img_url
 ) VALUES
   (
     '10000000-0000-4000-8000-000000000001',
@@ -114,8 +116,9 @@ INSERT INTO public.artist (
     'https://elenavasquez.example.com',
     '@elenav.studio',
     'bellmanlindsey@gmail.com',
-    'approved'
-  ),
+    'approved',
+    'profiles/10000000-0000-4000-8000-000000000001/profile.webp'
+   ),
   (
     '20000000-0000-4000-8000-000000000002',
     'fd633bb9-0569-4e86-b04f-87d4879dffb6',
@@ -125,8 +128,9 @@ INSERT INTO public.artist (
     NULL,
     '@marcus.okonkwo.art',
     'bellmanlindsey+2@gmail.com',
-    'approved'
-  ),
+    'approved',
+    'profiles/20000000-0000-4000-8000-000000000002/profile.webp'
+   ),
   (
     '30000000-0000-4000-8000-000000000003',
     '211e3fcc-bd0b-4039-895f-5c076b17bb3b',
@@ -136,8 +140,9 @@ INSERT INTO public.artist (
     'https://yukitanaka.example.com',
     '@yuki.tanaka.studio',
     'bellmanlindsey+1@gmail.com',
-    'approved'
-  );
+    'approved',
+    'profiles/30000000-0000-4000-8000-000000000003/profile.webp'
+   );
 
 -- Admin RLS uses public.user_roles (see migration user_roles_rls_and_auth_subqueries)
 INSERT INTO public.user_roles (user_id, role)
