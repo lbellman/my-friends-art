@@ -13,6 +13,8 @@ interface ButtonProps {
   icon?: React.ReactNode;
   loading?: boolean;
   className?: string;
+  id?: string;
+  dataTestId?: string;
 }
 
 export default function Button({
@@ -25,11 +27,15 @@ export default function Button({
   icon,
   loading = false,
   className,
+  id,
+  dataTestId,
 }: ButtonProps) {
   const isIconVariant = icon && !label;
   return (
     <ShadButton
       type={type}
+      id={id}
+      data-testid={dataTestId}
       variant={
         variant === "primary"
           ? "default"

@@ -104,6 +104,10 @@ export default function ArtPieceActionsCard({
     [artPiece.id, queryClient],
   );
 
+  const pendingRequests = productRequests.filter(
+    (request) => request.status === "pending",
+  );
+
   const actions = useMemo(() => {
     const rows: {
       description: string;
@@ -196,13 +200,12 @@ export default function ArtPieceActionsCard({
       button: (
         <Button
           label="Delete Art Piece"
+          dataTestId="delete-art-piece"
           variant="destructive"
           icon={<Trash className="size-4 text-white" />}
-          disabled={pendingState !== null}
+          disabled={pendingState !== null || pendingRequests.length > 0}
           onClick={() => {
-            const pendingRequests = productRequests.filter(
-              (request) => request.status === "pending",
-            );
+
             if (pendingRequests.length > 0) {
               setDeleteRestrictedDialogOpen(true);
             } else {
@@ -218,6 +221,7 @@ export default function ArtPieceActionsCard({
     artPiece.product_type,
     artPiece.status,
     pendingState,
+    pendingRequests,
     handleUpdateArtPieceState,
   ]);
 
@@ -290,7 +294,7 @@ export default function ArtPieceActionsCard({
               onSuccess: () => {
                 toast.success("Art piece deleted successfully");
                 setConfirmDeleteDialogOpen(false);
-                router.replace("/dashboard");
+                router.replace("/dashboard?tab=art-pieces");
               },
               onError: (error) => {
                 toast.error("Failed to delete art piece");

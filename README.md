@@ -120,6 +120,10 @@ The integration tests are split into three folders:
 2. **Artist**: These tests are for artist functions. Artists can login, edit their profile, submit art pieces, but they cannot see other artist's profiles or approve their own art pieces. Certain restricted admin behavior should be tested in this folder to ensure that artists don't have admin permissions. The `auth.artist.setup.ts` file uses `E2E_ARTIST_EMAIL` and `E2E_ARTIST_PASSWORD` from the `.env.test.local` file to log in as an artist. 
 3. **Public**: These are tests for unauthenticated users visiting the page. The public should be able to see art pieces, artists, and submit product requests. There is no setup file for these tests, because they do not require any authentication.
 
+**Emails:** Integration tests that trigger transactional emails (e.g. product requests) should not send real mail. When Playwright starts the dev server via `playwright.config.ts`, it sets `DISABLE_TRANSACTIONAL_EMAIL=1` in that process so Resend is skipped. If you run `pnpm dev` yourself and use **reuse existing server** (default locally), add `DISABLE_TRANSACTIONAL_EMAIL=1` to `.env.development.local` while running those tests, or you will send real emails.
+
+**Database assertions:** Some tests query Supabase after a UI action (e.g. checking `product_request` rows). Playwright loads `.env.test.local` and `.env.development.local`; set `NEXT_PUBLIC_SUPABASE_URL` to your local API URL and `SUPABASE_SERVICE_ROLE_KEY` to the **service role** secret from `supabase status` (same as `pnpm seed:local-assets`). The service role bypasses RLS and must only be used in Node test helpers such as `tests/helpers/supabase-admin.ts`, never in browser code.
+
 Below is the folder structure for the three types of tests:
 ```
 ├── tests/

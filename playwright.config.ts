@@ -2,12 +2,21 @@ import path from "path";
 import { defineConfig, devices } from "@playwright/test";
 import dotenv from "dotenv";
 
+import { assertLocalSupabaseUrlForTests } from "./tests/helpers/supabase-admin";
+
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
 dotenv.config({ path: path.resolve(process.cwd(), ".env.test.local") });
 dotenv.config({ path: path.resolve(process.cwd(), ".env.e2e.local") });
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
+dotenv.config({
+  path: path.resolve(process.cwd(), ".env.development.local"),
+  override: true,
+});
+
+assertLocalSupabaseUrlForTests(process.env.NEXT_PUBLIC_SUPABASE_URL);
 
 const artistAuthFile = path.join("playwright", ".auth", "artist.json");
 const adminAuthFile = path.join("playwright", ".auth", "admin.json");
@@ -153,5 +162,10 @@ export default defineConfig({
     command: "pnpm dev",
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
+    /* Avoid real Resend emails when Playwright starts this server (see send-transactional). */
+    env: {
+      ...process.env,
+      DISABLE_TRANSACTIONAL_EMAIL: "1",
+    },
   },
 });

@@ -1,18 +1,17 @@
 import { useEffect, useMemo } from "react";
 
-import { ArtPiece } from "@/@types";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import Button from "@/components/atoms/button/Button";
+import DashboardArtCard from "@/components/molecules/dashboard-art-card/DashboardArtCard";
 import {
   ART_PIECES_PAGE_SIZE,
   PaginatedArtPieces,
 } from "@/components/organisms/paginated-art-pieces/PaginatedArtPieces";
-import Button from "@/components/atoms/button/Button";
 import { Skeleton } from "@/components/ui/skeleton";
-import Link from "next/link";
-import { Plus } from "lucide-react";
-import DashboardArtCard from "@/components/molecules/dashboard-art-card/DashboardArtCard";
 import { DashboardArtPieceRow } from "@/components/views/ArtistDashboardView/ArtistDashboardView";
+import { Plus } from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 export default function ArtPiecesTab({
   artPieces,

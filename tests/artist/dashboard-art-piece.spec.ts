@@ -1,0 +1,174 @@
+import { test, expect } from "@playwright/test";
+
+import { getServiceSupabase } from "../helpers/supabase-admin";
+
+const ART_PIECE_ID = "10300000-0000-4000-8000-000000000001";
+const ART_PIECE_TO_DELETE_ID = "10300000-0000-4000-8000-000000000003";
+/** `artist.id` for Yuki (Snow Line); not the auth `user_id`. */
+const ARTIST_ID = "30000000-0000-4000-8000-000000000003";
+
+/**
+ * `ART_PIECE_TO_DELETE_ID` is removed by the delete test. Playwright runs
+ * `chromium-artist` and `firefox-artist` in parallel against one DB, so another
+ * project can delete this row before this file’s next test — restore from seed
+ * before every test (also fixes retries after the delete test).
+ */
+async function ensureBambooShadowSeedArtPiece() {
+  const supabase = getServiceSupabase();
+  const { error } = await supabase.from("art_piece").upsert(
+    {
+      id: ART_PIECE_TO_DELETE_ID,
+      title: "Bamboo Shadow",
+      artist_id: ARTIST_ID,
+      status: "approved",
+      px_width: 2400,
+      px_height: 2400,
+      description: "Ink wash on paper.",
+      not_ai_generated: true,
+      authorized_to_sell: true,
+      product_type: "print",
+      category: "wall-art",
+      size: "one-size",
+      display_path: null,
+      thumbnail_path: null,
+      original_path: null,
+      product_dimensions_id: null,
+    },
+    { onConflict: "id" },
+  );
+  expect(error).toBeNull();
+}
+
+test.describe.serial("Dashboard art piece (one seed row; order matters)", () => {
+  test.beforeEach(async () => {
+    await ensureBambooShadowSeedArtPiece();
+  });
+
+  test("Artist can edit approved dashboard art piece", async ({ page }) => {
+    // Ensure that the state of the art piece is "approved"
+    const supabase = getServiceSupabase();
+    const { error: updatedError } = await supabase
+      .from("art_piece")
+      .update({ status: "approved" })
+      .eq("id", ART_PIECE_ID);
+    expect(updatedError).toBeNull();
+
+    await page.goto("/dashboard?tab=art-pieces");
+    await expect(
+      page.getByRole("heading", { name: "Your Art Pieces" }),
+    ).toBeVisible();
+    await page.getByRole("link", { name: "Snow Line" }).click();
+    await expect(page.getByRole("heading", { name: "Details" })).toBeVisible();
+    await page.getByTestId("Edit").click();
+    await page
+      .getByLabel("Description")
+      .fill("Minimal winter landscape (edited).");
+    await page.getByRole("button", { name: "Save" }).click();
+    await expect(page.getByText("Changes saved successfully")).toBeVisible();
+    
+    const { data, error } = await supabase
+      .from("art_piece")
+      .select("id, description")
+      .eq("id", ART_PIECE_ID)
+      .maybeSingle();
+    expect(error).toBeNull();
+    expect(data).not.toBeNull();
+    expect(data?.description).toBe("Minimal winter landscape (edited).");
+  });
+
+  test("Artist can archive approved dashboard art piece", async ({ page }) => {
+    const supabase = getServiceSupabase();
+
+    // Ensure that the state of the art piece is "approved"
+    const { error: updatedError } = await supabase
+      .from("art_piece")
+      .update({ status: "approved" })
+      .eq("id", ART_PIECE_ID);
+    expect(updatedError).toBeNull();
+
+    await page.goto("/dashboard?tab=art-pieces");
+    await expect(
+      page.getByRole("heading", { name: "Your Art Pieces" }),
+    ).toBeVisible();
+    await page.getByRole("link", { name: "Snow Line" }).click();
+    await page.getByRole("button", { name: "Archive Art Piece" }).click();
+    await expect(page.getByText("This piece is archived.")).toBeVisible();
+
+    const { data, error } = await supabase
+      .from("art_piece")
+      .select("id, status")
+      .eq("id", ART_PIECE_ID)
+      .maybeSingle();
+    expect(error).toBeNull();
+    expect(data).not.toBeNull();
+    expect(data?.status).toBe("archived");
+  });
+
+  test("Artist cannot delete dashboard art piece with pending product requests", async ({
+    page,
+  }) => {
+    // Insert a pending product request for the art piece
+    const supabase = getServiceSupabase();
+    const { error: productRequestError } = await supabase
+      .from("product_request")
+      .insert({
+        art_piece_id: ART_PIECE_TO_DELETE_ID,
+        artist_id: ARTIST_ID,
+        from_email: "test@test.com",
+        name: "Test User",
+        print_option: "canvas",
+        status: "pending",
+        type: "print",
+      });
+    expect(productRequestError).toBeNull();
+
+    // Go to the dashboard art piece page
+    await page.goto(`/dashboard/${ART_PIECE_TO_DELETE_ID}`);
+    await expect(
+      page.getByRole("button", { name: "Delete Art Piece" }),
+    ).toBeVisible();
+
+    // Expect the delete button to be disabled
+    await expect(page.getByTestId("delete-art-piece")).toBeDisabled();
+  });
+
+  test("Artist can delete dashboard art piece with no pending product requests", async ({
+    page,
+  }) => {
+    const supabase = getServiceSupabase();
+
+    // Delete all pending product requests for the art piece
+    const { error: productRequestsError } = await supabase
+      .from("product_request")
+      .delete()
+      .eq("art_piece_id", ART_PIECE_TO_DELETE_ID)
+      .eq("status", "pending");
+    expect(productRequestsError).toBeNull();
+
+    // Go to the dashboard art piece page
+    await page.goto(`/dashboard/${ART_PIECE_TO_DELETE_ID}`);
+    await expect(
+      page.getByRole("button", { name: "Delete Art Piece" }),
+    ).toBeVisible();
+
+    // Click the delete art piece button
+    await page.getByTestId("delete-art-piece").click();
+    await page.getByRole("button", { name: "Yes, delete this art piece" }).click();
+
+
+    // Expect the page to redirect to the dashboard art pieces page
+    await expect(
+      page.getByRole("heading", { name: "Your Art Pieces" }),
+    ).toBeVisible();
+
+    // Ensure that the art piece is deleted
+    const { data, error } = await supabase
+      .from("art_piece")
+      .select("id, status")
+      .eq("id", ART_PIECE_TO_DELETE_ID)
+      .maybeSingle();
+    expect(error).toBeNull();
+    expect(data).toBeNull();
+  });
+});
+

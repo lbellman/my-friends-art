@@ -23,10 +23,19 @@ function getResend(): Resend | null {
  * When `fromEmail` is set, it is used as Reply-To so recipients can reach the original sender.
  * HTML uses the branded {@link TransactionalMessageEmail} template; `text` is a plain fallback.
  */
+function isTransactionalEmailDisabled(): boolean {
+  const v = process.env.DISABLE_TRANSACTIONAL_EMAIL?.trim().toLowerCase();
+  return v === "1" || v === "true" || v === "yes";
+}
+
 export async function sendTransactionalEmail(
   params: SendTransactionalEmailParams,
 ): Promise<{ id: string }> {
   const { name, fromEmail, toEmail, subject, message } = params;
+
+  if (isTransactionalEmailDisabled()) {
+    return { id: "skipped" };
+  }
 
   const resend = getResend();
   const from = process.env.RESEND_FROM_EMAIL?.trim();

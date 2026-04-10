@@ -242,6 +242,7 @@ export default function DetailsCard({ artPiece }: { artPiece: ArtPiece }) {
               label="Edit"
               variant="secondary"
               size="sm"
+              dataTestId="Edit"
               onClick={() => setIsEditing(true)}
               icon={<Pencil className="size-4" />}
             />
