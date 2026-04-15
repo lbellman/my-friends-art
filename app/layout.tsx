@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Lacquer, Outfit } from "next/font/google";
+import { headers } from "next/headers";
 import { Toaster } from "sonner";
 import "./globals.css";
 import Layout from "@/components/organisms/Layout";
@@ -25,11 +26,26 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname") ?? "";
+  const maintenanceActive = process.env.MAINTENANCE_MODE === "true";
+  const isMaintenanceRoute = pathname === "/maintenance";
+
+  if (maintenanceActive && isMaintenanceRoute) {
+    return (
+      <html lang="en">
+        <body className={`${outfit.variable} ${lacquer.variable} antialiased`}>
+          {children}
+        </body>
+      </html>
+    );
+  }
+
   return (
     <html lang="en">
       <body className={`${outfit.variable} ${lacquer.variable} antialiased`}>
