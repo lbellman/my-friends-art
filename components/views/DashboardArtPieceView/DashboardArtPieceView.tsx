@@ -222,6 +222,7 @@ export default function DashboardArtPieceView() {
                     size="sm"
                     variant="secondary"
                     label="Edit images"
+                    dataTestId="edit-display-images"
                     icon={<Edit className="size-4" />}
                     className="absolute top-2 right-2 z-10"
                     onClick={() => setEditDisplayImagesOpen(true)}

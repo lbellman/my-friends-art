@@ -94,6 +94,7 @@ export default function UploadImageStep({
             </div>
 
             <FileUploader
+              dropzoneTestId="submit-print-quality-dropzone"
               files={printQualityFilesState.files}
               setFiles={printQualityFilesState.setFiles}
               error={printQualityImageError}
@@ -118,6 +119,7 @@ export default function UploadImageStep({
           {requiresPrintQualityImage && (
             <div className="flex gap-2 mt-2">
               <Checkbox
+                data-testid="use-print-as-display-image"
                 checked={formData.use_print_quality_image_as_display}
                 onCheckedChange={(value) =>
                   setFormData({
@@ -147,6 +149,7 @@ export default function UploadImageStep({
           {/* Display Images Upload */}
           {requiresDisplayImages && (
             <FileUploader
+              dropzoneTestId="submit-display-images-dropzone"
               files={displayImagesFilesState.files}
               setFiles={displayImagesFilesState.setFiles}
               error={displayImagesError}
@@ -168,6 +171,7 @@ export default function UploadImageStep({
                   not_ai_generated: value as boolean,
                 })
               }
+              data-testid="not-ai-generated"
             />
             <label className="body2">
               This art piece was created by me, not AI.
@@ -184,6 +188,7 @@ export default function UploadImageStep({
                   authorized_to_sell: value as boolean,
                 })
               }
+              data-testid="authorized-to-sell"
             />
             <label className="body2">
               I am authorized to sell this art piece.

@@ -23,6 +23,7 @@ export default function OriginalProductDetailsStep({
           <div className="grid grid-cols-1 mt-2 gap-2">
             <Input
               value={formData.dimensions?.width_in?.toString() || ""}
+              dataTestId="width-in"
               onChange={(value) =>
                 setFormData({
                   ...formData,
@@ -37,6 +38,7 @@ export default function OriginalProductDetailsStep({
             />
             <Input
               value={formData.dimensions?.height_in?.toString() || ""}
+              dataTestId="height-in"
               onChange={(value) =>
                 setFormData({
                   ...formData,
@@ -51,6 +53,7 @@ export default function OriginalProductDetailsStep({
             />
             <Input
               value={formData.dimensions?.depth_in?.toString() || ""}
+              dataTestId="depth-in"
               onChange={(value) =>
                 setFormData({
                   ...formData,
@@ -69,6 +72,7 @@ export default function OriginalProductDetailsStep({
         {/* Price */}
         <div className="flex flex-col gap-2">
           <SingleSelect
+            dataTestId="size"
             value={formData.size || ""}
             onChange={(value) =>
               setFormData({

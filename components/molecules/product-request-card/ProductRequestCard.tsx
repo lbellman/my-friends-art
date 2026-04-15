@@ -180,6 +180,7 @@ export default function ProductRequestCard({
               size="sm"
               variant="outline"
               disabled={isSaving}
+              data-testid="mark-as-cancelled"
               onClick={() => setConfirmCancelDialogOpen(true)}
             >
               <X className="size-4" />
@@ -190,6 +191,7 @@ export default function ProductRequestCard({
               size="sm"
               variant="success"
               disabled={isSaving}
+              data-testid="mark-as-fulfilled"
               onClick={() => setConfirmFulfillDialogOpen(true)}
             >
               <Check className="size-4" />

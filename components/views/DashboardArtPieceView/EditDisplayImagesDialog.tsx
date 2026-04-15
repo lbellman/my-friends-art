@@ -227,6 +227,7 @@ export default function EditDisplayImagesDialog({
               </div>
             ) : (
               <FileUploader
+                dropzoneTestId="edit-display-images-dropzone"
                 files={files}
                 setFiles={setFiles}
                 error={uploadError}

@@ -23,6 +23,7 @@ export default function FileUploader({
   setError,
   supportedFileTypes = [],
   maxFiles = 1,
+  dropzoneTestId,
 }: {
   files: File[];
   setFiles: (files: File[]) => void;
@@ -30,6 +31,8 @@ export default function FileUploader({
   setError: (error: string) => void;
   supportedFileTypes: SupportedFileTypesType[];
   maxFiles?: number;
+  /** `data-testid` on the FileDropzone wrapper (E2E: `uploadFilesViaDropzone`). */
+  dropzoneTestId?: string;
 }) {
   const acceptableTypes: string[] = [];
   if (supportedFileTypes.includes("csv")) acceptableTypes.push("text/csv");
@@ -74,11 +77,12 @@ export default function FileUploader({
             <div>
               <Button
                 variant="link"
+                type="button"
+                data-testid={`remove-display-image-${fileIdx}`}
                 onClick={() => {
                   setFiles(files.filter((f) => f !== file));
                   URL.revokeObjectURL(fileUrl);
                 }}
-                type="button"
               >
                 Remove
               </Button>
@@ -96,6 +100,7 @@ export default function FileUploader({
           {/* Dropzone */}
           {showDropzone && (
             <FileDropzone
+              dataTestId={dropzoneTestId}
               supportedFileTypes={supportedFileTypes}
               maxFileSize={maxFileSize}
               onDrop={(droppedFiles: File[]) => {

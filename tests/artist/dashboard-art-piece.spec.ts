@@ -1,11 +1,15 @@
+import path from "path";
+
 import { test, expect } from "@playwright/test";
 
+import {
+  setupArtPieceWithDisplayImages,
+  setupArtPieceWithThreeDisplayImages,
+  removeDisplayArtPiece,
+} from "../helpers/dashboard-display-images-e2e";
 import { getServiceSupabase } from "../helpers/supabase-admin";
+import { ART_PIECE_TO_DELETE_ID, ARTIST_ID, PRINT_ART_PIECE_ID, ORIGINAL_ART_PIECE_ID } from "./ids";
 
-const ART_PIECE_ID = "10300000-0000-4000-8000-000000000001";
-const ART_PIECE_TO_DELETE_ID = "10300000-0000-4000-8000-000000000003";
-/** `artist.id` for Yuki (Snow Line); not the auth `user_id`. */
-const ARTIST_ID = "30000000-0000-4000-8000-000000000003";
 
 /**
  * `ART_PIECE_TO_DELETE_ID` is removed by the delete test. Playwright runs
@@ -13,7 +17,7 @@ const ARTIST_ID = "30000000-0000-4000-8000-000000000003";
  * project can delete this row before this file’s next test — restore from seed
  * before every test (also fixes retries after the delete test).
  */
-async function ensureBambooShadowSeedArtPiece() {
+async function resetTestArtPiece() {
   const supabase = getServiceSupabase();
   const { error } = await supabase.from("art_piece").upsert(
     {
@@ -39,9 +43,9 @@ async function ensureBambooShadowSeedArtPiece() {
   expect(error).toBeNull();
 }
 
-test.describe.serial("Dashboard art piece (one seed row; order matters)", () => {
+test.describe.serial("Dashboard art piece", () => {
   test.beforeEach(async () => {
-    await ensureBambooShadowSeedArtPiece();
+    await resetTestArtPiece();
   });
 
   test("Artist can edit approved dashboard art piece", async ({ page }) => {
@@ -50,7 +54,7 @@ test.describe.serial("Dashboard art piece (one seed row; order matters)", () => 
     const { error: updatedError } = await supabase
       .from("art_piece")
       .update({ status: "approved" })
-      .eq("id", ART_PIECE_ID);
+      .eq("id", PRINT_ART_PIECE_ID);
     expect(updatedError).toBeNull();
 
     await page.goto("/dashboard?tab=art-pieces");
@@ -69,7 +73,7 @@ test.describe.serial("Dashboard art piece (one seed row; order matters)", () => 
     const { data, error } = await supabase
       .from("art_piece")
       .select("id, description")
-      .eq("id", ART_PIECE_ID)
+      .eq("id", PRINT_ART_PIECE_ID)
       .maybeSingle();
     expect(error).toBeNull();
     expect(data).not.toBeNull();
@@ -83,7 +87,7 @@ test.describe.serial("Dashboard art piece (one seed row; order matters)", () => 
     const { error: updatedError } = await supabase
       .from("art_piece")
       .update({ status: "approved" })
-      .eq("id", ART_PIECE_ID);
+      .eq("id", PRINT_ART_PIECE_ID);
     expect(updatedError).toBeNull();
 
     await page.goto("/dashboard?tab=art-pieces");
@@ -97,11 +101,39 @@ test.describe.serial("Dashboard art piece (one seed row; order matters)", () => 
     const { data, error } = await supabase
       .from("art_piece")
       .select("id, status")
-      .eq("id", ART_PIECE_ID)
+      .eq("id", PRINT_ART_PIECE_ID)
       .maybeSingle();
     expect(error).toBeNull();
     expect(data).not.toBeNull();
     expect(data?.status).toBe("archived");
+  });
+
+  test("Artist can mark approved dashboard art piece as sold", async ({ page }) => {
+    const supabase = getServiceSupabase();
+
+    // "Mark as Sold" only appears for originals (see ArtPieceActionsCard).
+    const { error: updatedError } = await supabase
+      .from("art_piece")
+      .update({ status: "approved", product_type: "original" })
+      .eq("id", ORIGINAL_ART_PIECE_ID);
+    expect(updatedError).toBeNull();
+
+    await page.goto(`/dashboard/${ORIGINAL_ART_PIECE_ID}`);
+    await expect(page.getByTestId("mark-as-sold")).toBeVisible();
+    await page.getByTestId("mark-as-sold").click();
+    await expect(page.getByText("Marked as sold.")).toBeVisible();
+
+    await expect
+      .poll(async () => {
+        const { data, error } = await supabase
+          .from("art_piece")
+          .select("status")
+          .eq("id", ORIGINAL_ART_PIECE_ID)
+          .maybeSingle();
+        if (error) throw error;
+        return data?.status;
+      })
+      .toBe("sold");
   });
 
   test("Artist cannot delete dashboard art piece with pending product requests", async ({
@@ -169,6 +201,196 @@ test.describe.serial("Dashboard art piece (one seed row; order matters)", () => 
       .maybeSingle();
     expect(error).toBeNull();
     expect(data).toBeNull();
+  });
+
+  test("Artist can fulfill pending product request", async ({ page }) => {
+    const supabase = getServiceSupabase();
+
+    // Insert a pending product request for the art piece
+    const PRODUCT_REQUEST_ID = crypto.randomUUID();
+    const { error: productRequestError } = await supabase
+      .from("product_request")
+      .insert({
+        id: PRODUCT_REQUEST_ID,
+        art_piece_id: PRINT_ART_PIECE_ID,
+        artist_id: ARTIST_ID,
+        from_email: "test@test.com",
+        name: "Test User",
+        print_option: "canvas",
+        status: "pending",
+        type: "print",
+      });
+    expect(productRequestError).toBeNull();
+
+    // Go to the dashboard art piece page
+    await page.goto(`/dashboard/${PRINT_ART_PIECE_ID}`);
+    await expect(
+      page.getByTestId("mark-as-fulfilled"),
+    ).toBeVisible();
+
+    // Click the cancel product request button
+    await page.getByTestId("mark-as-fulfilled").click();
+    await page.getByTestId("dialog-confirm-button").click();
+
+    // Ensure that the product request got deleted
+    await expect
+      .poll(async () => {
+        const { data, error } = await supabase
+          .from("product_request")
+          .select("status")
+          .eq("id", PRODUCT_REQUEST_ID)
+          .maybeSingle();
+        if (error) throw error;
+        return data?.status;
+      }).
+      toBe("fulfilled");
+  });
+  
+  test("Artist can cancel pending product request", async ({ page }) => {
+    const supabase = getServiceSupabase();
+
+    // Insert a pending product request for the art piece
+    const PRODUCT_REQUEST_ID = crypto.randomUUID();
+    const { error: productRequestError } = await supabase
+      .from("product_request")
+      .insert({
+        id: PRODUCT_REQUEST_ID,
+        art_piece_id: PRINT_ART_PIECE_ID,
+        artist_id: ARTIST_ID,
+        from_email: "test@test.com",
+        name: "Test User",
+        print_option: "canvas",
+        status: "pending",
+        type: "print",
+      });
+    expect(productRequestError).toBeNull();
+
+    // Go to the dashboard art piece page
+    await page.goto(`/dashboard/${PRINT_ART_PIECE_ID}`);
+    await expect(
+      page.getByTestId("mark-as-cancelled"),
+    ).toBeVisible();
+
+    // Click the cancel product request button
+    await page.getByTestId("mark-as-cancelled").click();
+    await page.getByTestId("dialog-confirm-button").click();
+
+    // Ensure that the product request got deleted
+    await expect
+      .poll(async () => {
+        const { data, error } = await supabase
+          .from("product_request")
+          .select("status")
+          .eq("id", PRODUCT_REQUEST_ID)
+          .maybeSingle();
+        if (error) throw error;
+        return data;
+      }).
+      toBeNull();
+  });
+
+  test("Artist can remove a display image from an art piece", async ({
+    page,
+  }) => {
+    const supabase = getServiceSupabase();
+
+    // Create an art piece with 3 display images
+    const artPieceId = await setupArtPieceWithThreeDisplayImages(ARTIST_ID);
+
+    try {
+      await page.goto(`/dashboard/${artPieceId}`);
+      await page.getByTestId("edit-display-images").click();
+      await expect(page.getByTestId("remove-display-image-0")).toBeVisible();
+
+      // Remove the last display image
+      await page.getByTestId("remove-display-image-2").click();
+      await page
+        .getByRole("dialog")
+        .getByRole("button", { name: "Save" })
+        .click();
+      await expect(page.getByText("Display images updated.")).toBeVisible();
+
+      // Ensure that there are 2 display images left
+      await expect
+        .poll(async () => {
+          const { count, error } = await supabase
+            .from("art_piece_display_image")
+            .select("*", { count: "exact", head: true })
+            .eq("art_piece_id", artPieceId);
+          if (error) throw error;
+          return count;
+        })
+        .toBe(2);
+
+      // Ensure that the display images have the correct names
+      const displayFolder = `display/${ARTIST_ID}/${artPieceId}`;
+      await expect
+        .poll(async () => {
+          const { data, error } = await supabase.storage
+            .from("art-pieces")
+            .list(displayFolder);
+          if (error) throw error;
+          return (data ?? [])
+            .map((f) => f.name)
+            .filter(Boolean)
+            .sort();
+        })
+        .toEqual(["0.webp", "1.webp"]);
+    } finally {
+      await removeDisplayArtPiece(ARTIST_ID, artPieceId);
+    }
+  });
+
+  test("Artist can add a display image to an art piece", async ({ page }) => {
+    const supabase = getServiceSupabase();
+    const artPieceId = await setupArtPieceWithDisplayImages(ARTIST_ID, 2);
+    const fixturePath = path.join(process.cwd(), "tests/fixtures/tiny.webp");
+
+    try {
+      await page.goto(`/dashboard/${artPieceId}`);
+      await page.getByTestId("edit-display-images").click();
+      await expect(page.getByTestId("remove-display-image-1")).toBeVisible();
+
+      await page
+        .getByRole("dialog")
+        .locator('input[type="file"]')
+        .setInputFiles(fixturePath);
+
+      await expect(page.getByTestId("remove-display-image-2")).toBeVisible();
+
+      await page
+        .getByRole("dialog")
+        .getByRole("button", { name: "Save" })
+        .click();
+      await expect(page.getByText("Display images updated.")).toBeVisible();
+
+      await expect
+        .poll(async () => {
+          const { count, error } = await supabase
+            .from("art_piece_display_image")
+            .select("*", { count: "exact", head: true })
+            .eq("art_piece_id", artPieceId);
+          if (error) throw error;
+          return count;
+        })
+        .toBe(3);
+
+      const displayFolder = `display/${ARTIST_ID}/${artPieceId}`;
+      await expect
+        .poll(async () => {
+          const { data, error } = await supabase.storage
+            .from("art-pieces")
+            .list(displayFolder);
+          if (error) throw error;
+          return (data ?? [])
+            .map((f) => f.name)
+            .filter(Boolean)
+            .sort();
+        })
+        .toEqual(["0.webp", "1.webp", "2.webp"]);
+    } finally {
+      await removeDisplayArtPiece(ARTIST_ID, artPieceId);
+    }
   });
 });
 

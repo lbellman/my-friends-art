@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 import { getServiceSupabase } from "../helpers/supabase-admin";
 
-const ART_IDS = {
+export const ART_IDS = {
   print: "10300000-0000-4000-8000-000000000001",
   "made-to-order": "10100000-0000-4000-8000-000000000001",
   original: "10200000-0000-4000-8000-000000000001",

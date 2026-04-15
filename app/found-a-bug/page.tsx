@@ -80,6 +80,7 @@ export default function FoundABugPage() {
           <Input
             id="bug-title"
             label="Title"
+            dataTestId="title"
             required
             value={title}
             onChange={(v) => setTitle(v as string)}
@@ -89,6 +90,7 @@ export default function FoundABugPage() {
           />
           <TextArea
             id="bug-description"
+            dataTestId="description"
             label="What happened?"
             value={description}
             onChange={(v) => setDescription(v as string)}
@@ -99,6 +101,7 @@ export default function FoundABugPage() {
           />
           <Input
             id="bug-email"
+            dataTestId="email"
             label="Email (optional)"
             type="email"
             value={email}
@@ -107,6 +110,7 @@ export default function FoundABugPage() {
           />
           <Button
             type="submit"
+            dataTestId="submit-button"
             label={isSubmitting ? "Sending…" : "Send report"}
             disabled={isSubmitting}
             loading={isSubmitting}

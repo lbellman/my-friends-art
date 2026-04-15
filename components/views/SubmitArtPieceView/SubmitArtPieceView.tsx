@@ -389,6 +389,9 @@ export default function SubmitArtPieceView() {
               <Button
                 variant="primary"
                 className="w-full"
+                dataTestId={
+                  step === "upload-image" ? "submit-button" : "next-button"
+                }
                 disabled={getIsNextDisabled() || isSubmitting}
                 loading={isSubmitting}
                 type={step === "upload-image" ? "submit" : "button"}

@@ -29,6 +29,7 @@ export default function BasicInformationStep({
           }
           placeholder="Enter the title of your art piece..."
           label="Title"
+          dataTestId="title"
           id="title"
           required
           maxLength={50}
@@ -40,12 +41,14 @@ export default function BasicInformationStep({
           onChange={(value) => setFormData({ ...formData, description: value })}
           placeholder="Tell us a little more about this art piece..."
           label="Description"
+          dataTestId="description"
           id="description"
           required
           maxLength={350}
         />
         {/*  Product Type */}
         <SingleSelect
+          dataTestId="product-type"
           label="Product Type"
           value={formData.product_type || ""}
           onChange={(value) =>
@@ -67,6 +70,7 @@ export default function BasicInformationStep({
         />
         {/* Category */}
         <SingleSelect
+          dataTestId="category"
           label="Category"
           value={formData.category || ""}
           onChange={(value) => setFormData({ ...formData, category: value as ArtPieceCategoryType })}

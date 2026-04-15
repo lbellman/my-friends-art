@@ -28,6 +28,7 @@ interface SingleSelectProps {
   required?: boolean;
   /** When true, shows a clear (×) control on the trigger when a value is set. */
   allowDeselect?: boolean;
+  dataTestId?: string;
 }
 
 export default function SingleSelect({
@@ -41,6 +42,7 @@ export default function SingleSelect({
   id,
   required,
   allowDeselect = false,
+  dataTestId,
 }: SingleSelectProps) {
   const showClear = allowDeselect && Boolean(value) && !disabled;
 
@@ -58,11 +60,12 @@ export default function SingleSelect({
       )}
       <div className="flex w-full min-w-0 items-stretch gap-1.5">
         <Select
+          data-testid={dataTestId}
           value={selectValue}
           onValueChange={onChange}
           disabled={disabled}
         >
-          <SelectTrigger id={id} className="min-w-0 w-full flex-1">
+          <SelectTrigger id={id} data-testid={dataTestId} className="min-w-0 w-full flex-1">
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>
           <SelectContent>
@@ -71,6 +74,7 @@ export default function SingleSelect({
                 key={option.key}
                 value={option.key}
                 disabled={option.disabled}
+                data-testid={`select-option-${option.key}`}
               >
                 {renderOption ? (
                   renderOption(option)

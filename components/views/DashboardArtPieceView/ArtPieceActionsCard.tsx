@@ -126,6 +126,7 @@ export default function ArtPieceActionsCard({
           <Button
             label="Mark as Sold"
             variant="success"
+            dataTestId="mark-as-sold"
             loading={pendingState === "sold"}
             disabled={pendingState !== null && pendingState !== "sold"}
             onClick={() => void handleUpdateArtPieceState("sold")}

@@ -31,10 +31,10 @@ export default function ConfirmDialog({
           <DialogTitle>{title.toLowerCase()}</DialogTitle>
           <p className="body2 text-muted-foreground">{description}</p>
           <DialogFooter>
-            <Button variant={confirmVariant} onClick={onConfirm}>
+            <Button variant={confirmVariant} data-testid="dialog-confirm-button" onClick={onConfirm}>
               {confirmLabel}
             </Button>
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <Button variant="outline" data-testid="dialog-cancel-button" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
           </DialogFooter>

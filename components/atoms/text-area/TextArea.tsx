@@ -12,6 +12,7 @@ interface TextAreaProps {
   maxLength?: number;
   /** When `maxLength` is set, show `current / max` (default: true). */
   showCharCount?: boolean;
+  dataTestId?: string;
 }
 export default function TextArea({
   value,
@@ -22,6 +23,7 @@ export default function TextArea({
   id,
   required,
   maxLength,
+  dataTestId,
   showCharCount = true,
 }: TextAreaProps) {
   const className = "min-w-[300px]";
@@ -36,6 +38,7 @@ export default function TextArea({
   const textareaEl = (
     <TextareaPrimitive
       id={id}
+      data-testid={dataTestId}
       value={value}
       onChange={(e) => onChange(e.target.value)}
       disabled={disabled}

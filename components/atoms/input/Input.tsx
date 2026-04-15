@@ -13,6 +13,7 @@ interface InputProps {
   maxLength?: number;
   /** When `maxLength` is set, show `current / max` (default: true). */
   showCharCount?: boolean;
+  dataTestId?: string;
 }
 export default function Input({
   value,
@@ -24,6 +25,7 @@ export default function Input({
   required,
   type = "text",
   maxLength,
+  dataTestId,
   showCharCount = true,
 }: InputProps) {
   const showCount = maxLength != null && showCharCount && type === "text";
@@ -39,6 +41,7 @@ export default function Input({
       type={type}
       id={id}
       value={value}
+      data-testid={dataTestId}
       onChange={(e) => onChange(e.target.value)}
       disabled={disabled}
       placeholder={placeholder}

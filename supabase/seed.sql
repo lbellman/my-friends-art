@@ -181,4 +181,4 @@ INSERT INTO public.art_piece (
   ('10300000-0000-4000-8000-000000000001', 'Snow Line', '30000000-0000-4000-8000-000000000003', 'approved', 2400, 3600, 'Minimal winter landscape.', true, true, 'print', 'wall-art', 'one-size', NULL, NULL, NULL),
   ('10300000-0000-4000-8000-000000000002', 'Tea House Interior', '30000000-0000-4000-8000-000000000003', 'approved', 2400, 3200, 'Quiet interior light.', true, true, 'print', 'wall-art', 'one-size', NULL, NULL, NULL),
   ('10300000-0000-4000-8000-000000000003', 'Bamboo Shadow', '30000000-0000-4000-8000-000000000003', 'approved', 2400, 2400, 'Ink wash on paper.', true, true, 'print', 'wall-art', 'one-size', NULL, NULL, NULL),
-  ('10300000-0000-4000-8000-000000000004', 'Ink River', '30000000-0000-4000-8000-000000000003', 'approved', 2400, 3200, 'Flowing dark lines.', true, true, 'print', 'wall-art', 'one-size', NULL, NULL, NULL);
+  ('10300000-0000-4000-8000-000000000004', 'Ink River', '30000000-0000-4000-8000-000000000003', 'approved', 2400, 3200, 'Flowing dark lines.', true, true, 'original', 'wall-art', 'one-size', NULL, NULL, NULL);

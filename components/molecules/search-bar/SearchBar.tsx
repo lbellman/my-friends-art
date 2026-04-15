@@ -43,6 +43,7 @@ export default function SearchBar({ onSearch, placeholder }: SearchBarProps) {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={handleEnterKeyPress}
+          data-testid="search-bar"
         />
 
         <Button
@@ -51,6 +52,7 @@ export default function SearchBar({ onSearch, placeholder }: SearchBarProps) {
           className="md:hidden"
           onClick={() => setSearchDialogOpen(true)}
           aria-label="Open search"
+          data-testid="search-button"
         >
           <Search className="size-4" />
         </Button>
@@ -62,6 +64,7 @@ export default function SearchBar({ onSearch, placeholder }: SearchBarProps) {
           onClick={handleSearch}
           disabled={!searchQuery.trim()}
           aria-label="Search"
+          data-testid="search-button-main"
         >
           <Search className="size-4" />
         </Button>
@@ -76,11 +79,12 @@ export default function SearchBar({ onSearch, placeholder }: SearchBarProps) {
             <Input
               placeholder="Search by artist, title, etc..."
               value={searchQuery}
+              data-testid="search-bar"
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleEnterKeyPress}
               autoFocus
             />
-            <Button onClick={handleSearch} disabled={!searchQuery.trim()}>
+            <Button onClick={handleSearch} disabled={!searchQuery.trim()} data-testid="search-button">
               <Search className="size-4" />
             </Button>
           </div>
