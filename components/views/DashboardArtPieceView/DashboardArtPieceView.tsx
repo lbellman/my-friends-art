@@ -5,17 +5,16 @@ import {
   ArtPiece,
   getPublicUrl,
   ProductRequestRow,
-  ProductRequestStatusType,
+  ProductType
 } from "@/@types";
-import ArtPieceStatusChip from "@/components/atoms/art-piece-status-chip/ArtPieceStatusChip";
 import Button from "@/components/atoms/button/Button";
 import MultiImageDisplay from "@/components/molecules/multi-image-display/MultiImageDisplay";
 import ProductRequestCard from "@/components/molecules/product-request-card/ProductRequestCard";
+import InternalLayout from "@/components/organisms/InternalLayout";
 import {
   PaginatedProductRequests,
   PRODUCT_REQUESTS_PAGE_SIZE,
 } from "@/components/organisms/paginated-product-requests/PaginatedProductRequests";
-import InternalLayout from "@/components/organisms/InternalLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import ArtPieceActionsCard from "@/components/views/DashboardArtPieceView/ArtPieceActionsCard";
 import ArtPieceStatusBanner from "@/components/views/DashboardArtPieceView/ArtPieceStatusBanner";
@@ -366,6 +365,7 @@ export default function DashboardArtPieceView() {
             <ArtPieceActionsCard artPiece={artPiece as ArtPiece} />
 
             <EditDisplayImagesDialog
+              productType={artPiece.product_type as ProductType}
               open={editDisplayImagesOpen}
               onOpenChange={setEditDisplayImagesOpen}
               artPieceId={artPiece.id}

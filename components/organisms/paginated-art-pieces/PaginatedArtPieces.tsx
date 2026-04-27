@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
-export const ART_PIECES_PAGE_SIZE = 25;
+export const ART_PIECES_PAGE_SIZE = 15;
 
 export { artListReturnStorageKey } from "@/lib/art-list-restore";
 

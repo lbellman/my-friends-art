@@ -29,17 +29,18 @@ export function ArtCard({ artPiece, href, listRestore }: ArtCardProps) {
           }),
         );
       }}
+      noTransform
     >
       <div className="group md:min-w-[200px] w-full min-h-full size-full ">
         <div
-          className={` relative overflow-hidden rounded-xl aspect-3/4 mb-4 transition-all duration-300 ease-out group-hover:shadow-xl group-hover:-translate-y-1`}
+          className={` relative overflow-hidden rounded-xl aspect-3/4 mb-4 transition-all duration-300 ease-out group-hover:shadow-xl `}
         >
           {publicUrl ? (
             <Image
               src={publicUrl}
               alt={artPiece.title}
               fill
-              className="w-full h-full object-cover transition-transform duration-500 ease-out "
+              className="w-full h-full object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -50,7 +51,7 @@ export function ArtCard({ artPiece, href, listRestore }: ArtCardProps) {
           )}
 
           {/* Overlay on hover */}
-          <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/5 transition-colors duration-300" />
+          <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/20 transition-colors duration-300" />
         </div>
 
         <div className="space-y-1">

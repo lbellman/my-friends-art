@@ -25,7 +25,7 @@
     "seed:local-assets": "tsx scripts/seed-local-storage.ts",
     "local:create-auth-user": "tsx scripts/create-local-auth-user.ts",
     "supabase-types": "supabase gen types typescript --local > supabase.ts",
-    "local-db:reset": "supabase db reset && tsx scripts/seed-local-storage.ts"
+    "local-db:reset": "supabase db reset --local && tsx scripts/seed-local-storage.ts"
   },
   "dependencies": {
     "@react-email/components": "^1.0.10",

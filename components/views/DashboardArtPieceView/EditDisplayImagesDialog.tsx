@@ -1,6 +1,6 @@
 "use client";
 
-import { MAX_DISPLAY_IMAGES } from "@/@types";
+import { MAX_DISPLAY_IMAGES, ProductType } from "@/@types";
 import FileUploader from "@/components/organisms/file-uploader/FileUploader";
 import {
   Dialog,
@@ -50,6 +50,7 @@ export default function EditDisplayImagesDialog({
   artPieceId,
   existingDisplayUrls,
   onSuccess,
+  productType,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -57,6 +58,7 @@ export default function EditDisplayImagesDialog({
   /** Public URLs for current display images (order = gallery order). */
   existingDisplayUrls: string[];
   onSuccess: () => void;
+  productType: ProductType;
 }) {
   const [files, setFiles] = useState<File[]>([]);
   const [uploadError, setUploadError] = useState("");
@@ -131,10 +133,13 @@ export default function EditDisplayImagesDialog({
       const stageFileAndGetStagingPath = async (
         file: File,
       ): Promise<string> => {
-        const stageUploadResult = await fetch("/api/submit-art-piece/upload-url", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const stageUploadResult = await fetch(
+          "/api/submit-art-piece/upload-url",
+          {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
 
         const uploadInitData = (await stageUploadResult
           .json()
@@ -155,7 +160,7 @@ export default function EditDisplayImagesDialog({
           throw new Error("Invalid upload session.");
         }
 
-        // Upload the file to the staging bucket using the staging path and signed url 
+        // Upload the file to the staging bucket using the staging path and signed url
         const stagingUpload = await supabase.storage
           .from(uploadInitData.bucket)
           .uploadToSignedUrl(
@@ -209,8 +214,9 @@ export default function EditDisplayImagesDialog({
         <DialogHeader>
           <DialogTitle>edit display images</DialogTitle>
           <DialogDescription>
-            Replace the gallery images for this piece. Order matches the list
-            below (first image is the primary).
+            Edit the display images for this art piece.{" "}
+            {productType === "print" &&
+              "Note: This does not affect the print quality image."}
           </DialogDescription>
         </DialogHeader>
         <div className="py-2">

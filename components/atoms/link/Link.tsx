@@ -11,6 +11,7 @@ interface LinkProps {
   asChild?: boolean;
   onClick?: () => void;
   className?: string;
+  noTransform?: boolean;
 }
 
 export default function Link({
@@ -23,6 +24,7 @@ export default function Link({
   asChild = false,
   onClick = () => {},
   className,
+  noTransform = false,
 }: LinkProps) {
   return (
     <NextLink
@@ -32,7 +34,8 @@ export default function Link({
         asChild
           ? undefined
           : cn(
-              "relative inline-block tracking-wide text-sm transition-all duration-300 hover:translate-y-[-2px]",
+              "relative inline-block tracking-wide text-sm transition-all duration-300",
+              noTransform ? "" : "hover:translate-y-[-2px]",
 
               disabled && "text-muted-foreground pointer-events-none",
               inline

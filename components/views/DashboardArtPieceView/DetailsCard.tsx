@@ -4,10 +4,8 @@ import {
   ArtPiece,
   ArtPieceCategoryType,
   ArtPieceSizeType,
-  PRODUCT_TYPE_OPTIONS,
-  ProductType,
+  PRODUCT_TYPE_OPTIONS
 } from "@/@types";
-import ArtPieceStatusChip from "@/components/atoms/art-piece-status-chip/ArtPieceStatusChip";
 import Button from "@/components/atoms/button/Button";
 import Input from "@/components/atoms/input/Input";
 import SingleSelect from "@/components/atoms/single-select/SingleSelect";
@@ -30,7 +28,6 @@ type EditFormData = {
   category: ArtPieceCategoryType;
   size: ArtPieceSizeType;
   dimensions: ProductDimensionsRow;
-  product_type: ProductType;
 };
 
 function formatProductDimensionsDisplay(
@@ -89,7 +86,6 @@ export default function DetailsCard({ artPiece }: { artPiece: ArtPiece }) {
     category: artPiece.category ?? "wall-art",
     size: artPiece.size ?? "one-size",
     dimensions: getDimensionsFromArtPiece(artPiece),
-    product_type: artPiece.product_type ?? "print",
   });
 
   useEffect(() => {
@@ -100,7 +96,6 @@ export default function DetailsCard({ artPiece }: { artPiece: ArtPiece }) {
       category: artPiece.category ?? "wall-art",
       size: artPiece.size ?? "one-size",
       dimensions: getDimensionsFromArtPiece(artPiece),
-      product_type: artPiece.product_type ?? "print",
     });
   }, [artPiece, isEditing]);
 
@@ -118,15 +113,10 @@ export default function DetailsCard({ artPiece }: { artPiece: ArtPiece }) {
       return;
     }
 
-    if (!formData.product_type) {
-      setError("Product type is required");
-      return;
-    }
-
     try {
       let newProductDimensionsId: string | undefined;
 
-      if (formData.product_type !== "print") {
+      if (artPiece.product_type !== "print") {
         const w = parseInch(formData.dimensions.width_in);
         const h = parseInch(formData.dimensions.height_in);
         const d = parseInch(formData.dimensions.depth_in);
@@ -178,7 +168,6 @@ export default function DetailsCard({ artPiece }: { artPiece: ArtPiece }) {
           description: formData.description,
           category: formData.category,
           size: formData.size,
-          product_type: formData.product_type,
 
           // If new product dimensions were created, update the product dimensions id
           ...(newProductDimensionsId
@@ -332,31 +321,12 @@ export default function DetailsCard({ artPiece }: { artPiece: ArtPiece }) {
         </div>
         {/* Product type */}
         <div>
-          {isEditing ? (
-            <SingleSelect
-              value={formData.product_type}
-              onChange={(value) =>
-                setFormData({ ...formData, product_type: value as ProductType })
-              }
-              options={Object.entries(PRODUCT_TYPE_OPTIONS)
-                .filter(([key]) => key !== "print-and-original")
-                .map(([key, value]) => ({
-                  key,
-                  label: value,
-                }))}
-              placeholder="Select a product type"
-              label="Product type"
-              id="product-type"
-              required
-            />
-          ) : (
-            <>
-              <dt className="text-muted-foreground">Product type</dt>
-              <dd className="font-medium text-foreground mt-1">
-                {productTypeLabel}
-              </dd>
-            </>
-          )}
+          <>
+            <dt className="text-muted-foreground">Product type</dt>
+            <dd className="font-medium text-foreground mt-1">
+              {productTypeLabel}
+            </dd>
+          </>
         </div>
         {artPiece.product_type !== "print" && (
           <>
