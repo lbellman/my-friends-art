@@ -26,7 +26,7 @@ type EditFormData = {
   title: string;
   description: string;
   category: ArtPieceCategoryType;
-  size: ArtPieceSizeType;
+  size: ArtPieceSizeType | null;
   dimensions: ProductDimensionsRow;
 };
 
@@ -84,7 +84,7 @@ export default function DetailsCard({ artPiece }: { artPiece: ArtPiece }) {
     title: artPiece.title ?? "",
     description: artPiece.description ?? "",
     category: artPiece.category ?? "wall-art",
-    size: artPiece.size ?? "one-size",
+    size: artPiece.size ?? null,
     dimensions: getDimensionsFromArtPiece(artPiece),
   });
 
@@ -94,7 +94,7 @@ export default function DetailsCard({ artPiece }: { artPiece: ArtPiece }) {
       title: artPiece.title ?? "",
       description: artPiece.description ?? "",
       category: artPiece.category ?? "wall-art",
-      size: artPiece.size ?? "one-size",
+      size: artPiece.size ?? null,
       dimensions: getDimensionsFromArtPiece(artPiece),
     });
   }, [artPiece, isEditing]);
@@ -334,11 +334,13 @@ export default function DetailsCard({ artPiece }: { artPiece: ArtPiece }) {
             <div>
               {isEditing ? (
                 <SingleSelect
-                  value={formData.size}
+                  value={formData.size ?? ""}
                   onChange={(value) =>
                     setFormData({
                       ...formData,
-                      size: value as ArtPieceSizeType,
+                      size: value
+                        ? (value as ArtPieceSizeType)
+                        : null,
                     })
                   }
                   options={Object.entries(ART_PIECE_SIZE_LABELS).map(

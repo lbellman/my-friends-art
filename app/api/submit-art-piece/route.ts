@@ -43,10 +43,13 @@ export async function POST(req: Request) {
     const title = String(requestBody?.title ?? "").trim();
     const description = String(requestBody?.description ?? "").trim();
     const category = requestBody?.category as ArtPieceCategory | undefined;
+    const rawSize = requestBody?.size;
     const size =
-      requestBody?.size === null || requestBody?.size === undefined
+      rawSize === null ||
+      rawSize === undefined ||
+      (typeof rawSize === "string" && rawSize.trim() === "")
         ? null
-        : (requestBody.size as ArtPieceSize);
+        : (rawSize as ArtPieceSize);
     const productType = (requestBody?.product_type ??
       null) as ProductTypeEnum | null;
     const notAiGenerated = Boolean(requestBody?.not_ai_generated);

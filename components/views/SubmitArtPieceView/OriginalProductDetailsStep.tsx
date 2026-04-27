@@ -69,15 +69,15 @@ export default function OriginalProductDetailsStep({
           </div>
         </div>
 
-        {/* Price */}
+        {/* Size */}
         <div className="flex flex-col gap-2">
           <SingleSelect
             dataTestId="size"
-            value={formData.size || ""}
+            value={formData.size ?? ""}
             onChange={(value) =>
               setFormData({
                 ...formData,
-                size: value as ArtPieceSizeType,
+                size: value ? (value as ArtPieceSizeType) : null,
               })
             }
             options={Object.entries(ART_PIECE_SIZE_LABELS).map(
@@ -89,6 +89,7 @@ export default function OriginalProductDetailsStep({
             label="Size"
             id="size"
             placeholder="Select a size"
+            allowDeselect
           />
         </div>
       </div>
