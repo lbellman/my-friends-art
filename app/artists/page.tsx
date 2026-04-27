@@ -18,7 +18,8 @@ export default function ArtistsPage() {
         .select(
           "id, name, bio, profile_img_url, location, email_address, facebook, website, instagram",
         )
-        .eq("status", "approved");
+        .eq("status", "approved")
+        .order("created_at", { ascending: false });
       if (error) {
         throw new Error(error.message);
       }
