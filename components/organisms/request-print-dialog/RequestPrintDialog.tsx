@@ -23,6 +23,7 @@ import DimensionsSingleSelect, {
 import { useEffect, useMemo, useRef, useState } from "react";
 import Input from "@/components/atoms/input/Input";
 import useCreateProductRequest from "@/app/hooks/useCreateProductRequest";
+import SingleSelect from "@/components/atoms/single-select/SingleSelect";
 
 export default function RequestPrintDialog({
   open,
@@ -135,7 +136,7 @@ export default function RequestPrintDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="top-4 translate-y-0 sm:top-[50%] sm:translate-y-[-50%] sm:max-w-[500px] max-h-[calc(100dvh-2rem)] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>request a print</DialogTitle>
           <DialogDescription>
@@ -173,16 +174,36 @@ export default function RequestPrintDialog({
             onChange={setDimensionsValue}
             pxWidth={pxWidth}
             pxHeight={pxHeight}
-            label="Dimensions"
+            label="Preferred dimensions"
             required
             placeholder="Select a print size"
           />
 
           <div className="space-y-3 ">
-            <label className="text-sm font-medium text-foreground">
-              Print Type
+            <div className="sm:hidden">
+              <SingleSelect
+                id="preferred-print-type"
+                label="Preferred print type"
+                value={formData.printOption}
+                onChange={(value) =>
+                  setFormData({
+                    ...formData,
+                    printOption: value as PrintOptionType,
+                  })
+                }
+                options={Object.entries(PRINT_OPTION_LABELS).map(
+                  ([key, label]) => ({
+                    key,
+                    label,
+                  }),
+                )}
+                placeholder="Select a print type"
+              />
+            </div>
+            <label className="hidden text-sm text-foreground sm:block">
+              Preferred print type
             </label>
-            <div className="flex flex-wrap gap-2 mt-2">
+            <div className="hidden flex-wrap gap-2 mt-2 sm:flex">
               {Object.keys(PRINT_OPTION_LABELS).map((option) => {
                 const isSelected = formData.printOption === option;
                 return (

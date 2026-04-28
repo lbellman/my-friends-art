@@ -160,10 +160,10 @@ export default function AboutPage() {
               current={false}
             />
           </div>
-          <h4 className="my-12 text-white font-display font-medium text-center">
+          <h4 className="my-12 px-5 text-white font-display font-medium text-center">
             Thank you for being here and supporting independent art!{" "}
           </h4>
-          <div className="flex flex-row gap-6 px-6">
+          <div className="flex md:flex-row flex-col gap-4 md:gap-6 px-6">
             <Button variant="outline" size="lg" className="shadow-lg">
               <Link
                 href="https://software.lindseybellman.com"

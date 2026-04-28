@@ -11,8 +11,8 @@ export default function ArtPieceSubmissionSuccess() {
         <div className="bg-success rounded-full p-4">
           <CheckCircleIcon className="size-10 text-success-foreground" />
         </div>
-        <h3>Thank you for your submission!</h3>
-        <p>I will review your submission and get back to you soon.</p>
+        <h3 className="text-center">Thank you for your submission!</h3>
+        <p className="text-center">I will review your submission and get back to you soon.</p>
         <Link href="/submit-art-piece">
           <Button label="Submit another art piece" onClick={() => {}} />
         </Link>

@@ -158,7 +158,7 @@ function SearchResultsContent() {
                 listRestore={{ namespace: "search-results", page }}
               />
             )}
-            gridClassName="grid-cols-4 md:grid-cols-4 gap-4 md:gap-6 w-full"
+            gridClassName="grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full"
           />
         )}
 

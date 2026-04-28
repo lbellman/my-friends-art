@@ -152,7 +152,7 @@ function CategoryPageContent() {
             listRestore={{ namespace: `art-category-${category}`, page }}
           />
         )}
-        gridClassName="grid-cols-3 md:grid-cols-4 gap-4 md:gap-6 w-full"
+        gridClassName="grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full"
       />
     </InternalLayout>
   );

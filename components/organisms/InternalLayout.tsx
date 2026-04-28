@@ -35,7 +35,7 @@ export default function InternalLayout({
       )}
       <div
         className={cn(
-          "flex flex-col w-full items-center px-6 py-12",
+          "flex flex-col w-full items-center  md:px-6 py-4 md:py-12",
           contentSizeClass,
         )}
       >

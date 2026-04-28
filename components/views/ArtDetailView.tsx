@@ -222,7 +222,7 @@ export default function ArtDetailView({
                 <>
                   <DimensionsSingleSelect
                     id="art-detail-print-dimensions"
-                    label="Print size"
+                    label="Suggested print dimensions"
                     value={printDimensions}
                     onChange={setPrintDimensions}
                     pxWidth={artPiece.px_width}

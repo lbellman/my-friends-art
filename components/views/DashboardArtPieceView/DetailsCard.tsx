@@ -221,7 +221,7 @@ export default function DetailsCard({ artPiece }: { artPiece: ArtPiece }) {
     artPiece.status !== "archived";
 
   return (
-    <section className="bg-card border border-border rounded-xl p-6 space-y-4">
+    <section className="bg-card border border-border rounded-xl p-4 md:p-6 space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <h3 className="text-base text-foreground">details</h3>

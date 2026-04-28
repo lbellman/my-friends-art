@@ -178,7 +178,7 @@ export default function ArtPiecesTab({
               }}
             />
           )}
-          gridClassName="grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 w-full"
+          gridClassName="grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 w-full"
         />
       )}
     </section>

@@ -3,7 +3,7 @@
 import {
   ArtistType,
   ArtPieceStatusType,
-  type ProductRequestRow
+  type ProductRequestRow,
 } from "@/@types";
 import useAuth from "@/app/hooks/useAuth";
 import useRestoreDashboard from "@/app/hooks/useRestoreDashboard";
@@ -17,7 +17,14 @@ import ProfileTab from "@/components/views/ArtistDashboardView/ProfileTab";
 import supabase from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, Plus } from "lucide-react";
+import {
+  LayoutDashboard,
+  Plus,
+  UserRound,
+  Palette,
+  Inbox,
+  List,
+} from "lucide-react";
 import Link from "next/link";
 import {
   redirect,
@@ -39,11 +46,7 @@ export type DashboardArtPieceRow = {
 function parseDashboardTab(
   raw: string | null,
 ): "profile" | "art-pieces" | "product-requests" {
-  if (
-    raw === "profile" ||
-    raw === "art-pieces" ||
-    raw === "product-requests"
-  ) {
+  if (raw === "profile" || raw === "art-pieces" || raw === "product-requests") {
     return raw;
   }
   return "profile";
@@ -144,6 +147,7 @@ export default function ArtistDashboardView() {
   return (
     <InternalLayout>
       <div className="w-full max-w-6xl mx-auto flex flex-col gap-12">
+        {/* Welcome back card */}
         <section
           className="relative overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm "
           aria-labelledby="dashboard-welcome-heading"
@@ -253,6 +257,7 @@ export default function ArtistDashboardView() {
           </div>
         </section>
 
+        {/* Tabs */}
         <div className="flex">
           <Tabs
             value={activeTab}
@@ -269,33 +274,43 @@ export default function ArtistDashboardView() {
             }}
             className="gap-6 w-full"
           >
-            <TabsList className="max-w-md sm:max-w-none flex-wrap h-auto min-h-9 justify-start">
-              <TabsTrigger value="profile" className="flex-none">
-                Artist Profile
-              </TabsTrigger>
-              <TabsTrigger value="art-pieces" className="flex-none">
-                Your Pieces {isLoadingPieces ? null : `(${artPieces.length})`}
-              </TabsTrigger>
-              <TabsTrigger
-                value="product-requests"
-                className="flex-none"
-                title={
-                  hasPendingProductRequests
-                    ? "You have pending product requests"
-                    : undefined
-                }
-              >
-                <span className="inline-flex items-center gap-2">
-                  Product Requests
-                  {hasPendingProductRequests ? (
-                    <span
-                      className="size-2 shrink-0 rounded-full bg-destructive"
-                      aria-hidden
-                    />
-                  ) : null}
-                </span>
-              </TabsTrigger>
-            </TabsList>
+            <div className="overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+              <TabsList className="w-max flex-nowrap h-auto min-h-9 justify-start whitespace-nowrap">
+                <TabsTrigger value="profile" className="flex-none">
+                  <UserRound className="size-4 sm:hidden" aria-hidden />
+                  <span className="sr-only sm:not-sr-only">Artist Profile</span>
+                </TabsTrigger>
+                <TabsTrigger value="art-pieces" className="flex-none">
+                  <List className="size-4 sm:hidden" aria-hidden />
+                  <span className="sr-only sm:not-sr-only">
+                    Your Pieces{" "}
+                    {isLoadingPieces ? null : `(${artPieces.length})`}
+                  </span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="product-requests"
+                  className="flex-none"
+                  title={
+                    hasPendingProductRequests
+                      ? "You have pending product requests"
+                      : undefined
+                  }
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <Inbox className="size-4 sm:hidden" aria-hidden />
+                    <span className="sr-only sm:not-sr-only">
+                      Product Requests
+                    </span>
+                    {hasPendingProductRequests ? (
+                      <span
+                        className="size-2 shrink-0 rounded-full bg-destructive"
+                        aria-hidden
+                      />
+                    ) : null}
+                  </span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value="profile" className="mt-6 w-full">
               <ProfileTab
